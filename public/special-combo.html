@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Special Combos</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+  <style>
+    :root {
+      --bg: #f9f5f0;
+      --card-bg: #ffffff;
+      --accent: #d17a22;
+      --accent-dark: #6f4e37;
+      --text: #2b2b2b;
+    }
+
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .close-btn{
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: #e63946; /* hover effect */
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      color: var(--accent-dark);
+      margin-bottom: 25px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--accent-dark);
+      margin: 10px 0;
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .combo-grid {
+      gap: 30px;
+    }
+
+    .combo-card {
+      position: relative;
+      padding-top: 20px;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .combo-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .combo-badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2e7d32;
+      background: #e8f5e9;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .combo-badge i {
+      font-size: 13px;
+    }
+
+    .combo-card .price {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .combo-card h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .order-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      border: none;
+      padding: 10px;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: 0.3s ease;
+    }
+
+    .order-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    /* #nextBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      padding: 14px 22px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: none;
+      cursor: not-allowed;
+      background: #ccc;
+      color: #666;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: all 0.3s ease;
+    }
+
+    #nextBtn.active {
+      background: #4a90e2;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #nextBtn.active:hover {
+      background: #357bd8;
+    } */
+
+    @media (max-width: 768px) {
+      .menu-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+      .card h2 {
+        font-size: 1.2rem;
+      }
+      .price {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .order-btn {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="Index.html#menu" class="close-btn">&times;</a>
+  <h1>🥘 Special Combos</h1>
+
+  <div class="menu-grid combo-grid">
+
+  <div class="card combo-card">
+    <span class="combo-badge">
+      <i class="fa-solid fa-glass-water"></i>
+      Complimentary Drink
+    </span>
+    <div class="card-content">
+      <h2>Italian Treat Combo</h2>
+      <div class="price">₹699</div>
+      <p>Creamy pasta, garlic bread, tiramisu with a complimentary beverage.</p>
+      <button class="order-btn" data-name="Italian Treat Combo" data-price="699" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card combo-card">
+    <span class="combo-badge">
+      <i class="fa-solid fa-glass-water"></i>
+      Complimentary Drink
+    </span>
+    <div class="card-content">
+      <h2>American Burger Meal</h2>
+      <div class="price">₹399</div>
+      <p>Cheeseburger, fries & coleslaw with a refreshing drink.</p>
+      <button class="order-btn" data-name="American Burger Meal" data-price="399" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card combo-card">
+    <span class="combo-badge">
+      <i class="fa-solid fa-glass-water"></i>
+      Complimentary Drink
+    </span>
+    <div class="card-content">
+      <h2>Royal Indian Platter</h2>
+      <div class="price">₹649</div>
+      <p>Paneer tikka, naan, dal makhani, rice with sweet lassi.</p>
+      <button class="order-btn" data-name="Royal Indian Platter" data-price="649" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Mediterranean Grill Combo -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Mediterranean Grill Combo</h2>
+    <div class="price">₹729</div>
+    <p>Grilled chicken skewers, pita bread, hummus and fresh salad.</p>
+    <button class="order-btn" data-name="Mediterranean Grill Combo" data-price="729" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Classic Pasta & Garlic Bread -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Classic Pasta & Garlic Bread</h2>
+    <div class="price">₹599</div>
+    <p>Creamy Alfredo pasta served with toasted garlic bread.</p>
+    <button class="order-btn" data-name="Classic Pasta & Garlic Bread" data-price="599" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Tandoori Delight Platter -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Tandoori Delight Platter</h2>
+    <div class="price">₹679</div>
+    <p>Tandoori paneer, naan, dal tadka and jeera rice.</p>
+    <button class="order-btn" data-name="Tandoori Delight Platter" data-price="679" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Asian Noodle Bowl Combo -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Asian Noodle Bowl Combo</h2>
+    <div class="price">₹649</div>
+    <p>Stir-fried noodles, spring rolls and chili garlic sauce.</p>
+    <button class="order-btn" data-name="Asian Noodle Bowl Combo" data-price="649" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- BBQ Chicken Supreme -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>BBQ Chicken Supreme</h2>
+    <div class="price">₹799</div>
+    <p>Smoky BBQ chicken, mashed potatoes and buttered veggies.</p>
+    <button class="order-btn" data-name="BBQ Chicken Supreme" data-price="799" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Veg Supreme Meal -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Veg Supreme Meal</h2>
+    <div class="price">₹569</div>
+    <p>Veg burger, peri-peri fries and house special dip.</p>
+    <button class="order-btn" data-name="Veg Supreme Meal" data-price="569" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Turkish Shawarma Plate -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Turkish Shawarma Plate</h2>
+    <div class="price">₹699</div>
+    <p>Chicken shawarma wrap with garlic sauce and fries.</p>
+    <button class="order-btn" data-name="Turkish Shawarma Plate" data-price="699" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Continental Veg Feast -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Continental Veg Feast</h2>
+    <div class="price">₹629</div>
+    <p>Grilled vegetables, herbed rice and creamy mushroom sauce.</p>
+    <button class="order-btn" data-name="Continental Veg Feast" data-price="629" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Premium Family Combo -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Premium Family Combo</h2>
+    <div class="price">₹1199</div>
+    <p>2 burgers, 2 pasta bowls, fries and 4 complimentary drinks.</p>
+    <button class="order-btn" data-name="Premium Family Combo" data-price="1199" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Mexican Fiesta Combo -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Mexican Fiesta Combo</h2>
+    <div class="price">₹749</div>
+    <p>Loaded tacos, cheesy nachos and spicy salsa served with a cool drink.</p>
+    <button class="order-btn" data-name="Mexican Fiesta Combo" data-price="749" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Desi Street Special -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Desi Street Special</h2>
+    <div class="price">₹499</div>
+    <p>Pav bhaji, samosa and pani puri platter with chilled lemonade.</p>
+    <button class="order-btn" data-name="Desi Street Special" data-price="499" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Lovers Special Combo -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Lovers Special Combo</h2>
+    <div class="price">₹899</div>
+    <p>2 pasta bowls, garlic bread, chocolate brownie and 2 beverages.</p>
+    <button class="order-btn" data-name="Lovers Special Combo" data-price="899" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+
+<!-- Ultimate Snack Attack -->
+<div class="card combo-card">
+  <span class="combo-badge">
+    <i class="fa-solid fa-glass-water"></i>
+    Complimentary Drink
+  </span>
+  <div class="card-content">
+    <h2>Ultimate Snack Attack</h2>
+    <div class="price">₹599</div>
+    <p>Fries, onion rings, spring rolls and cheesy dip with a cold drink.</p>
+    <button class="order-btn" data-name="Ultimate Snack Attack" data-price="599" data-qty="1">
+      Add to Cart
+    </button>
+  </div>
+</div>
+</div>
+    
+  <button id="nextBtn" disabled><i class="fa-solid fa-angle-right"></i>Next</button>
+  <script src="js/cart.js" defer></script>
+</body>
+</html>

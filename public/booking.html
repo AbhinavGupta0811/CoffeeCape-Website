@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Event Booking | Coffee Lounge</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+<!-- Floating Home Button -->
+<button class="floating-home" id="floatingHomeBtn" title="Go Home">
+  <i class="fa-solid fa-house"></i>
+</button>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <h1 class="fw-bold">Event Booking Portal</h1>
+        <p class="lead">Complete the form below to confirm your reservation</p>
+    </div>
+</section>
+
+<div class="container my-5">
+    <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#dinner">Dinner Nights</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#karaoke">Karaoke</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#openmic">Open Mic</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tasting">Tasting</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#get">Get-Together</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#private">Private Celebration</button></li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- DINNER NIGHT -->
+        <div class="tab-pane fade show active" id="dinner">
+            <div class="section-card">
+                <h4 class="section-title">Dinner Night Reservation</h4>
+                <form id="dinnerForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" name="phone" class="form-control"
+                                pattern="[0-9]{10}" maxlength="10" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Reservation Date *</label>
+                            <input type="date" name="reservationDate" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Number of Guests</label>
+                            <input type="number" name="guestCount" min="1" max="50" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Dining Type</label>
+                            <select name="diningType" class="form-select">
+                                <option value="">Select</option>
+                                <option value="family">Family Dinner</option>
+                                <option value="couple">Couple Dinner</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Seating Preference</label>
+                            <select name="seatingPreference" class="form-select">
+                                <option value="">Select</option>
+                                <option value="indoor">Indoor</option>
+                                <option value="outdoor">Outdoor</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Special Requests</label>
+                            <textarea name="specialRequest" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Proceed to Payment</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- KARAOKE -->
+        <div class="tab-pane fade" id="karaoke">
+            <div class="section-card">
+                <h4 class="section-title">Karaoke Night Booking</h4>
+
+                <form id="karaokeForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Team Leader Name *</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" maxlength="10" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Team Name *</label>
+                            <input type="text" name="teamName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Participants *</label>
+                            <input type="number" name="participants" min="1" max="20" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Song Category</label>
+                            <select name="songCategory" class="form-select">
+                                <option value="">Select</option>
+                                <option value="bollywood">Bollywood</option>
+                                <option value="english">English</option>
+                                <option value="regional">Regional</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Karaoke Date *</label>
+                            <input type="date" name="reservationDate" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Song Requests</label>
+                            <textarea name="songRequest" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Proceed to Payment</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- OPEN MIC -->
+        <div class="tab-pane fade" id="openmic">
+            <div class="section-card">
+                <h4 class="section-title">Open Mic Registration</h4>
+
+                <form id="openMicForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Performer Name *</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" maxlength="10" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Date *</label>
+                            <input type="date" name="eventDate" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Performance Type *</label>
+                            <select name="performanceType" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="poetry">Poetry</option>
+                                <option value="comedy">Comedy</option>
+                                <option value="storytelling">Storytelling</option>
+                                <option value="music">Music</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Duration *</label>
+                            <select name="duration" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="5">5 Minutes</option>
+                                <option value="10">10 Minutes</option>
+                                <option value="15">15 Minutes</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Instagram / Portfolio</label>
+                            <input type="url" name="portfolioLink" class="form-control">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Performance Description</label>
+                            <textarea name="description" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Submit Registration</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TASTING EVENT -->
+        <div class="tab-pane fade" id="tasting">
+            <div class="section-card">
+                <h4 class="section-title">Tasting Event Reservation</h4>
+
+                <form id="tastingForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" maxlength="10" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Date *</label>
+                            <input type="date" name="eventDate" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Guests *</label>
+                            <input type="number" name="guestCount" min="1" max="50" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Package *</label>
+                            <select name="packageType" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="coffee">Standard Coffee Tasting</option>
+                                <option value="dessert">Dessert Tasting</option>
+                                <option value="combo">Combo Experience</option>
+                                <option value="premium">Premium Guided Tasting</option>
+                            </select>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">Dietary Preference</label>
+                            <select name="dietPreference" class="form-select">
+                                <option value="">Select</option>
+                                <option value="veg">Vegetarian</option>
+                                <option value="nonveg">Non-Vegetarian</option>
+                                <option value="egg">Eggitarian</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Special Notes</label>
+                            <textarea name="notes" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Proceed to Payment</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- GET TOGETHER -->
+        <div class="tab-pane fade" id="get">
+            <div class="section-card">
+                <h4 class="section-title">Get-Together Booking</h4>
+
+                <form id="getForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Organizer Name *</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" maxlength="10" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Group Name *</label>
+                            <input type="text" name="groupName" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Date *</label>
+                            <input type="date" name="eventDate" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Guests *</label>
+                            <input type="number" name="guestCount" min="1" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">DJ Required?(₹1500)</label>
+                            <select name="djRequired" class="form-select">
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Games Arrangement?(₹800)</label>
+                            <select name="gamesArrangement" class="form-select">
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Special Notes</label>
+                            <textarea name="notes" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Proceed to Payment</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PRIVATE CELEBRATION -->
+        <div class="tab-pane fade" id="private">
+            <div class="section-card">
+                <h4 class="section-title">Private Celebration Booking</h4>
+
+                <form id="privateForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Host Name *</label>
+                            <input type="text" name="fullName" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" maxlength="10" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Type *</label>
+                            <select name="eventCategory" required class="form-select">
+                                <option value="">Select</option>
+                                <option value="birthday">Birthday</option>
+                                <option value="anniversary">Anniversary</option>
+                                <option value="farewell">Farewell</option>
+                                <option value="engagement">Engagement</option>
+                                <option value="corporate">Corporate</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Date *</label>
+                            <input type="date" name="eventDate" required class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Event Time *</label>
+                            <input type="time" name="eventTime" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Guests *</label>
+                            <input type="number" name="guestCount" min="1" required class="form-control">
+                        </div>
+
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">DJ Required?(₹1500)</label>
+                            <select name="djRequired" class="form-select">
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Custom Cake Required?(₹1200)</label>
+                            <select name="customCakeRequired" class="form-select">
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Catering Type *</label>
+                            <select name="cateringType" class="form-select" required>
+                                <option value="">Select Catering Type</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="non-vegetarian">Non-Vegetarian</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label">Decoration Notes</label>
+                            <textarea name="notes" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="card p-3 bg-light border-0 shadow-sm">
+                                <h6 class="mb-2">Price Summary</h6>
+                                <p class="mb-1">Base + Guests: ₹<span class="basePrice">0</span></p>
+                                <p class="mb-1">Add-ons: ₹<span class="addonPrice">0</span></p>
+                                <div>GST (18%): ₹ <span class="gstPrice">0</span></div>
+                                <h5 class="fw-bold">Total: ₹<span class="totalPrice text-success">0</span></h5>
+                            </div>
+
+                            <input type="hidden" name="totalPrice" class="totalPriceInput">
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-theme">Proceed to Payment</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="appToast" class="toast align-items-center border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Permission Modal -->
+<div class="modal fade" id="permissionModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-circle-question me-2"></i>
+          Confirm Booking
+        </h5>
+        <button type="button" class="btn-close"
+                data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="mb-2">
+          Are you sure you want to proceed to payment?
+        </p>
+        <small class="text-muted">
+          After confirmation, your slot will be reserved temporarily.
+        </small>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">
+          Cancel
+        </button>
+
+        <button type="button"
+                class="btn btn-success"
+                id="confirmProceedBtn">
+          Yes, Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

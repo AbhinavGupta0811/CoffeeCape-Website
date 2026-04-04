@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Messages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+  crossorigin="anonymous" />
+
+<link rel="stylesheet" href="css/admin.css">
+
+</head>
+
+<body>
+
+<div class="admin-wrapper">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <h2 class="logo">CoffeeCape</h2>
+
+  <nav>
+    <a href="dashboard.html">
+      <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="user.html">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="orders.html">
+      <i class="fa-solid fa-box"></i> Orders
+    </a>
+
+    <a href="booking.html">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="messages.html" class="active">
+      <i class="fa-solid fa-envelope"></i> Messages
+    </a>
+
+    <a href="setting.html">
+      <i class="fa-solid fa-gear"></i> Settings
+    </a>
+  </nav>
+
+  <!-- <button id="logoutBtn" class="logout-btn">
+    Logout
+  </button> -->
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+<div class="page-header">
+  <h2>Contact Messages</h2>
+  <p>View and manage all customer messages</p>
+</div>
+
+<!-- MESSAGES PANEL -->
+<div class="panel large-panel">
+
+<table class="modern-table" id="messagesTable">
+
+<thead>
+<tr>
+  <th>Name</th>
+  <th>Email</th>
+  <th>Subject</th>
+  <th>Status</th>
+  <th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+<!-- Messages will load here -->
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+</div>
+
+<!-- MESSAGE MODAL -->
+<div id="messageModal" class="modal-overlay">
+
+<div class="modal-box">
+
+<span id="closeModal" class="close-btn">×</span>
+
+<h3>Message Details</h3>
+
+<div id="modalContent" class="modal-content"></div>
+
+</div>
+</div>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="js/admin-messages.js"></script>
+</body>
+</html>

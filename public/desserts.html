@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Desserts Menu</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <style>
+    :root {
+      --bg: #f9f5f0;
+      --card-bg: #ffffff;
+      --accent: #d17a22;
+      --accent-dark: #a45716;
+      --text: #2b2b2b;
+    }
+
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .close-btn{
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: #e63946; /* hover effect */
+    }
+
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      color: var(--accent-dark);
+      margin-bottom: 25px;
+    }
+
+    /* Menu grid */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--accent-dark);
+      margin: 10px 0;
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .order-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      border: none;
+      padding: 10px;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: 0.3s ease;
+    }
+
+    .order-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    /* #nextBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      padding: 14px 22px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: none;
+      cursor: not-allowed;
+      background: #ccc;
+      color: #666;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: all 0.3s ease;
+    }
+
+    #nextBtn.active {
+      background: #4a90e2;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #nextBtn.active:hover {
+      background: #357bd8;
+    } */
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .menu-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+      .card h2 {
+        font-size: 1.2rem;
+      }
+      .price {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .order-btn {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="Index.html#menu" class="close-btn">&times;</a>
+  <h1>🍨 Desserts Menu</h1>
+  <div class="menu-grid">
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Tiramisu</h2>
+      <div class="price">₹240</div>
+      <p>A luscious Italian classic layered with coffee-soaked ladyfingers and creamy mascarpone.</p>
+      <button class="order-btn" data-name="Tiramisu" data-price="240" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Macarons</h2>
+      <div class="price">₹180</div>
+      <p>Colorful French treats with delicate shells and creamy fillings.</p>
+      <button class="order-btn" data-name="Macarons" data-price="180" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Baklava</h2>
+      <div class="price">₹160</div>
+      <p>Flaky pastry layered with nuts and sweetened with honey syrup.</p>
+      <button class="order-btn" data-name="Baklava" data-price="160" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Mochi Ice Cream</h2>
+      <div class="price">₹150</div>
+      <p>Chewy mochi filled with smooth and creamy ice cream flavors.</p>
+      <button class="order-btn" data-name="Mochi Ice Cream" data-price="150" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert indian">
+    <div class="card-content">
+      <h2>Gulab Jamun</h2>
+      <div class="price">₹90</div>
+      <p>Indian dessert made of fried dough balls soaked in sugar syrup.</p>
+      <button class="order-btn" data-name="Gulab Jamun" data-price="90" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Pavlova</h2>
+      <div class="price">₹220</div>
+      <p>Light meringue dessert topped with fresh fruits and whipped cream.</p>
+      <button class="order-btn" data-name="Pavlova" data-price="220" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Croissant Pudding</h2>
+      <div class="price">₹190</div>
+      <p>Rich bread pudding made with buttery croissants and custard.</p>
+      <button class="order-btn" data-name="Croissant Pudding" data-price="190" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Custard Tart</h2>
+      <div class="price">₹140</div>
+      <p>Classic tart with creamy custard filling and golden pastry crust.</p>
+      <button class="order-btn" data-name="Custard Tart" data-price="140" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Chocolate Lava Cake</h2>
+      <div class="price">₹210</div>
+      <p>Warm chocolate cake with a gooey molten center served fresh.</p>
+      <button class="order-btn" data-name="Chocolate Lava Cake" data-price="210" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Blueberry Cheesecake</h2>
+      <div class="price">₹260</div>
+      <p>Creamy cheesecake topped with rich blueberry compote.</p>
+      <button class="order-btn" data-name="Blueberry Cheesecake" data-price="260" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Red Velvet Pastry</h2>
+      <div class="price">₹170</div>
+      <p>Soft red velvet sponge layered with smooth cream cheese frosting.</p>
+      <button class="order-btn" data-name="Red Velvet Pastry" data-price="170" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Churros with Chocolate</h2>
+      <div class="price">₹150</div>
+      <p>Crispy Spanish churros dusted with sugar and served with chocolate dip.</p>
+      <button class="order-btn" data-name="Churros with Chocolate" data-price="150" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert indian">
+    <div class="card-content">
+      <h2>Rasmalai</h2>
+      <div class="price">₹120</div>
+      <p>Soft cottage cheese dumplings soaked in sweet saffron milk.</p>
+      <button class="order-btn" data-name="Rasmalai" data-price="120" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Banoffee Pie</h2>
+      <div class="price">₹200</div>
+      <p>Buttery biscuit base layered with banana, caramel and whipped cream.</p>
+      <button class="order-btn" data-name="Banoffee Pie" data-price="200" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Matcha Roll Cake</h2>
+      <div class="price">₹230</div>
+      <p>Light sponge cake infused with matcha and filled with fresh cream.</p>
+      <button class="order-btn" data-name="Matcha Roll Cake" data-price="230" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <div class="card dessert">
+    <div class="card-content">
+      <h2>Ice Cream Sundae</h2>
+      <div class="price">₹140</div>
+      <p>Classic sundae topped with chocolate syrup, nuts and cherries.</p>
+      <button class="order-btn" data-name="Ice Cream Sundae" data-price="140" data-qty="1">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+</div>
+
+  <button id="nextBtn" disabled><i class="fa-solid fa-angle-right"></i>Next</button>
+  <script src="js/cart.js" defer></script>
+</body>
+</html>

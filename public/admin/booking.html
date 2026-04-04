@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Bookings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+<div class="admin-wrapper">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <h2 class="logo">CoffeeCape</h2>
+
+  <nav>
+    <a href="dashboard.html">
+      <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="user.html">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+
+    <a href="orders.html">
+      <i class="fa-solid fa-box"></i> Orders
+    </a>
+
+    <a href="admin-bookings.html" class="active">
+      <i class="fa-solid fa-calendar-check"></i> Bookings
+    </a>
+
+    <a href="messages.html">
+      <i class="fa-solid fa-envelope"></i> Messages
+    </a>
+
+    <a href="setting.html">
+      <i class="fa-solid fa-gear"></i> Settings
+    </a>
+  </nav>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <div class="page-header">
+    <h2>Booking Management</h2>
+    <p>Manage event bookings and payments</p>
+  </div>
+  
+  <!-- BOOKING STATS CARDS -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Total Bookings Today</h4>
+        <h2 id="todayBookings">0</h2>
+      </div>
+    </div>
+  
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <i class="fa-solid fa-indian-rupee-sign"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Total Booking Revenue</h4>
+        <h2 id="totalBookingRevenue">₹0</h2>
+      </div>
+    </div>
+  
+    <div class="stat-card">
+      <div class="stat-icon orange">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Pending Bookings</h4>
+        <h2 id="pendingBookings">0</h2>
+      </div>
+    </div>
+  
+    <div class="stat-card">
+      <div class="stat-icon purple">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-info">
+        <h4>Confirmed Bookings</h4>
+        <h2 id="confirmedBookings">0</h2>
+      </div>
+    </div>
+  
+  </section>
+
+  <div class="table-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Booking ID</th>
+          <th>Customer</th>
+          <th>Event</th>
+          <th>Event Date</th>
+          <th>Total</th>
+          <th>Paid</th>
+          <th>Remaining</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bookingsTableBody">
+        <!-- JS DATA -->
+      </tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal-overlay" id="bookingDetailModal">
+
+  <div class="modal-box">
+
+    <span class="close-btn" id="closeBookingModal">&times;</span>
+
+    <h3>Booking Details</h3>
+
+    <div class="modal-content" id="bookingDetailContent">
+      <!-- Filled by JS -->
+    </div>
+
+  </div>
+
+</div>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="js/admin-booking.js"></script>
+</body>
+</html>

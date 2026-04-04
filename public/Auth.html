@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login & Register | CoffeeCape</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      user-select: none;
+    }
+
+    body {
+      height: 100vh;
+      background: url("assets/background-image.png") no-repeat center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 400px;
+      background: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 14px;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: transparent;
+      color: #fff;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 38px;
+      cursor: pointer;
+      color: #ccc;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(to right, #4ca1af, #2c7a7b);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .switch {
+      margin-top: 14px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .switch a {
+      color: #4ca1af;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* AUTH DIVIDER */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      color: #bbb;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .auth-divider span {
+      padding: 0 12px;
+      font-weight: 600;
+    }
+
+    /* GOOGLE LOGIN CONTAINER */
+    .google-login {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .g_id_signin {
+      width: 100% !important;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-box {
+      background: #fff;
+      color: #333;
+      padding: 26px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .modal-box button {
+      margin-top: 16px;
+      padding: 10px 24px;
+      border-radius: 30px;
+      border: none;
+      background: #4ca1af;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .close-home {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-size: 26px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    #otp-box {
+      width: 520px;
+      max-width: 100%;
+    }
+
+    /* OTP BOXES */
+    .otp-wrapper {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .otp-input {
+      width: 45px;
+      height: 50px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 22px;
+      text-align: center;
+      transition: 0.3s ease;
+    }
+
+    .otp-input:focus {
+      outline: none;
+      border-color: #4ca1af;
+      box-shadow: 0 0 0 2px rgba(76,161,175,0.3);
+    }
+
+    .resend-link{
+      color: #4ca1af;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .resend-link:hover{
+      color: #2c7a7b;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 260px;
+      max-width: 320px;
+      padding: 14px 18px;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+      z-index: 9999;
+      transition: all 0.35s ease;
+    }
+
+    /* Show state */
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Success */
+    .toast.success {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+
+    /* Error */
+    .toast.error {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+    }
+
+    /* Warning */
+    .toast.warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    /* Info */
+    .toast.info {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+    }
+
+    @media (max-width: 480px){
+      body{
+        padding: 20px;
+      }
+      .container{
+        width: 100%;
+        padding: 22px;
+        border-radius: 12px;
+      }
+      h2{
+        font-size: 20px;
+      }
+      .form-group input{
+        padding: 10px;
+        font-size: 14px;
+      }
+      .btn{
+        padding: 10px;
+        font-size: 14px;
+      }
+      .switch{
+        font-size: 13px;
+      }
+      .toggle-eye{
+        top: 35px;
+        font-size: 14px;
+      }
+      .modal-box{
+        padding: 20px;
+      }
+      .otp-input {
+        width: 40px;
+        height: 50px;
+        font-size: 18px;
+      }
+      .toast{
+        right: 10px;
+        left: 10px;
+        max-width: 100%;
+      }
+    }
+
+    @media (min-width: 481px) and (max-width: 768px){
+      .container{
+        width: 90%;
+        max-width: 420px;
+        padding: 26px;
+      }
+      h2{
+        font-size: 22px;
+      }
+      .btn{
+        font-size: 15px;
+      }
+      .modal-box{
+        max-width: 400px;
+      }
+      .auth-divider {
+        margin: 16px 0;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a href="Index.html" class="close-home">&times;</a>
+
+  <!-- LOGIN -->
+  <div id="login-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="Email" required />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" name="password" placeholder="Password" required />
+        <i class="fa fa-eye toggle-eye" data-target="loginPass"></i>
+      </div>
+
+      <button class="btn">Login</button>
+    </form>
+    
+    <div class="switch">
+      <a href="forgot-password.html">Forgot Password?</a>
+    </div>
+
+    <div class="switch">
+      Don’t have an account? <a id="showRegister">Register</a>
+    </div>
+
+    <div class="auth-divider">
+      <span>OR CONTINUE WITH</span>
+    </div>
+    
+    <div style="margin-top:15px; text-align:center;">
+      <div id="g_id_onload"
+          data-client_id="395431382215-ef0bpq9hb9bt0pkjdofk1t4kvidb2ch9.apps.googleusercontent.com"
+          data-callback="handleGoogleLogin"
+          data-auto_prompt="false">
+      </div>
+
+      <div class="g_id_signin"
+          data-type="standard"
+          data-size="large"
+          data-theme="outline"
+          data-text="signin_with"
+          data-shape="pill"
+          data-logo_alignment="left">
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="register-box" class="hidden">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label>First Name</label>
+        <input name="firstName" placeholder="First-Name" required />
+      </div>
+
+      <div class="form-group">
+        <label>Last Name</label>
+        <input name="lastName" placeholder="Last-Name" required />
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="Email" required />
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input name="phone" placeholder="Mobile Number" required />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPass" name="password" placeholder="Password" required />
+        <i class="fa fa-eye toggle-eye" data-target="regPass"></i>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confPass" placeholder="Confirm-Password" required />
+        <i class="fa fa-eye toggle-eye" data-target="confPass"></i>
+      </div>
+
+      <button class="btn">Register</button>
+    </form>
+
+    <div class="switch">
+      Already have an account? <a id="showLogin">Login</a>
+    </div>
+  </div>
+
+  <!-- OTP VERIFY -->
+  <div id="otp-box" class="hidden">
+    <h2>Email Verification</h2>
+    <form id="otpForm">
+      <div class="otp-wrapper">
+        <input type="text" maxlength="1" class="otp-input">
+        <input type="text" maxlength="1" class="otp-input">
+        <input type="text" maxlength="1" class="otp-input">
+        <input type="text" maxlength="1" class="otp-input">
+        <input type="text" maxlength="1" class="otp-input">
+        <input type="text" maxlength="1" class="otp-input">
+      </div>
+
+      <button type="submit" class="btn">Verify Email</button>
+
+      <div class="switch">
+        Didn’t receive OTP? <span class="resend-link" id="resendOtp">Resend</span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <p id="modalMsg">Message</p>
+    <button id="closeModalBtn">OK</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/Auth.js"></script>
+</body>
+</html>

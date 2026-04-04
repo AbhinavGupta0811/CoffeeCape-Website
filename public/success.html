@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Confirmed</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  user-select: none;
+}
+
+body{
+  margin:0;
+  font-family:Poppins, sans-serif;
+  background:#f6f7fb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.card{
+  background:#fff;
+  padding:32px 26px;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  max-width:420px;
+  width:100%;
+  text-align:center;
+}
+.icon{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#e9f9ee;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 16px;
+}
+.icon i{
+  font-size:42px;
+  color:#1db954;
+}
+h1{
+  margin:8px 0;
+  font-size:1.6rem;
+}
+.order-id{
+  margin-top:6px;
+  font-size:14px;
+  color:#666;
+}
+.info{
+  margin:18px 0;
+  font-size:15px;
+  color:#444;
+}
+.status{
+  display:inline-block;
+  background:#e9f9ee;
+  color:#1db954;
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  margin-top:8px;
+}
+.actions{
+  margin-top:22px;
+  display:flex;
+  gap:12px;
+}
+.actions button{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-size:15px;
+}
+.primary{
+  background:#1db954;
+  color:#fff;
+}
+.secondary{
+  background:#eef1f5;
+  color:#333;
+}
+.note{
+  margin-top:18px;
+  font-size:13px;
+  color:#777;
+}
+
+@media (max-width: 480px){
+  body{
+    padding: 16px;
+  }
+  .card{
+    padding: 24px 18px;
+    border-radius: 14px;
+  }
+  .icon{
+    font-size: 32px;
+  }
+  .icon i{
+    font-size: 32px;
+  }
+  h1{
+    font-size: 1.3rem;
+  }
+  .info{
+    font-size: 14px;
+  }
+  .actions{
+    flex-direction: column;
+  }
+  .actions button{
+    width: 100%;
+    font-size: 14px;
+  }
+  .note{
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px){
+  .card{
+    max-width: 480px;
+    padding: 28px 22px;
+  }
+  .icon{
+    width: 80px;
+    height: 80px;
+  }
+  .icon i{
+    font-size: 36px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="icon">
+    <i class="fa-solid fa-check"></i>
+  </div>
+
+  <h1>Order Confirmed</h1>
+
+  <div class="order-id">
+    Order ID: <strong id="orderId">Validating...</strong>
+  </div>
+
+  <div class="status">
+    Payment Successful
+  </div>
+
+  <div class="info">
+    Thank you for your order!  
+    Your payment has been received and your order is being processed.
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="viewOrdersBtn">View Orders</button>
+    <button class="secondary" id="homeBtn">Continue Shopping</button>
+  </div>
+
+  <div class="note">
+    You will receive updates about your order status shortly.
+  </div>
+
+</div>
+
+<!-- External JS -->
+<script src="js/success.js"></script>
+</body>
+</html>

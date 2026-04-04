@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Testimonials Page</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/testimonials.css">
+</head>
+<body>
+<a href="index.html" title="Return to Home" style="position: absolute; top: 26px; right: 24px; text-decoration: none; font-size: 2rem; color: #d2691e; background: #fff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 100;">
+  &times;
+</a>
+<!-- ================= HEADER ================= -->
+<header class="page-header">
+  <div class="container">
+    <h1>Loved by Our Customers</h1>
+    <p>Real reviews from people who trust FoodieHub</p>
+  </div>
+</header>
+
+<!-- ================= STATS ================= -->
+<section class="stats container">
+  <div class="stat">
+    <h2>4.9</h2>
+    <span>Average Rating</span>
+  </div>
+  <div class="stat">
+    <h2>2,400+</h2>
+    <span>Happy Customers</span>
+  </div>
+  <div class="stat">
+    <h2>98%</h2>
+    <span>Positive Reviews</span>
+  </div>
+</section>
+
+<!-- ================= FILTER ================= -->
+<section class="filter container">
+  <button class="active" data-filter="all">All</button>
+  <button data-filter="5">5★</button>
+  <button data-filter="4">4★</button>
+  <button data-filter="3">3★</button>
+</section>
+
+<!-- ================= TESTIMONIALS LIST ================= -->
+<section class="container testimonials" id="testimonials">
+  <!-- Reviews injected by JS -->
+</section>
+
+<!-- ================= EMPTY STATE ================= -->
+<div id="emptyState" class="empty-state">
+  No reviews yet. Be the first to leave one ⭐
+</div>
+
+<!-- ================= REVIEW FORM ================= -->
+<section class="form-section">
+  <div class="container">
+    <h2>Leave a Review</h2>
+
+    <form id="reviewForm" novalidate>
+
+      <div class="form-group">
+        <label for="nameInput">Full Name</label>
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="Your full name"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Your Rating</label>
+        <div class="star-input">
+          <span data-value="1">★</span>
+          <span data-value="2">★</span>
+          <span data-value="3">★</span>
+          <span data-value="4">★</span>
+          <span data-value="5">★</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reviewInput">Your Review</label>
+        <textarea
+          id="reviewInput"
+          placeholder="Share your experience with Coffeecape..."
+          required
+        ></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        Submit Review
+      </button>
+
+    </form>
+  </div>
+</section>
+<div id="toastContainer"></div>
+<!-- ================= JS ================= -->
+<script src="js/testimonials.js"></script>
+
+</body>
+</html>

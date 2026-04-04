@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Landing Page</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.css" integrity="sha512-pmAAV1X4Nh5jA9m+jcvwJXFQvCBi3T17aZ1KWkqXr7g/O2YMvO8rfaa5ETWDuBvRq6fbDjlw4jHL44jNTScaKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="css/Style.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header>
+        <nav class="navbar section-content">
+          <a href="#" class="nav-logo">
+            <img src="assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img" />
+            <h2 class="logo-text">Coffee<span>Cape</span></h2>
+          </a>
+
+
+          <!-- Menu Toggle Open Button (Visible on Mobile) -->
+          <i id="menu-open-button" class="fa fa-bars"></i>
+    
+          <ul class="nav-menu" id="nav-menu">
+            <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+            <li class="nav-item"><a href="#menu" class="nav-link">Menu</a></li>
+            <li class="nav-item"><a href="#activities" class="nav-link">Activities</a></li>
+            <li class="nav-item"><a href="testimonials.html" class="nav-link">Testimonials</a></li>
+            <li class="nav-item"><a href="#gallery" class="nav-link">Gallery</a></li>
+            <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+            
+            <!-- Inside your <ul class="nav-menu" id="nav-menu"> -->
+            <li class="nav-item" id="auth-area">
+                <!-- Sign In Button (shown when not logged in) -->
+                <button class="sign-in-button" id="sign-in-btn"><a href="Auth.html" style="color: #fff;">My Account</a></button>
+
+                <!-- Profile Dropdown Popup -->
+                <div class="profile-dropdown" id="profile-dropdown" style="display: none;">
+                    <button class="sign-in-button profile-name-button" id="profile-name">
+                        <img id="navProfileImg" src="" alt="Profile" class="user-icon" />
+                        <span id="user-firstname">User</span>
+                    </button>
+
+                    <!-- Creative Popup -->
+                    <div class="profile-popup" id="profilePopup">
+                        <div class="popup-header">
+                            <button class="close-btn" id="closePopup">&times;</button>
+                        </div>
+                        <div class="popup-content">
+                            <h3>Welcome, <span id="popupName">User</span> 👋</h3>
+                            <ul class="popup-links">
+                            <li><a href="My-Activity.html">My Activity</a></li>
+                            <li><a href="My-profile.html">My Profile</a></li>
+                            <!-- <li><a href="#">Rewards</a></li> -->
+                            </ul>
+                            <button id="logoutBtn" class="logout-btn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+
+            <!-- <div class="nav-buttons">
+                <a href="signin.html" class="sign-in-button">Sign In</a>
+            </div> -->
+            <!-- Close Button inside Mobile Menu -->
+            <i id="menu-close-button" class="fa fa-times"></i>
+          </ul>
+    
+          <!-- <div class="nav-buttons">
+            <a href="signin.html" class="sign-in-button">Sign In</a>
+          </div> -->
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Hero-Section -->
+        <section class="hero-section">
+            <div class="section-content">
+                <div class="hero-details">
+                    <h2 class="title">Best Coffee</h2>
+                    <h3 class="subtitle">Make your day great with our special 
+                    Coffee!</h3>
+                    <p class="description">Welcome to our coffee paradise, where 
+                    every bean tells a story and every cup sparks joy.</p>
+
+                    <div class="buttons">
+                        <a href="#" class="button order-now">Order Now</a>
+                        <a href="contact.html" class="button contact-us">Contact Us</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper">
+                    <img src="assets/coffee-hero-section.png" alt="Hero" class="hero-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- about-section -->
+        <section class="about-section" id="about">
+            <div class="section-content">
+                <div class="about-image-wrapper">
+                    <img src="assets/about-image.jpg" alt="About" class="about-image">
+                </div>
+                <div class="about-details">
+                    <h2 class="section-title">About Us</h2>
+                    <p class="text">At Coffee House in Mumbai, India, we pride
+                        ourselves on being a go-to destination for coffee lovers and 
+                        conversation seekers alike. We're dedicated to providing an 
+                        exceptional coffee experience in a cozy and inviting atomsphere,
+                        where guests can relax, unwind, and enjoy their time in comfort.
+                    </p>
+                    <div class="social-link-list">
+                        <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- menu-section -->
+        <section class="menu-section" id="menu">
+        <h2 class="section-title">Our Menu</h2>
+        <div class="section-content">
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <a href="hot-beverages.html">
+                        <img src="assets/hot-beverages.png" alt="Hot Beverages" class="menu-image">
+                    </a>
+                    <h3 class="name">Hot Beverages</h3>
+                    <p class="text">Wide range of Steaming hot coffee to make you 
+                    fresh and light.</p>
+                </li>
+                <li class="menu-item">
+                    <a href="cold-beverages.html">
+                        <img src="assets/cold-beverages.png" alt="Cold Beverages" class="menu-image">
+                    </a>
+                    <h3 class="name">Cold Beverages</h3>
+                    <p class="text">Creamy and frothy cold coffee to make you 
+                    cool.</p>
+                </li>
+                <li class="menu-item">
+                    <a href="refreshment.html">
+                        <img src="assets/refreshment.png" alt="Refreshment" class="menu-image">
+                    </a>
+                    <h3 class="name">Refreshment</h3>
+                    <p class="text">Tasty food and chilled drinks for a truly 
+                    refreshing experience.</p>
+                </li>
+                <li class="menu-item">
+                    <a href="special-combo.html">
+                        <img src="assets/special-combo.png" alt="Special Combos" class="menu-image">
+                    </a>
+                    <h3 class="name">Special Combos</h3>
+                    <p class="text">Your favorite eating and drinking combations</p>
+                </li>
+                <li class="menu-item">
+                    <a href="desserts.html">
+                        <img src="assets/desserts.png" alt="Dessert" class="menu-image">
+                    </a>
+                    <h3 class="name">Dessert</h3>
+                    <p class="text">Satiate your palate and take you on a 
+                    culinary treat.</p>
+                </li>
+                <li class="menu-item">
+                    <a href="burger-frenchfries.html">
+                        <img src="assets/burger-frenchfries.png" alt="burger & French Fries" class="menu-image">
+                    </a>
+                    <h3 class="name">Burger & French Fries</h3>
+                    <p class="text">Quick bites to satisfy your small size 
+                    hunger.</p>
+                </li>
+            </ul>
+        </div>
+        </section>
+
+        <!-- activities-section -->
+        <section class="activities-section" id="activities">
+            <h2 class="section-title">Events & Activities</h2>
+            <div class="section-content">
+                <ul class="activity-list">
+                    <li class="activity-card">
+                        <img src="assets/Dinner-night.png" alt="Dinner Night">
+                        <h3>Dinner Nights</h3>
+                        <p>Enjoy fine dining with live acoustic music every Friday evening.</p>
+                        <a href="booking.html?event=dinner" class="activity-button">Book Now</a>
+                    </li>
+                    <li class="activity-card">
+                        <img src="assets/get-together.png" alt="Get Together">
+                        <h3>Friendly Get-Togethers</h3>
+                        <p>Bring your crew and hang out over your favorite brews.</p>
+                        <a href="booking.html?event=get" class="activity-button">Book Now</a>
+                    </li>
+                    <li class="activity-card">
+                        <img src="assets/karaoke.jpg" alt="Karaoke Night">
+                        <h3>Karaoke Nights</h3>
+                        <p>Sing your heart out and cheer for friends every Saturday night!</p>
+                        <a href="booking.html?event=karaoke" class="activity-button">Book Now</a>
+                    </li>
+                    <li class="activity-card">
+                        <img src="assets/open-mic-night.png" alt="Open Mic">
+                        <h3>Open Mic Nights</h3>
+                        <p>Poetry, comedy, or stories — the mic is yours every Thursday.</p>
+                        <a href="booking.html?event=openmic" class="activity-button">Book Now</a>
+                    </li>
+                    <li class="activity-card">  
+                        <img src="assets/tasting-event.png" alt="Tasting Event">
+                        <h3>Tasting Event</h3>
+                        <p>Sample a curated selection of brews, desserts, and seasonal flavors.</p>
+                        <a href="booking.html?event=tasting" class="activity-button">Book Now</a>
+                    </li>
+                    <li class="activity-card">
+                        <img src="assets/birthday-party.png" alt="Birthday Party">
+                        <h3>Private Celebrations</h3>
+                        <p>Book our space for your birthdays or small private parties.</p>
+                        <a href="booking.html?event=private" class="activity-button">Book Now</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- testimonials-section -->
+        <section class="testimonials-section" id="testimonials">
+            <h2 class="section-title">Testimonials</h2>
+            <div class="section-content">
+                <div class="slider-container swiper">
+                    <div class="slider-wrapper">
+                        <ul class="testimonials-list swiper-wrapper">
+                            <li class="testimonial swiper-slide">
+                                <img src="assets/user-1.jpg" alt="User" class="user-image">
+                                <h3 class="name">Sarah Johnson</h3>
+                                <i class="feedback">"Loved the French roast. Perfectly
+                                balanced and rich. Will order again!"</i>
+                            </li>
+                            <li class="testimonial swiper-slide">
+                                <img src="assets/user-2.jpg" alt="User" class="user-image">
+                                <h3 class="name">James Wilson</h3>
+                                <i class="feedback">"Great espresso blend! Smooth and bold 
+                                flavor. Fast shipping too!"</i>
+                            </li>
+                            <li class="testimonial swiper-slide">
+                                <img src="assets/user-3.jpg" alt="User" class="user-image">
+                                <h3 class="name">Michael Brown</h3>
+                                <i class="feedback">"Fantastic mocha flovar. Fresh and 
+                                aromatic. Quick shipping!"</i>
+                            </li>
+                            <li class="testimonial swiper-slide">
+                                <img src="assets/user-4.jpg" alt="User" class="user-image">
+                                <h3 class="name">Emily Harris</h3>
+                                <i class="feedback">"Excellent quality! Fresh beans and 
+                                quick delivery. Highly recommend"</i>
+                            </li>
+                            <li class="testimonial swiper-slide">
+                                <img src="assets/user-5.jpg" alt="User" class="user-image">
+                                <h3 class="name">Anthony Thompson</h3>
+                                <i class="feedback">"Best decaf I've tried! Smooth and 
+                                flovarful. Arrived promptly."</i>
+                            </li>
+                        </ul>
+
+                        <div class="swiper-pagination"></div>
+                        <div class="swiper-slide-button swiper-button-prev"></div>
+                        <div class="swiper-slide-button swiper-button-next"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- gallery-section -->
+        <section class="gallery-section" id="gallery">
+            <h2 class="section-title">Gallery</h2>
+            <div class="section-content">
+                <ul class="gallery-list">
+                    <li class="gallery-item">
+                        <img src="assets/gallery-1.jpg" alt="Gallery 1" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="assets/gallery-2.jpg" alt="Gallery 2" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="assets/gallery-3.jpg" alt="Gallery 3" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="assets/gallery-4.jpg" alt="Gallery 4" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="assets/gallery-5.jpg" alt="Gallery 5" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="assets/gallery-6.jpg" alt="Gallery 6" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://www.realmenrealstyle.com/wp-content/uploads/2023/06/Women-Love-A-Man-With-Manners-768x525.jpg" alt="Gallery 7" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://wallpapercave.com/wp/wp10808152.jpg" alt="Gallery 8" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://cdn9.dissolve.com/p/D2012_136_043/D2012_136_043_1200.jpg" alt="Gallery 9" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://media.istockphoto.com/id/1068798566/photo/microphone.jpg?s=612x612&w=0&k=20&c=gh9aNR8gZt67rbo3WdjSJIAER_y5llQqYA6hUSCetqk=" alt="Gallery 10" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://media.istockphoto.com/id/2158580612/photo/mature-woman-celebrating-birthday-with-family-at-home.jpg?s=612x612&w=0&k=20&c=Adwbozn1_g-0PciiqGcQae4a-ABfq-SWxsIb5cDm010=" alt="Gallery 11" class="gallery-image">
+                    </li>
+                    <li class="gallery-item">
+                        <img src="https://media.istockphoto.com/id/937483290/photo/server-holding-a-tray-of-appetizers-at-a-banquet.jpg?s=612x612&w=0&k=20&c=npgO7U825B6xuIehGCcmVCTGPo56HCHvw4_q_u3mmKU=" alt="Gallery 12" class="gallery-image">
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- lightbox Effect for Gallery Images -->
+        <div class="lightbox" id="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <span class="lightbox-nav prev">&#10094;</span>
+            <img class="lightbox-img" id="lightboxImg">
+            <span class="lightbox-nav next">&#10095;</span>
+        </div>
+
+        <!-- contact-section -->
+        <section class="contact-section" id="contact">
+            <h2 class="section-title">Contact Us</h2>
+
+            <div class="section-content">
+
+                <!-- CONTACT INFO -->
+                <ul class="contact-info-list">
+                <li class="contact-info">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <p>Nav Mumbai, India</p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-regular fa-envelope"></i>
+                    <p>
+                    <a href="mailto:info@coffeeshopwebsite.com">
+                        info@coffeeshopwebsite.com
+                    </a>
+                    </p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-solid fa-phone"></i>
+                    <p>
+                    <a href="tel:+919876543210">+91 98765 43210</a>
+                    </p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-regular fa-clock"></i>
+                    <p>Mon – Fri: 9:00 AM – 5:00 PM</p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-regular fa-clock"></i>
+                    <p>Saturday: 10:00 AM – 3:00 PM</p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-regular fa-clock"></i>
+                    <p>Sunday: Closed</p>
+                </li>
+
+                <li class="contact-info">
+                    <i class="fa-solid fa-globe"></i>
+                    <p>
+                    <a href="https://www.codingJayeshweb.com" target="_blank" rel="noopener">
+                        www.codingJayeshweb.com
+                    </a>
+                    </p>
+                </li>
+                </ul>
+                
+                <!-- LANDING PAGE CONTACT FORM -->
+                <form id="landingContactForm" class="landing-contact-form" novalidate>
+                <input type="text" name="name" placeholder="Your name" required aria-label="Your name">
+                <input type="text" name="email" placeholder="Your email" required aria-label="Your email">
+                <textarea name='message' placeholder="Your message" rows="4" required aria-label="Your message"></textarea>
+                <button type="submit">Continue to Contact</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- footer-section -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-column">
+                <h3>CoffeeCape</h3>
+                <p>
+                    Freshly crafted luxury coffee, made for modern tastemakers.
+                </p>
+                </div>
+
+                <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Browse Restaurants</a></li>
+                    <li><a href="MyOrder.html">My Orders</a></li>
+                    <li><a href="contact.html">Contact Support</a></li>
+                </ul>
+                </div>
+
+                <div class="footer-column">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Order Issues</a></li>
+                    <li><a href="refund-policy.html">Refund Policy</a></li>
+                    <li><a href="#">Cancellation Policy</a></li>
+                </ul>
+                </div>
+
+                <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 FoodApp. All rights reserved.</p>
+            </div>
+        </footer>
+    </main>
+    <!-- 🆙 Scroll-to-Top Button -->
+    <button id="scrollTopBtn" class="scroll-top">
+    <i class="fas fa-arrow-up"></i>
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js" integrity="sha512-Ysw1DcK1P+uYLqprEAzNQJP+J4hTx4t/3X2nbVwszao8wD+9afLjBQYjz7Uk4ADP+Er++mJoScI42ueGtQOzEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/Script.js"></script>
+</body>
+</html>

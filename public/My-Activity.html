@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>My Orders | CoffeeCape</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+/* ===============================
+   GLOBAL
+================================ */
+*{
+  user-select:none;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:system-ui,Arial;
+  background:#f8fafc;
+  margin:0;
+  color:#1e293b;
+}
+
+/* ===============================
+   HEADER
+================================ */
+
+header{
+  background:#4f46e5;
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
+}
+
+.header-wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:900px;
+  margin:auto;
+}
+
+/* ===============================
+   TABS
+================================ */
+
+.activity-tabs{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-top:15px;
+}
+
+.tab-btn{
+  padding:10px 22px;
+  border-radius:30px;
+  border:1px solid #e2e8f0;
+  background:#fff;
+  cursor:pointer;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:.25s ease;
+  font-size:14px;
+}
+
+.tab-btn:hover{
+  background:#f1f5f9;
+}
+
+.tab-btn.active{
+  background:#4f46e5;
+  color:#fff;
+  border-color:#4f46e5;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
+}
+
+/* ===============================
+   CONTAINER
+================================ */
+
+.container{
+  max-width:900px;
+  margin:30px auto;
+  padding:0 16px;
+}
+
+/* ===============================
+   ORDER CARD
+================================ */
+
+.order-card{
+  background:#fff;
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:20px;
+  border:1px solid #e2e8f0;
+  box-shadow:0 6px 18px rgba(0,0,0,.05);
+  transition:.2s;
+}
+
+.order-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(0,0,0,.08);
+}
+
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.order-id{
+  font-weight:700;
+  color:#4f46e5;
+}
+
+/* ===============================
+   STATUS COLORS
+================================ */
+
+.status{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+}
+
+.pending{background:#f59e0b;}
+.confirmed{background:#4f46e5;}
+.preparing{background:#7c3aed;}
+.out_for_delivery{background:#0ea5e9;}
+.delivered{background:#10b981;}
+.cancelled{background:#ef4444;}
+.refund_requested{background:#f59e0b;}
+.refunded{background:#64748b;}
+.refund_rejected{background:#e11d48;}
+
+/* ===============================
+   META TEXT
+================================ */
+
+.meta{
+  font-size:14px;
+  color:#475569;
+  margin:8px 0;
+}
+
+/* ===============================
+   TABLE
+================================ */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e2e8f0;
+  font-size:14px;
+}
+
+th{
+  background:#f1f5f9;
+  text-align:left;
+}
+
+/* ===============================
+   SUMMARY
+================================ */
+
+.summary{
+  text-align:right;
+  margin-top:10px;
+}
+
+.total{
+  font-weight:700;
+  font-size:16px;
+}
+
+/* ===============================
+   BUTTONS
+================================ */
+
+.actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:9px 16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  transition:.25s;
+}
+
+/* Primary */
+
+.btn.primary{
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:white;
+}
+
+.btn.primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(79,70,229,.35);
+}
+
+/* Secondary */
+
+.btn.secondary{
+  background:#f1f5f9;
+  border:1px solid #e2e8f0;
+  color:#334155;
+}
+
+.btn.secondary:hover{
+  background:#e2e8f0;
+}
+
+/* Success */
+
+.btn.success{
+  background:linear-gradient(135deg,#10b981,#34d399);
+  color:white;
+}
+
+.btn.success:hover{
+  box-shadow:0 6px 14px rgba(16,185,129,.35);
+}
+
+/* Warning */
+
+.warning{
+  background:#f59e0b;
+  color:#fff;
+}
+
+/* Disabled */
+
+.btn:disabled{
+  background:#e2e8f0;
+  color:#94a3b8;
+  cursor:not-allowed;
+}
+
+/* ===============================
+   EMPTY STATE
+================================ */
+
+.empty{
+  text-align:center;
+  padding:60px;
+  color:#64748b;
+}
+
+/* ===============================
+   MODAL
+================================ */
+
+#orderModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:999;
+}
+
+.modal-box{
+  background:#fff;
+  max-width:600px;
+  max-height:80vh;
+  margin:60px auto;
+  padding:22px;
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+}
+
+.close{
+  align-self:flex-end;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.modal-body{
+  overflow-y:auto;
+}
+
+/* ===============================
+   TIMELINE
+================================ */
+
+.timeline{
+  position:relative;
+  margin:30px 0;
+  padding-left:35px;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:#e2e8f0;
+}
+
+.step{
+  position:relative;
+  padding:6px 0 18px 0;
+  font-size:14px;
+  color:#94a3b8;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.step::before{
+  content:"";
+  position:absolute;
+  left:-28px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#e2e8f0;
+}
+
+.step.done{color:#4f46e5;font-weight:600;}
+.step.done::before{background:#6366f1;}
+
+.step.active{color:#1d4ed8;font-weight:700;}
+.step.active::before{
+  background:#1d4ed8;
+  box-shadow:0 0 0 6px rgba(59,130,246,.25);
+}
+
+.step.success{color:#15803d;font-weight:700;}
+.step.success::before{background:#10b981;}
+
+.step.danger{color:#991b1b;font-weight:700;}
+.step.danger::before{background:#ef4444;}
+
+/* ===============================
+   TOAST
+================================ */
+
+.toast{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  min-width:260px;
+  padding:14px 18px;
+  border-radius:12px;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  background:#334155;
+  color:#fff;
+  opacity:0;
+  transform:translateY(20px);
+  transition:.3s ease;
+  z-index:9999;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.toast.success{background:#10b981;}
+.toast.error{background:#ef4444;}
+.toast.warning{background:#f59e0b;color:#000;}
+.toast.info{background:#3b82f6;}
+
+/* ===============================
+   FLOATING HOME BUTTON
+================================ */
+
+.floating-home{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#4f46e5;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 12px 25px rgba(0,0,0,.2);
+  transition:.25s;
+}
+
+.floating-home:hover{
+  background:#3730a3;
+  transform:translateY(-3px);
+}
+
+/* ===============================
+   CONFIRMATION MODAL OVERLAY
+================================ */
+
+.confirm-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  backdrop-filter:blur(4px);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+/* ===============================
+   CONFIRM BOX
+================================ */
+
+.confirm-box{
+  background:#ffffff;
+  width:380px;
+  max-width:90%;
+  padding:32px 28px;
+  border-radius:14px;
+  text-align:center;
+
+  border:1px solid #e2e8f0;
+
+  box-shadow:
+  0 20px 40px rgba(0,0,0,.12);
+
+  animation:confirmPop .25s ease;
+}
+
+/* Animation */
+
+@keyframes confirmPop{
+  from{
+    transform:scale(.92);
+    opacity:0;
+  }
+  to{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+/* ===============================
+   ICON
+================================ */
+
+.confirm-icon{
+  font-size:30px;
+  color:#f59e0b;
+  margin-bottom:14px;
+}
+
+/* ===============================
+   TITLE
+================================ */
+
+.confirm-box h3{
+  margin:6px 0 10px;
+  font-size:18px;
+  font-weight:600;
+  color:#1e293b;
+}
+
+/* ===============================
+   MESSAGE
+================================ */
+
+.confirm-box p{
+  font-size:14px;
+  color:#64748b;
+  margin-bottom:20px;
+}
+
+/* ===============================
+   ACTION BUTTONS
+================================ */
+
+.confirm-actions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+
+/* Cancel button */
+
+.btn-secondary{
+  padding:10px 18px;
+  border-radius:8px;
+  border:1px solid #e2e8f0;
+  background:#f8fafc;
+  color:#334155;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
+
+.btn-secondary:hover{
+  background:#e2e8f0;
+}
+
+/* Confirm button */
+
+.btn-danger{
+  padding:10px 18px;
+  border-radius:8px;
+  border:none;
+  background:#ef4444;
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
+
+.btn-danger:hover{
+  background:#dc2626;
+  box-shadow:0 6px 14px rgba(239,68,68,.35);
+}
+
+/* ===============================
+   BASE STATUS BADGE
+================================ */
+
+.status-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:6px 12px;
+  border-radius:999px;
+
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.3px;
+
+  text-transform:capitalize;
+
+  border:1px solid transparent;
+
+  transition:all .2s ease;
+}
+
+/* subtle hover effect */
+
+.status-badge:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+/* ===============================
+   PENDING
+================================ */
+
+.status-badge.pending{
+  background:rgba(245,158,11,.12);
+  color:#b45309;
+  border-color:rgba(245,158,11,.25);
+}
+
+/* ===============================
+   CONFIRMED
+================================ */
+
+.status-badge.confirmed{
+  background:rgba(79,70,229,.12);
+  color:#4338ca;
+  border-color:rgba(79,70,229,.25);
+}
+
+/* ===============================
+   COMPLETED
+================================ */
+
+.status-badge.completed{
+  background:rgba(16,185,129,.12);
+  color:#047857;
+  border-color:rgba(16,185,129,.25);
+}
+
+/* ===============================
+   CANCELLED
+================================ */
+
+.status-badge.cancelled{
+  background:rgba(239,68,68,.12);
+  color:#b91c1c;
+  border-color:rgba(239,68,68,.25);
+}
+
+/* ===============================
+   REJECTED
+================================ */
+
+.status-badge.rejected{
+  background:rgba(100,116,139,.15);
+  color:#334155;
+  border-color:rgba(100,116,139,.25);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width:576px){
+
+  .activity-tabs{
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .tab-btn{
+    width:90%;
+    justify-content:center;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .btn{
+    width:100%;
+  }
+
+  table{
+    display:block;
+    overflow-x:auto;
+  }
+
+  .modal-box{
+    width:95%;
+    margin:40px auto;
+  }
+
+}
+
+@media (min-width:577px) and (max-width:992px){
+
+  .container{
+    padding:0 25px;
+  }
+
+  .modal-box{
+    width:85%;
+  }
+
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-wrapper">
+    <h1>My Activity</h1>
+  </div>
+
+  <!-- Professional Toggle Buttons -->
+  <div class="activity-tabs">
+    <button class="tab-btn active" id="ordersTab">
+      <i class="fa-solid fa-receipt"></i> My Orders
+    </button>
+    <button class="tab-btn" id="bookingsTab">
+      <i class="fa-solid fa-calendar-check"></i> My Bookings
+    </button>
+  </div>
+</header>
+
+<div class="container" id="ordersContainer">
+  <div class="empty">Loading your orders…</div>
+</div>
+
+<!-- Modal -->
+<div id="orderModal">
+  <div class="modal-box">
+    <span class="close" id="closeModal">×</span>
+    <h2 id="modalTitle">Details</h2>
+    <div class="modal-body" id="modalContent"></div>
+    <div id="statusTimeline" class="timeline"></div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <h3 id="confirmTitle">Confirm Action</h3>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="confirm-actions">
+      <button id="confirmCancel" class="btn-secondary">No</button>
+      <button id="confirmOk" class="btn-danger">Yes, Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Message -->
+<div id="toast" class="toast"></div>
+<!-- Floating Home Button -->
+<button class="floating-home" id="floatingHomeBtn" title="Go Home">
+  <i class="fa-solid fa-house"></i>
+</button>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="js/activity.js"></script>
+</body>
+</html>

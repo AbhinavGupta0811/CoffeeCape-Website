@@ -1,0 +1,686 @@
+/* =========================================
+   ROOT THEME VARIABLES (Luxury Coffee)
+========================================= */
+:root{
+  --bg-main: #fdf8f3;
+  --bg-card: #ffffff;
+  --bg-soft: #fffaf5;
+  --bg-muted: #f3e5d8;
+
+  --primary: #6f4e37;
+  --primary-dark: #4b2e20;
+  --accent: #c19a6b;
+  --dark: #2c1810;
+
+  --success: #6b8e23;
+  --danger: #8b1e1e;
+  --warning: #c19a6b;
+  --info: #6f4e37;
+
+  --text-main: #2c1810;
+  --text-light: #6b4f3a;
+  --text-muted: #9c7c5c;
+
+  --border-light: #e7d6c4;
+
+  --shadow-soft: 0 6px 18px rgba(44,24,16,.08);
+  --shadow-medium: 0 10px 30px rgba(44,24,16,.15);
+}
+
+/* =========================================
+   GLOBAL
+========================================= */
+*{
+  user-select: none;
+  box-sizing: border-box;
+}
+
+body{
+  font-family:"Segoe UI", system-ui, Arial;
+  background:var(--bg-main);
+  margin:0;
+  color:var(--text-main);
+  letter-spacing:.3px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+header{
+  background:var(--dark);
+  color:#fff;
+  padding:18px;
+  text-align:center;
+  border-bottom:3px solid var(--accent);
+}
+
+.header-wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:900px;
+  margin:auto;
+}
+
+/* =========================================
+   ACTIVITY TABS
+========================================= */
+.activity-tabs{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-top:15px;
+}
+
+.tab-btn{
+  padding:10px 22px;
+  border-radius:30px;
+  border:1px solid var(--accent);
+  background:var(--bg-soft);
+  cursor:pointer;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:.3s ease;
+  font-size:14px;
+  color:var(--primary);
+}
+
+.tab-btn:hover{
+  background:var(--bg-muted);
+}
+
+.tab-btn.active{
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+  box-shadow:0 6px 18px rgba(111,78,55,.25);
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+.container{
+  max-width:900px;
+  margin:30px auto;
+  padding:0 16px;
+}
+
+/* =========================================
+   ORDER CARD
+========================================= */
+.order-card{
+  background:var(--bg-card);
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:20px;
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--border-light);
+}
+
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.order-id{
+  font-weight:700;
+  color:var(--primary);
+}
+
+/* =========================================
+   STATUS BADGES
+========================================= */
+.status{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+}
+
+.pending{background:var(--warning)}
+.confirmed{background:var(--primary)}
+.preparing{background:#8b5e3c}
+.out_for_delivery{background:#a67b5b}
+.delivered{background:var(--success)}
+.cancelled{background:var(--danger)}
+.refund_requested{background:var(--warning)}
+.refunded{background:#5c4033}
+.refund_rejected{background:var(--danger)}
+
+.meta{
+  font-size:14px;
+  color:var(--text-light);
+  margin:8px 0;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border-light);
+  font-size:14px;
+}
+
+th{
+  background:var(--bg-muted);
+  color:var(--primary);
+}
+
+.summary{
+  text-align:right;
+  margin-top:10px;
+}
+
+.total{
+  font-weight:700;
+  font-size:16px;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+.actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:8px 16px;
+  border:none;
+  border-radius:20px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s ease;
+}
+
+.primary{
+  background:var(--primary);
+  color:#fff;
+}
+
+.primary:hover{
+  background:var(--primary-dark);
+}
+
+.secondary{
+  background:var(--bg-muted);
+  color:var(--primary);
+}
+
+.warning{
+  background:var(--warning);
+  color:var(--dark);
+}
+
+/* =========================================
+   MODAL
+========================================= */
+#orderModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:999;
+}
+
+.modal-box{
+  background:var(--bg-soft);
+  max-width:600px;
+  max-height:80vh;
+  margin:60px auto;
+  padding:20px;
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--border-light);
+}
+
+.close{
+  align-self:flex-end;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.modal-body{
+  overflow-y:auto;
+}
+
+/* =========================================
+   TIMELINE
+========================================= */
+.timeline{
+  position:relative;
+  margin:30px 0;
+  padding-left:35px;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:var(--border-light);
+  border-radius:2px;
+}
+
+.step{
+  position:relative;
+  padding:6px 0 18px 0;
+  font-size:14px;
+  color:var(--text-muted);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.step::before{
+  content:"";
+  position:absolute;
+  left:-28px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:var(--border-light);
+  transition:.3s ease;
+  z-index:2;
+}
+
+.step.done{
+  color:var(--primary);
+  font-weight:600;
+}
+
+.step.done::before{
+  background:var(--primary);
+}
+
+.step.active{
+  color:var(--primary-dark);
+  font-weight:700;
+}
+
+.step.active::before{
+  background:var(--accent);
+  box-shadow:0 0 0 6px rgba(193,154,107,.3);
+}
+
+/* =========================================
+   TOAST
+========================================= */
+.toast{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  min-width:260px;
+  padding:14px 18px;
+  border-radius:12px;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:var(--shadow-medium);
+  background:var(--primary);
+  color:#fff;
+  opacity:0;
+  transform:translateY(20px);
+  transition:.3s ease;
+  z-index:9999;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+.toast.warning{background:var(--warning);color:var(--dark);}
+.toast.info{background:var(--info);}
+
+/* =========================================
+   FLOATING HOME BUTTON
+========================================= */
+.floating-home{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:var(--primary);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:var(--shadow-medium);
+  transition:.25s ease;
+  z-index:20;
+}
+
+.floating-home:hover{
+  background:var(--primary-dark);
+  transform:translateY(-3px);
+}
+
+/* =========================================
+   CONFIRM MODAL (Coffee Theme)
+========================================= */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 24, 16, 0.65); /* espresso overlay */
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px; /* prevents overflow on small screens */
+}
+
+.confirm-box {
+  background: var(--bg-soft);
+  color: var(--text-main);
+  padding: 32px;
+  width: 380px;
+  max-width: 100%;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-light);
+  animation: confirmPop 0.25s ease;
+}
+
+/* Animation */
+@keyframes confirmPop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Icon */
+.confirm-icon {
+  font-size: 28px;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+/* Title */
+.confirm-box h3 {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: var(--primary);
+}
+
+/* Message */
+.confirm-box p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+/* Actions */
+.confirm-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Buttons */
+.confirm-actions button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 110px;
+}
+
+/* Cancel */
+.btn-secondary {
+  background: #ffffff;
+  color: var(--primary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-muted);
+}
+
+/* Confirm */
+.btn-danger {
+  background: var(--primary);
+  color: #ffffff;
+  border: 1px solid var(--primary);
+}
+
+.btn-danger:hover {
+  background: var(--primary-dark);
+}
+
+/* =========================================
+   MOBILE DEVICES (≤ 576px)
+========================================= */
+@media (max-width: 576px){
+
+  header{
+    padding:14px 16px;
+  }
+
+  header h1{
+    font-size:18px;
+  }
+
+  .header-wrapper{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  /* Tabs Stack */
+  .activity-tabs{
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+
+  .tab-btn{
+    width:90%;
+    justify-content:center;
+    font-size:13px;
+    padding:10px 16px;
+  }
+
+  .container{
+    margin:20px auto;
+    padding:0 15px;
+  }
+
+  /* Order Card */
+  .order-card{
+    padding:16px;
+    border-radius:14px;
+  }
+
+  .order-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+
+  .meta{
+    font-size:13px;
+  }
+
+  /* Table Scroll */
+  table{
+    display:block;
+    width:100%;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  th, td{
+    font-size:13px;
+    padding:8px;
+  }
+
+  .summary{
+    font-size:14px;
+  }
+
+  .total{
+    font-size:15px;
+  }
+
+  /* Buttons Stack */
+  .actions{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .btn{
+    width:100%;
+    text-align:center;
+  }
+
+  /* Modal */
+  .modal-box{
+    width:95%;
+    margin:40px auto;
+    max-height:85vh;
+    padding:18px;
+  }
+
+  /* Timeline */
+  .timeline{
+    padding-left:28px;
+  }
+
+  .timeline::before{
+    left:10px;
+  }
+
+  .step::before{
+    left:-22px;
+    width:14px;
+    height:14px;
+  }
+
+  /* Floating Button */
+  .floating-home{
+    width:44px;
+    height:44px;
+    bottom:20px;
+    right:20px;
+  }
+
+  .confirm-box {
+    width: 100%;
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+
+  .confirm-icon {
+    font-size: 24px;
+  }
+
+  .confirm-box h3 {
+    font-size: 16px;
+  }
+
+  .confirm-box p {
+    font-size: 13px;
+  }
+
+  /* Stack buttons vertically */
+  .confirm-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .confirm-actions button {
+    width: 100%;
+  }
+}
+
+
+/* =========================================
+   TABLETS (577px – 992px)
+========================================= */
+@media (min-width: 577px) and (max-width: 992px){
+
+  .container{
+    padding:0 25px;
+  }
+
+  .order-card{
+    padding:18px;
+  }
+
+  .modal-box{
+    width:85%;
+  }
+
+  th, td{
+    font-size:14px;
+  }
+
+  .tab-btn{
+    padding:10px 18px;
+  }
+
+  .floating-home{
+    bottom:25px;
+    right:25px;
+  }
+
+  .confirm-box {
+    width: 85%;
+  }
+}
+
+
+/* =========================================
+   LARGE SCREENS (1200px+)
+========================================= */
+@media (min-width: 1200px){
+
+  .container{
+    max-width:1000px;
+  }
+
+  .order-card{
+    padding:26px;
+  }
+
+  .modal-box{
+    max-width:650px;
+  }
+
+  .tab-btn{
+    font-size:15px;
+  }
+}

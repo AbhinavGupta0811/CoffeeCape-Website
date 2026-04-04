@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact Us</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter,sans-serif;
+  user-select: none;
+}
+body{
+  background:#f4f6f8;
+  color:#333;
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  text-align:center;
+  padding:60px 20px;
+}
+.header h1{font-size:36px;margin-bottom:10px;}
+.header p{opacity:.9}
+
+/*Home link*/
+.home-link {
+  display: inline-block;
+  margin-bottom: 15px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+}
+.home-link:hover {
+  opacity: 1;
+  transform: translateX(10px)
+}
+
+/* CONTACT */
+.contact-section{
+  padding:60px 20px;
+}
+.contact-container{
+  max-width:1100px;
+  margin:auto;
+  background:#fff;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+
+/* FORM */
+.form-box{padding:40px;}
+.form-box h2{margin-bottom:25px;}
+.input-group{
+  position:relative;
+  margin-bottom:20px;
+}
+.input-group input,
+.input-group textarea{
+  width:100%;
+  padding:14px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  outline:none;
+}
+.input-group label{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:#fff;
+  padding:0 5px;
+  font-size:13px;
+  color:#777;
+  transition:.3s;
+}
+.input-group textarea+label{top:20px;}
+.input-group input:focus+label,
+.input-group input:valid+label,
+.input-group textarea:focus+label,
+.input-group textarea:valid+label{
+  top:-8px;
+  font-size:12px;
+  color:#0f2027;
+}
+button{
+  width:100%;
+  padding:14px;
+  background:#0f2027;
+  border:none;
+  border-radius:6px;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+button:hover{background:#203a43;}
+
+/* INFO */
+.info-box{
+  background:#f8fafc;
+  padding:40px;
+}
+.info-box h2{margin-bottom:15px;}
+.info-box p{color:#555;margin-bottom:20px;}
+.info-item{
+  display:flex;
+  align-items:center;
+  margin-bottom:12px;
+}
+.info-item span{margin-right:10px;}
+
+/* SUPPORT */
+.support{
+  background:#fff;
+  padding:60px 20px;
+}
+.support-grid{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+.support-card{
+  background:#f8fafc;
+  padding:30px;
+  text-align:center;
+  border-radius:8px;
+}
+
+/* WHY */
+.why{
+  padding:60px 20px;
+  background:#ffffff;
+}
+.why-grid{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+.why-box{
+  background:#f8fafc;
+  padding:30px;
+  border-radius:8px;
+  text-align:center;
+}
+
+/* FAQ */
+.faq{
+  background:#ffffff;
+  padding:60px 20px;
+}
+.faq-container{
+  max-width:1000px;
+  margin:auto;
+}
+.faq h2{text-align:center;margin-bottom:40px;}
+.faq-item{
+  border-bottom:1px solid #ddd;
+  padding:18px 0;
+}
+.faq-item h3{
+  font-size:16px;
+  margin-bottom:6px;
+}
+.faq-item p{
+  font-size:14px;
+  color:#555;
+}
+
+/* FOOTER */
+.footer {
+  background: #0f2027;
+  color: #ffffff;
+  padding: 60px 20px 20px;
+}
+.footer-container {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+.footer-column h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+.footer-column h4 {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+.footer-column p {
+  font-size: 14px;
+  color: #d1d5db;
+  line-height: 1.6;
+}
+.footer-column ul {
+  list-style: none;
+}
+.footer-column ul li {
+  margin-bottom: 10px;
+}
+.footer-column ul li a {
+  text-decoration: none;
+  color: #d1d5db;
+  font-size: 14px;
+}
+.footer-column ul li a:hover {
+  color: #ffffff;
+}
+.footer-bottom {
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 40px;
+  padding-top: 20px;
+  font-size: 13px;
+  color: #d1d5db;
+}
+
+/*TOAST NOTIFICATIONS*/
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toast {
+  min-width: 260px;
+  max-width: 340px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideIn 0.4s ease forwards;
+}
+
+.toast.success {background: linear-gradient(135deg, #16a34a, #15803d);}
+.toast.error {background: linear-gradient(135deg, #dc2626, #991b1b);}
+.toast.warning {background: linear-gradient(135deg, #f59e0b, #d97706);}
+.toast.info {background: linear-gradient(135deg, #2563eb, #1e40af);}
+
+.toast span {
+  margin-left: 15px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.floating-home{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#24424d;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 12px 25px rgba(0,0,0,.2);
+  transition:.25s;
+}
+
+.floating-home:hover{
+  background:#39535d;
+  transform:translateY(-3px);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .contact-container,
+  .support-grid,
+  .why-grid,
+  .footer-container{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>Contact Us</h1>
+  <p>We’re here to help with your food orders</p>
+</div>
+
+<section class="contact-section">
+  <div class="contact-container">
+    <div class="form-box">
+    <h2>Send Us a Message</h2>
+    <form id="contactForm">
+
+      <div class="input-group">
+        <input type="text" name="name" required>
+        <label>Full Name</label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" name="email" required>
+        <label>Email Address</label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" name="subject" placeholder="Order ID">
+        <label>Order ID (optional)</label>
+      </div>
+
+      <div class="input-group">
+        <textarea name="message" rows="5" required></textarea>
+        <label>Your Message</label>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div class="info-box">
+  <h2>Contact Information</h2>
+  <p>Reach out for order issues, refunds, or feedback.</p>
+  <div class="info-item"><span>📍</span>Gwalior, Madhya Pradesh, India</div>
+  <div class="info-item"><span>📧</span>support@CoffeeCape.com</div>
+  <div class="info-item"><span>📞</span>+91 9876543210</div>
+  </div>
+  </div>
+</section>
+
+<section class="support">
+  <div class="support-grid">
+  <div class="support-card"><h3>🕒 Office Hours</h3><p>Mon–Sun</p><p>9 AM – 11 PM</p></div>
+  <div class="support-card"><h3>⚡ Response Time</h3><p>Email: 24 hrs</p><p>Chat: Instant</p></div>
+  <div class="support-card"><h3>📞 Support</h3><p>Order Issues</p><p>Refund Help</p></div>
+  </div>
+  </section>
+
+  <section class="why">
+  <div class="why-grid">
+  <div class="why-box"><h3>✔ Fast Support</h3><p>Quick help for order issues</p></div>
+  <div class="why-box"><h3>✔ Secure Payments</h3><p>Safe & encrypted transactions</p></div>
+  <div class="why-box"><h3>✔ Trusted Restaurants</h3><p>Verified food partners</p></div>
+  </div>
+  </section>
+
+  <section class="faq">
+  <div class="faq-container">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-item"><h3>Where is my food order?</h3><p>You can track your order live from the app.</p></div>
+  <div class="faq-item"><h3>What if my order is late?</h3><p>You may receive compensation if delivery is delayed.</p></div>
+  <div class="faq-item"><h3>Can I cancel my order?</h3><p>Orders can be canceled before restaurant confirmation.</p></div>
+  <div class="faq-item"><h3>What if I receive the wrong item?</h3><p>Report it within 30 minutes for refund or replacement.</p></div>
+  <div class="faq-item"><h3>My food is cold. What should I do?</h3><p>Contact support for quick resolution.</p></div>
+  <div class="faq-item"><h3>Do you offer refunds?</h3><p>Yes, refunds depend on issue verification.</p></div>
+  <div class="faq-item"><h3>How long do refunds take?</h3><p>Refunds usually take 5–7 business days.</p></div>
+  <div class="faq-item"><h3>Can I change delivery address?</h3><p>Address changes are allowed before dispatch.</p></div>
+  <div class="faq-item"><h3>Why was my order canceled?</h3><p>Restaurant or delivery partner unavailability.</p></div>
+  <div class="faq-item"><h3>Is there a minimum order value?</h3><p>Minimum order varies by restaurant.</p></div>
+  <div class="faq-item"><h3>Are delivery charges refundable?</h3><p>Only in specific failure scenarios.</p></div>
+  <div class="faq-item"><h3>Can I reorder previous orders?</h3><p>Yes, from your order history.</p></div>
+  <div class="faq-item"><h3>What payment methods are accepted?</h3><p>UPI, cards, wallets, COD.</p></div>
+  <div class="faq-item"><h3>Why did payment fail?</h3><p>Try again or use another payment method.</p></div>
+  <div class="faq-item"><h3>How to apply promo codes?</h3><p>Apply at checkout before payment.</p></div>
+  <div class="faq-item"><h3>Promo code not working?</h3><p>Check eligibility and expiry.</p></div>
+  <div class="faq-item"><h3>Can I tip the delivery partner?</h3><p>Yes, during checkout or after delivery.</p></div>
+  <div class="faq-item"><h3>What if restaurant is closed?</h3><p>Order will be auto-canceled with refund.</p></div>
+  <div class="faq-item"><h3>Do you support bulk orders?</h3><p>Yes, via advance booking.</p></div>
+  <div class="faq-item"><h3>How do I contact delivery partner?</h3><p>Call option is available after order confirmation.</p></div>
+  <div class="faq-item"><h3>Is food quality guaranteed?</h3><p>We partner with verified restaurants only.</p></div>
+  <div class="faq-item"><h3>How do I report hygiene issues?</h3><p>Report directly through support.</p></div>
+  <div class="faq-item"><h3>Can I schedule an order?</h3><p>Yes, select delivery time at checkout.</p></div>
+  <div class="faq-item"><h3>Do you operate 24/7?</h3><p>Availability depends on restaurant hours.</p></div>
+
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-container">
+
+    <div class="footer-column">
+      <h3>CoffeeCape</h3>
+      <p>
+        Delivering fresh, delicious food from trusted restaurants
+        straight to your doorstep.
+      </p>
+    </div>
+
+    <div class="footer-column">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="Index.html">Home</a></li>
+        <li><a href="#">Browse Restaurants</a></li>
+        <li><a href="MyOrder.html">My Orders</a></li>
+        <li><a href="contact.html">Contact Support</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Order Issues</a></li>
+        <li><a href="refund-policy.html">Refund Policy</a></li>
+        <li><a href="#">Cancellation Policy</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms & Conditions</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 FoodApp. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+<!-- Floating Home Button -->
+<button class="floating-home" id="floatingHomeBtn" title="Go Home">
+  <i class="fa-solid fa-house"></i>
+</button>
+<script src="js/contact.js"></script>
+</body>
+</html>

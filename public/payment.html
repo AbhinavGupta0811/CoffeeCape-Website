@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoffeeCape | Secure Payment</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+:root{
+  --coffee:#6f4e37;
+  --bg:#f8f5f2;
+  --border:#e7e2dd;
+  --error:#e63946;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;user-select: none;}
+body{background:var(--bg);}
+
+.container{
+  max-width:850px;
+  margin:60px auto 140px;
+  background:#fff;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+}
+
+h1{color:var(--coffee);margin-bottom:25px;}
+
+.amount-box{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+  background:#f3ede7;
+  border-radius:15px;
+  margin-bottom:30px;
+}
+
+.amount{
+  font-size:22px;
+  font-weight:700;
+  color:var(--coffee);
+}
+
+.method-card{
+  border:1px solid var(--border);
+  border-radius:16px;
+  margin-bottom:15px;
+  overflow:hidden;
+  transition:.3s;
+}
+
+.method-card.active{
+  border-color:var(--coffee);
+  background:#faf7f4;
+}
+
+.method{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:18px;
+  cursor:pointer;
+}
+
+.method input{display:none}
+
+.icon{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:18px;
+}
+
+.upi{background:#2563eb;}
+.card{background:#6f4e37;}
+.net{background:#d97706;}
+.wallet{background:#059669;}
+.cod{background:#16a34a;}
+
+.details{
+  display:none;
+  padding:20px;
+  border-top:1px dashed var(--border);
+}
+
+.method-card.active .details{display:block}
+
+input, select, textarea{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-bottom:12px;
+  font-size:14px;
+}
+
+input:focus, select:focus, textarea:focus{
+  outline:none;
+  border-color:var(--coffee);
+}
+
+.row{display:flex;gap:12px}
+
+.paybar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:16px 25px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.pay-btn{
+  background:var(--coffee);
+  color:#fff;
+  padding:14px 30px;
+  border:none;
+  border-radius:14px;
+  font-weight:600;
+  cursor:pointer;
+  min-width:180px;
+}
+
+.pay-btn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+
+.back-btn{
+  background:#ddd;
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.secure{
+  font-size:13px;
+  color:#777;
+}
+
+.inline-error{
+  color:var(--error);
+  font-size:12px;
+  margin-top:-8px;
+  margin-bottom:10px;
+}
+
+@media(max-width:768px){
+  .container{margin:40px 10px 140px}
+  .row{flex-direction:column}
+  .paybar{flex-direction:column;gap:10px}
+  .pay-btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Secure Payment – CoffeeCape ☕</h1>
+
+<div class="amount-box">
+  <div>
+    <strong id="paymentTitle">Payment</strong><br>
+    ID: <span id="referenceId">----</span>
+  </div>
+  <div class="amount">
+    ₹<span id="payAmount">0.00</span>
+  </div>
+</div>
+
+<!-- ================= ORDER PAYMENT ================= -->
+<form id="orderPaymentSection" style="display:none;">
+
+<h3>Order Payment Methods</h3>
+
+<!-- 1. UPI -->
+<div class="method-card active">
+<label class="method">
+<input type="radio" name="orderMethod" value="upi" checked>
+<div class="icon upi"><i class="fa-brands fa-google-pay"></i></div>
+<div><strong>UPI</strong></div>
+</label>
+<div class="details">
+<input type="text" name="upiId" placeholder="example@upi">
+</div>
+</div>
+
+<!-- 2. Card -->
+<div class="method-card">
+<label class="method">
+<input type="radio" name="orderMethod" value="card">
+<div class="icon card"><i class="fa-solid fa-credit-card"></i></div>
+<div><strong>Credit/Debit Card</strong></div>
+</label>
+<div class="details">
+<input type="text" name="cardNumber" placeholder="Card Number">
+<input type="text" name="cardName" placeholder="Card Holder Name">
+<div class="row">
+<input type="text" name="expiry" placeholder="MM/YY">
+<input type="password" name="cvv" placeholder="CVV">
+</div>
+</div>
+</div>
+
+<!-- 3. Net Banking -->
+<div class="method-card">
+<label class="method">
+<input type="radio" name="orderMethod" value="netbanking">
+<div class="icon net"><i class="fa-solid fa-building-columns"></i></div>
+<div><strong>Net Banking</strong></div>
+</label>
+<div class="details">
+<select name="bank">
+<option value="">Select Bank</option>
+<option>SBI</option>
+<option>HDFC</option>
+<option>ICICI</option>
+<option>AXIS</option>
+</select>
+</div>
+</div>
+
+<!-- 4. Wallet -->
+<div class="method-card">
+<label class="method">
+<input type="radio" name="orderMethod" value="wallet">
+<div class="icon wallet"><i class="fa-solid fa-wallet"></i></div>
+<div><strong>Wallet</strong></div>
+</label>
+<div class="details">
+<select name="wallet">
+<option value="">Select Wallet</option>
+<option>Paytm</option>
+<option>Amazon Pay</option>
+<option>Mobikwik</option>
+</select>
+<input type="text" placeholder="Registered Mobile">
+</div>
+</div>
+
+<!-- 5. COD -->
+<div class="method-card">
+<label class="method">
+<input type="radio" name="orderMethod" value="cod">
+<div class="icon cod"><i class="fa-solid fa-money-bill-wave"></i></div>
+<div><strong>Cash on Delivery</strong></div>
+</label>
+<div class="details">
+<textarea rows="2" placeholder="Delivery Instructions"></textarea>
+</div>
+</div>
+
+</form>
+
+<!-- ================= BOOKING PAYMENT ================= -->
+<form id="bookingPaymentSection" style="display:none;">
+
+<h3>Booking Advance Payment (50%)</h3>
+
+<p style="color:#777;font-size:14px;margin-bottom:15px;">
+Advance amount (50% of total booking price)
+</p>
+
+<!-- 5 PROFESSIONAL METHODS AGAIN -->
+
+<div class="method-card active">
+<label class="method">
+<input type="radio" name="bookingMethod" value="upi" checked>
+<div class="icon upi"><i class="fa-brands fa-google-pay"></i></div>
+<div><strong>UPI</strong></div>
+</label>
+<div class="details">
+<input type="text" name="upiId" placeholder="example@upi">
+</div>
+</div>
+
+<div class="method-card">
+<label class="method">
+<input type="radio" name="bookingMethod" value="card">
+<div class="icon card"><i class="fa-solid fa-credit-card"></i></div>
+<div><strong>Card</strong></div>
+</label>
+<div class="details">
+<input type="text" name="cardNumber" placeholder="Card Number">
+<input type="text" name="cardName" placeholder="Card Holder Name">
+<div class="row">
+<input type="text" name="expiry" placeholder="MM/YY">
+<input type="password" name="cvv" placeholder="CVV">
+</div>
+</div>
+</div>
+
+<div class="method-card">
+<label class="method">
+<input type="radio" name="bookingMethod" value="netbanking">
+<div class="icon net"><i class="fa-solid fa-building-columns"></i></div>
+<div><strong>Net Banking</strong></div>
+</label>
+<div class="details">
+<select>
+<option value="">Select Bank</option>
+<option>SBI</option>
+<option>HDFC</option>
+<option>ICICI</option>
+<option>AXIS</option>
+</select>
+</div>
+</div>
+
+<div class="method-card">
+<label class="method">
+<input type="radio" name="bookingMethod" value="wallet">
+<div class="icon wallet"><i class="fa-solid fa-wallet"></i></div>
+<div><strong>Wallet</strong></div>
+</label>
+<div class="details">
+<select>
+<option value="">Select Wallet</option>
+<option>Paytm</option>
+<option>Amazon Pay</option>
+<option>Mobikwik</option>
+</select>
+<input type="text" placeholder="Registered Mobile">
+</div>
+</div>
+
+</form>
+
+</div>
+
+<div class="paybar">
+  <!-- <button class="back-btn" id="backBtn">← Back</button> -->
+
+  <div class="secure">
+  <i class="fa-solid fa-lock"></i> 256-bit SSL Secure Payment
+  </div>
+
+  <button class="pay-btn" id="payBtn">
+  Pay ₹<span id="payAmountBtn">0.00</span>
+  </button>
+</div>
+
+<!-- Backend Payment Logic -->
+<script src="js/payment.js"></script>
+
+</body>
+</html>
