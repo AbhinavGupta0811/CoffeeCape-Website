@@ -20,49 +20,161 @@ router.get("/", auth, async (req, res) => {
 });
 
 /* ================ADD TO CART ================ */
-router.post("/add", auth, async (req, res) => {
-  try {
-    const { name, price, qty } = req.body;
+/* ================ ADD TO CART ================ */
+router.post(
+  "/add",
+  auth,
+  async (req, res) => {
 
-    if (!name || !price || !qty) {
-      return res.status(400).json({
+    try {
+
+      const {
+        product_id,
+        qty
+      } = req.body;
+
+      if (
+        !product_id ||
+        !qty
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid cart data"
+        });
+      }
+
+      if (qty < 1) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Quantity must be at least 1"
+        });
+      }
+
+      /* =========================
+         GET PRODUCT
+      ========================= */
+      const [products] =
+        await db.query(
+          `
+          SELECT
+            id,
+            name,
+            price,
+            offer_price
+          FROM products
+          WHERE id = ?
+          LIMIT 1
+          `,
+          [product_id]
+        );
+
+      if (!products.length) {
+
+        return res.status(404).json({
+          success: false,
+          message:
+            "Product not found"
+        });
+      }
+
+      const product =
+        products[0];
+
+      const finalPrice =
+        product.offer_price ||
+        product.price;
+
+      /* =========================
+         CHECK EXISTING ITEM
+      ========================= */
+      const [existing] =
+        await db.query(
+          `
+          SELECT id, qty
+          FROM cart
+          WHERE
+            user_id = ?
+            AND product_id = ?
+          `,
+          [
+            req.session.user.id,
+            product_id
+          ]
+        );
+
+      /* =========================
+         UPDATE EXISTING
+      ========================= */
+      if (existing.length) {
+
+        await db.query(
+          `
+          UPDATE cart
+          SET qty = qty + ?
+          WHERE id = ?
+          `,
+          [
+            qty,
+            existing[0].id
+          ]
+        );
+
+        return res.status(200).json({
+          success: true,
+          message:
+            "Cart updated"
+        });
+      }
+
+      /* =========================
+         INSERT NEW
+      ========================= */
+      await db.query(
+        `
+        INSERT INTO cart (
+          user_id,
+          product_id,
+          name,
+          price,
+          qty
+        )
+
+        VALUES (?, ?, ?, ?, ?)
+        `,
+        [
+          req.session.user.id,
+          product_id,
+          product.name,
+          finalPrice,
+          qty
+        ]
+      );
+
+      res.status(201).json({
+        success: true,
+        message:
+          "Added to cart"
+      });
+
+    } catch (err) {
+
+      console.error(
+        "Cart add error:",
+        err
+      );
+
+      res.status(500).json({
         success: false,
-        message: "Invalid cart data"
+        message:
+          "Server error"
       });
     }
-
-    if (qty < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Quantity must be at least 1"
-      });
-    }
-
-    // Prevent duplicate item
-    const [existing] = await db.query(
-      "SELECT id FROM cart WHERE user_id=? AND name=?",
-      [req.session.user.id, name]
-    );
-
-    if (existing.length) {
-      return res.status(409).json({
-        success: false,
-        message: "Item already in cart"
-      });
-    }
-
-    await db.query(
-      "INSERT INTO cart (user_id, name, price, qty) VALUES (?,?,?,?)",
-      [req.session.user.id, name, price, qty]
-    );
-
-    res.status(201).json({ success: true });
-
-  } catch (err) {
-    console.error("Cart add error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
   }
-});
+);
 
 /* =============UPDATE QUANTITY ================== */
 router.put("/update", auth, async (req, res) => {

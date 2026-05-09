@@ -47,7 +47,6 @@
       color: #e63946; /* hover effect */
     }
 
-
     h1 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(1.8rem, 4vw, 3rem);
@@ -169,21 +168,21 @@
       display: none;
     }
 
-  /* #nextBtn {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    padding: 14px 22px;
-    font-size: 16px;
-    border-radius: 30px;
-    border: none;
-    cursor: not-allowed;
-    background: #ccc;
-    color: #666;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    z-index: 9999;
-    transition: all 0.3s ease;
-  }
+    /* #nextBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      padding: 14px 22px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: none;
+      cursor: not-allowed;
+      background: #ccc;
+      color: #666;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: all 0.3s ease;
+    }
 
     #nextBtn.active {
       background: #4a90e2;
@@ -212,387 +211,35 @@
   </style>
 </head>
 <body>
-<a href="Index.html#menu" class="close-btn">&times;</a>
+  <a href="Index.html#menu" class="close-btn">&times;</a>
 
-<h1>🍔 Burger & 🍟 Fries</h1>
+  <h1>🍔 Burger & 🍟 Fries</h1>
 
-<div style="display:flex; align-items:center; gap:10px; justify-content:center;">
-  <!-- <span>🍔 Burgers</span> -->
+  <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+    <!-- <span>🍔 Burgers</span> -->
 
-  <label class="switch" for="menuToggle">
-    <input type="checkbox" id="menuToggle">
-    <span class="slider"></span>
-  </label>
+    <label class="switch" for="menuToggle">
+      <input type="checkbox" id="menuToggle">
+      <span class="slider"></span>
+    </label>
 
-  <!-- <span>🍟 Fries</span> -->
-</div>
-
-<!-- ================= BURGERS MENU ================= -->
-
-<div id="burgersMenu" class="menu-grid">
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Classic Burger</h2>
-      <div class="price">₹180</div>
-      <p>Juicy beef patty with lettuce, tomato, and cheese.</p>
-      <button class="order-btn" data-name="Classic Burger" data-price="180" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
+    <!-- <span>🍟 Fries</span> -->
   </div>
 
-  <div class="card">
-    <div class="card-content">
-      <h2>Cheese Burger</h2>
-      <div class="price">₹210</div>
-      <p>Loaded with double cheese and fresh veggies.</p>
-      <button class="order-btn" data-name="Cheese Burger" data-price="210" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
+  <!-- BURGER MENU -->
+  <section id="burgersMenu" class="menu-section">
+    <div class="menu-grid" data-category="burgers"></div>
+  </section>
 
-  <div class="card">
-    <div class="card-content">
-      <h2>Veggie Burger</h2>
-      <div class="price">₹165</div>
-      <p>Healthy patty made of fresh veggies and spices.</p>
-      <button class="order-btn" data-name="Veggie Burger" data-price="165" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
+  <!-- FRIES MENU -->
+  <section id="friesMenu" class="menu-section hidden">
+    <div class="menu-grid" data-category="fries"></div>
+  </section>
 
-  <div class="card">
-    <div class="card-content">
-      <h2>Chicken Burger</h2>
-      <div class="price">₹240</div>
-      <p>Crispy chicken patty with mayo and lettuce.</p>
-      <button class="order-btn" data-name="Chicken Burger" data-price="240" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>BBQ Burger</h2>
-      <div class="price">₹270</div>
-      <p>Grilled beef patty glazed with smoky BBQ sauce.</p>
-      <button class="order-btn" data-name="BBQ Burger" data-price="270" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Bacon Burger</h2>
-      <div class="price">₹320</div>
-      <p>Crispy bacon strips on top of a juicy beef patty.</p>
-      <button class="order-btn" data-name="Bacon Burger" data-price="320" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Double Patty Burger</h2>
-      <div class="price">₹350</div>
-      <p>Two juicy patties stacked with melted cheese and fresh lettuce.</p>
-      <button class="order-btn" data-name="Double Patty Burger" data-price="350" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Spicy Jalapeno Burger</h2>
-      <div class="price">₹260</div>
-      <p>Loaded with jalapenos and spicy chipotle sauce.</p>
-      <button class="order-btn" data-name="Spicy Jalapeno Burger" data-price="260" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Mushroom Melt Burger</h2>
-      <div class="price">₹280</div>
-      <p>Sauteed mushrooms with creamy melted cheese.</p>
-      <button class="order-btn" data-name="Mushroom Melt Burger" data-price="280" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Paneer Tikka Burger</h2>
-      <div class="price">₹230</div>
-      <p>Grilled paneer tikka patty with mint mayo.</p>
-      <button class="order-btn" data-name="Paneer Tikka Burger" data-price="230" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Mexican Fiesta Burger</h2>
-      <div class="price">₹290</div>
-      <p>Mexican spices, salsa and crunchy nachos inside.</p>
-      <button class="order-btn" data-name="Mexican Fiesta Burger" data-price="290" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Fish Fillet Burger</h2>
-      <div class="price">₹310</div>
-      <p>Crispy fish fillet with tartar sauce and lettuce.</p>
-      <button class="order-btn" data-name="Fish Fillet Burger" data-price="310" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Smoky Chipotle Burger</h2>
-      <div class="price">₹275</div>
-      <p>Smoked patty with chipotle sauce and onions.</p>
-      <button class="order-btn" data-name="Smoky Chipotle Burger" data-price="275" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Hawaiian Burger</h2>
-      <div class="price">₹295</div>
-      <p>Grilled pineapple slice with sweet BBQ glaze.</p>
-      <button class="order-btn" data-name="Hawaiian Burger" data-price="295" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Ultimate Monster Burger</h2>
-      <div class="price">₹420</div>
-      <p>Triple patty burger loaded with cheese and bacon.</p>
-      <button class="order-btn" data-name="Ultimate Monster Burger" data-price="420" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Classic Slider Trio</h2>
-      <div class="price">₹260</div>
-      <p>Three mini burgers with different signature sauces.</p>
-      <button class="order-btn" data-name="Classic Slider Trio" data-price="260" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= FRIES MENU ================= -->
-
-<div id="friesMenu" class="menu-grid hidden">
-
-  <div class="card">
-    <div class="card-content">
-      <h2>French Fries</h2>
-      <div class="price">₹120</div>
-      <p>Crispy golden fries with a light sprinkle of salt.</p>
-      <button class="order-btn" data-name="French Fries" data-price="120" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Cheese Fries</h2>
-      <div class="price">₹150</div>
-      <p>Fries topped with gooey melted cheese.</p>
-      <button class="order-btn" data-name="Cheese Fries" data-price="150" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Peri Peri Fries</h2>
-      <div class="price">₹160</div>
-      <p>Spicy fries tossed in peri-peri seasoning.</p>
-      <button class="order-btn" data-name="Peri Peri Fries" data-price="160" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Masala Fries</h2>
-      <div class="price">₹150</div>
-      <p>Indian spiced fries with tangy masala seasoning.</p>
-      <button class="order-btn" data-name="Masala Fries" data-price="150" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Curly Fries</h2>
-      <div class="price">₹170</div>
-      <p>Seasoned curly fries with a crisp twist.</p>
-      <button class="order-btn" data-name="Curly Fries" data-price="170" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Loaded Fries</h2>
-      <div class="price">₹220</div>
-      <p>Fries topped with cheese, bacon, and sour cream.</p>
-      <button class="order-btn" data-name="Loaded Fries" data-price="220" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Garlic Parmesan Fries</h2>
-      <div class="price">₹190</div>
-      <p>Fries tossed in garlic butter and parmesan cheese.</p>
-      <button class="order-btn" data-name="Garlic Parmesan Fries" data-price="190" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Truffle Fries</h2>
-      <div class="price">₹240</div>
-      <p>Crispy fries drizzled with aromatic truffle oil.</p>
-      <button class="order-btn" data-name="Truffle Fries" data-price="240" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Chili Cheese Fries</h2>
-      <div class="price">₹230</div>
-      <p>Fries topped with spicy chili and melted cheese.</p>
-      <button class="order-btn" data-name="Chili Cheese Fries" data-price="230" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Sweet Potato Fries</h2>
-      <div class="price">₹200</div>
-      <p>Crispy sweet potato fries with a hint of cinnamon.</p>
-      <button class="order-btn" data-name="Sweet Potato Fries" data-price="200" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Nacho Fries</h2>
-      <div class="price">₹210</div>
-      <p>Mexican style fries with nacho seasoning and cheese dip.</p>
-      <button class="order-btn" data-name="Nacho Fries" data-price="210" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>BBQ Ranch Fries</h2>
-      <div class="price">₹195</div>
-      <p>Fries drizzled with BBQ sauce and ranch dressing.</p>
-      <button class="order-btn" data-name="BBQ Ranch Fries" data-price="195" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Tandoori Fries</h2>
-      <div class="price">₹180</div>
-      <p>Indian spiced fries with smoky tandoori flavor.</p>
-      <button class="order-btn" data-name="Tandoori Fries" data-price="180" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Loaded Veggie Fries</h2>
-      <div class="price">₹210</div>
-      <p>Fries topped with grilled veggies and cheese sauce.</p>
-      <button class="order-btn" data-name="Loaded Veggie Fries" data-price="210" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Spicy Korean Fries</h2>
-      <div class="price">₹220</div>
-      <p>Fries coated in Korean chili glaze and sesame seeds.</p>
-      <button class="order-btn" data-name="Spicy Korean Fries" data-price="220" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-content">
-      <h2>Classic Potato Wedges</h2>
-      <div class="price">₹170</div>
-      <p>Thick-cut seasoned potato wedges served crispy.</p>
-      <button class="order-btn" data-name="Classic Potato Wedges" data-price="170" data-qty="1">
-        Add to Cart
-      </button>
-    </div>
-  </div>
-</div>
-
-<button id="nextBtn" style="user-select:none;" disabled>
-  <i class="fa-solid fa-angle-right"></i>Next
-</button>
-
-<script src="js/cart.js" defer></script>
+  <button id="nextBtn" style="user-select:none;" disabled>
+    <i class="fa-solid fa-angle-right"></i>Next
+  </button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/cart.js" defer></script>
 </body>
 </html>

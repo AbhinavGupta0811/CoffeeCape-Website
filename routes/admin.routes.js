@@ -2,7 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const db = require("../db");
 const adminAuth = require("../middleware/admin.middleware");
-const upload = require("../middleware/upload.middleware");
+const createUploader = require("../middleware/upload.middleware");
+const upload = createUploader("profile");
 const path = require("path");
 
 const router = express.Router();

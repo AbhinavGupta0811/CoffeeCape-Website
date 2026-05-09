@@ -15,7 +15,7 @@ const SIX_HOURS = 6 * 60 * 60 * 1000;
 ===================================== */
 router.post("/", auth, async (req, res) => {
 
-  const { name, phone, address, tip = 0, discount = 0, notes = "" } = req.body;
+  let { name, phone, address, tip = 0, notes = "", couponCode = "" } = req.body;
 
   if (!name || !phone || !address) {
     return res.status(400).json({ message: "All fields required" });
@@ -24,24 +24,29 @@ router.post("/", auth, async (req, res) => {
   const connection = await db.getConnection();
 
   try {
+    await connection.beginTransaction();
+    const userId = req.session.user.id;
 
+    /* =========================
+       FETCH CART
+    ========================= */
     const [cart] = await connection.query(
-      "SELECT name, price, qty FROM cart WHERE user_id=?",
-      [req.session.user.id]
+      "SELECT name, price, qty FROM cart WHERE user_id=? FOR UPDATE",
+      [userId]
     );
 
     if (!cart.length) {
+      await connection.rollback();
       return res.status(400).json({ message: "Cart is empty" });
     }
 
     /* =========================
-       PRICE CALCULATION
+       CALCULATE SUBTOTAL
     ========================= */
     let subtotal = 0;
-
-    cart.forEach(item => {
+    for (const item of cart) {
       subtotal += Number(item.price) * Number(item.qty);
-    });
+    }
 
     subtotal = Number(subtotal.toFixed(2));
 
@@ -50,6 +55,90 @@ router.post("/", auth, async (req, res) => {
     const PLATFORM_FEE = 10;
     const PACKING_FEE = 10;
 
+    let discount = 0;
+
+    /* =========================
+       COUPON VALIDATION
+    ========================= */
+    if (couponCode) {
+      const [coupons] = await connection.query(
+        "SELECT * FROM coupons WHERE code=? AND is_active=TRUE",
+        [couponCode]
+      );
+
+      if (!coupons.length) {
+        await connection.rollback();
+        return res.status(400).json({ message: "Invalid coupon" });
+      }
+
+      const coupon = coupons[0];
+
+      // Expiry check
+      if (coupon.expires_at && new Date() > new Date(coupon.expires_at)) {
+        await connection.rollback();
+        return res.status(400).json({ message: "Coupon expired" });
+      }
+
+      // Usage limit check
+      if (coupon.used_count >= coupon.usage_limit) {
+        await connection.rollback();
+        return res.status(400).json({ message: "Coupon limit reached" });
+      }
+
+      // Min order check
+      if (subtotal < coupon.min_order) {
+        await connection.rollback();
+        return res.status(400).json({
+          message: `Minimum order ₹${coupon.min_order} required`
+        });
+      }
+
+      // Per user usage
+      const [usage] = await connection.query(
+        "SELECT COUNT(*) as count FROM coupon_usage WHERE user_id=? AND coupon_id=?",
+        [userId, coupon.id]
+      );
+
+      if (usage[0].count >= coupon.per_user_limit) {
+        await connection.rollback();
+        return res.status(400).json({ message: "Coupon already used" });
+      }
+
+      /* =========================
+         APPLY DISCOUNT
+      ========================= */
+      if (coupon.type === "flat") {
+        discount = coupon.value;
+      }
+
+      if (coupon.type === "percent") {
+        discount = subtotal * (coupon.value / 100);
+        if (coupon.max_discount > 0) {
+          discount = Math.min(discount, coupon.max_discount);
+        }
+      }
+
+      if (coupon.type === "delivery") {
+        discount = DELIVERY_FEE;
+      }
+
+      discount = Number(discount.toFixed(2));
+
+      // Save usage
+      await connection.query(
+        "INSERT INTO coupon_usage (user_id, coupon_id) VALUES (?, ?)",
+        [userId, coupon.id]
+      );
+
+      await connection.query(
+        "UPDATE coupons SET used_count = used_count + 1 WHERE id=?",
+        [coupon.id]
+      );
+    }
+
+    /* =========================
+       FINAL TOTAL
+    ========================= */
     const gst = Number((subtotal * GST_RATE).toFixed(2));
 
     const finalTotal = Number(
@@ -60,35 +149,29 @@ router.post("/", auth, async (req, res) => {
         PLATFORM_FEE +
         PACKING_FEE +
         Number(tip) -
-        Number(discount)
+        discount
       ).toFixed(2)
     );
 
     /* =========================
-       SAVE AS PENDING ORDER
+       SAVE ORDER
     ========================= */
     const [result] = await connection.query(
       `
       INSERT INTO pending_orders
       (user_id, cart_data, user_details, pricing, notes, expires_at)
-      VALUES (?, ?, ?, ?, ?,  DATE_ADD(NOW(), INTERVAL 15 MINUTE))
+      VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
       `,
       [
-        req.session.user.id,
+        userId,
         JSON.stringify(cart),
-
-        JSON.stringify({
-          name,
-          phone,
-          address
-        }),
-
+        JSON.stringify({ name, phone, address }),
         JSON.stringify({
           subtotal,
           gst,
-          DELIVERY_FEE,
-          PLATFORM_FEE,
-          PACKING_FEE,
+          delivery_fee: DELIVERY_FEE,
+          platform_fee: PLATFORM_FEE,
+          packing_fee: PACKING_FEE,
           tip,
           discount,
           total: finalTotal
@@ -97,6 +180,8 @@ router.post("/", auth, async (req, res) => {
       ]
     );
 
+    await connection.commit();
+
     res.json({
       success: true,
       pendingOrderId: result.insertId,
@@ -104,7 +189,8 @@ router.post("/", auth, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Initiate Order Error:", err);
+    await connection.rollback();
+    console.error("Order Error:", err);
     res.status(500).json({ message: "Failed to initiate order" });
   } finally {
     connection.release();

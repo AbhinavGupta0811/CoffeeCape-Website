@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Products</title>
+<link rel="icon" type="image/png" href="assets/logo-image.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- FONT AWESOME -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+  crossorigin="anonymous"
+/>
+
+<!-- ADMIN CSS -->
+<link
+  rel="stylesheet"
+  href="css/admin.css"
+>
+
+</head>
+
+<body>
+
+<div class="admin-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <h2 class="logo">
+      CoffeeCape
+    </h2>
+
+    <nav>
+
+      <a href="dashboard.html">
+        <i class="fa-solid fa-chart-line"></i>
+        Dashboard
+      </a>
+
+      <a href="user.html">
+        <i class="fa-solid fa-users"></i>
+        Users
+      </a>
+
+      <a href="orders.html">
+        <i class="fa-solid fa-box"></i>
+        Orders
+      </a>
+
+      <a href="booking.html">
+        <i class="fa-solid fa-calendar-check"></i>
+        Bookings
+      </a>
+
+      <a href="product.html" class="active">
+        <i class="fa-solid fa-burger"></i>
+        Products
+      </a>
+
+      <a href="messages.html">
+        <i class="fa-solid fa-envelope"></i>
+        Messages
+      </a>
+
+      <a href="setting.html">
+        <i class="fa-solid fa-gear"></i>
+        Settings
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+
+      <h2>
+        Product Management
+      </h2>
+
+      <p>
+        Add and manage all food products
+      </p>
+
+    </div>
+
+    <!-- PRODUCT FORM PANEL -->
+    <div class="panel large-panel">
+
+      <div class="product-panel-header">
+
+        <h3>
+          <i class="fa-solid fa-plus"></i>
+          Add New Product
+        </h3>
+
+      </div>
+
+      <form
+        id="productForm"
+        class="product-form"
+      >
+
+        <!-- GRID -->
+        <div class="product-grid">
+
+          <!-- PRODUCT NAME -->
+          <div class="form-group">
+
+            <label>
+              Product Name
+            </label>
+
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter product name"
+              required
+            >
+
+          </div>
+
+          <!-- CATEGORY -->
+          <div class="form-group">
+
+            <label>
+              Category
+            </label>
+
+            <select
+              name="category"
+              required
+            >
+
+              <option value="">
+                Select Category
+              </option>
+
+              <option value="hot-beverages">
+                Hot Beverages
+              </option>
+
+              <option value="cold-beverages">
+                Cold Beverages
+              </option>
+
+              <option value="refreshment-drinks">
+                Refreshment Drinks
+              </option>
+
+              <option value="desserts">
+                Desserts
+              </option>
+
+              <option value="refreshments">
+                Refreshments
+              </option>
+
+              <option value="burgers">
+                Burgers
+              </option>
+
+              <option value="fries">
+                Fries
+              </option>
+
+              <option value="combos">
+                Combos
+              </option>
+
+            </select>
+
+          </div>
+
+          <!-- SUBCATEGORY -->
+          <div class="form-group">
+
+            <label>
+              Subcategory
+            </label>
+
+            <input
+              type="text"
+              name="subcategory"
+              placeholder="coffee / tea / snacks"
+            >
+
+          </div>
+
+          <!-- PRICE -->
+          <div class="form-group">
+
+            <label>
+              Price
+            </label>
+
+            <input
+              type="number"
+              name="price"
+              placeholder="₹ Price"
+              required
+            >
+
+          </div>
+
+          <!-- OFFER PRICE -->
+          <div class="form-group">
+
+            <label>
+              Offer Price
+            </label>
+
+            <input
+              type="number"
+              name="offer_price"
+              placeholder="₹ Offer Price"
+            >
+
+          </div>
+
+          <!-- STOCK -->
+          <div class="form-group">
+
+            <label>
+              Stock Quantity
+            </label>
+
+            <input
+              type="number"
+              name="stock_qty"
+              placeholder="Stock"
+            >
+
+          </div>
+
+          <!-- PREP TIME -->
+          <div class="form-group">
+
+            <label>
+              Prep Time
+            </label>
+
+            <input
+              type="number"
+              name="prep_time"
+              placeholder="Minutes"
+            >
+
+          </div>
+
+          <!-- BADGE -->
+          <div class="form-group">
+
+            <label>
+              Badge
+            </label>
+
+            <input
+              type="text"
+              name="badge"
+              placeholder="Bestseller / New"
+            >
+
+          </div>
+
+          <!-- AVAILABILITY -->
+          <div class="form-group">
+
+            <label>
+              Availability
+            </label>
+
+            <select name="availability">
+
+              <option value="in_stock">
+                In Stock
+              </option>
+
+              <option value="out_of_stock">
+                Out Of Stock
+              </option>
+
+            </select>
+
+          </div>
+
+          <!-- IMAGE -->
+          <div class="form-group">
+
+            <label>
+              Product Image
+            </label>
+
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+            >
+
+          </div>
+
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="form-group">
+
+          <label>
+            Description
+          </label>
+
+          <textarea
+            name="description"
+            placeholder="Write product description..."
+          ></textarea>
+
+        </div>
+
+        <!-- BUTTON -->
+        <div class="product-actions">
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Product
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- CATEGORY SWITCHER -->
+    <div class="category-switcher">
+
+      <button
+        class="switch-btn"
+        id="prevCategory"
+      >
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <div class="category-title">
+
+        <span id="activeCategoryName">
+          Hot Beverages
+        </span>
+
+      </div>
+
+      <button
+        class="switch-btn"
+        id="nextCategory"
+      >
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+
+    </div>
+
+    <!-- PRODUCTS TABLE -->
+    <div class="panel large-panel">
+
+      <div class="product-panel-header">
+
+        <h3>
+          <i class="fa-solid fa-box-open"></i>
+          Products List
+        </h3>
+
+      </div>
+
+      <div class="table-container">
+
+        <table
+          class="modern-table"
+          id="productsTable"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>Image</th>
+
+              <th>Name</th>
+
+              <th>Category</th>
+
+              <th>Price</th>
+
+              <th>Status</th>
+
+              <th>Action</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <!-- PRODUCTS LOAD HERE -->
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/admin-product.js" defer></script>
+</body>
+</html>

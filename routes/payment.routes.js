@@ -84,10 +84,8 @@ router.post("/confirm", auth, async (req, res) => {
       ORDER PAYMENT 
     ========================= */
     if (type === "order") {
-      await connection.beginTransaction();
       try {
 
-        /* HANDLE COD EXISTING ORDER */
         const [[existingOrder]] = await connection.query(
           "SELECT * FROM orders WHERE order_id=? AND user_id=?",
           [paymentId, req.user.id]
@@ -97,38 +95,45 @@ router.post("/confirm", auth, async (req, res) => {
 
           if (existingOrder.payment_status === "paid") {
             await connection.rollback();
-            return res.status(409).json({ message: "Order already paid" });
+
+            return res.status(409).json({
+              message: "Order already paid"
+            });
           }
 
           await connection.query(
-            `UPDATE orders
+            `
+            UPDATE orders
             SET payment_status='paid',
-                payment_method='online'
-            WHERE order_id=?`,
-            [paymentId]
+                payment_method=?
+            WHERE order_id=?
+            `,
+            [method, paymentId]
           );
 
           await connection.commit();
 
-          /* FETCH ORDER FOR EMAIL */
           const [[fullOrder]] = await db.query(
-            `SELECT o.*, u.email
+            `
+            SELECT o.*, u.email
             FROM orders o
             JOIN users u ON o.user_id = u.id
-            WHERE o.order_id=?`,
+            WHERE o.order_id=?
+            `,
             [paymentId]
           );
 
           const [items] = await db.query(
-            `SELECT name, qty, price
+            `
+            SELECT name, qty, price
             FROM order_items
             WHERE order_id = (
               SELECT id FROM orders WHERE order_id=?
-            )`,
+            )
+            `,
             [paymentId]
           );
 
-          /* SEND EMAIL */
           try {
             await sendPaymentBill(fullOrder.email, {
               ...fullOrder,
@@ -147,75 +152,125 @@ router.post("/confirm", auth, async (req, res) => {
           });
         }
 
-        /* FETCH PENDING ORDER */
         const [[pending]] = await connection.query(
-          "SELECT * FROM pending_orders WHERE id=? AND user_id=?",
+          `
+          SELECT * 
+          FROM pending_orders 
+          WHERE id=? AND user_id=?
+          `,
           [paymentId, req.user.id]
         );
 
         if (!pending) {
           await connection.rollback();
-          return res.status(404).json({ message: "Pending order not found" });
+
+          return res.status(404).json({
+            message: "Pending order not found"
+          });
         }
 
-        /* CHECK EXPIRY */
         if (new Date() > new Date(pending.expires_at)) {
           await connection.rollback();
-          return res.status(400).json({ message: "Order expired" });
+
+          return res.status(400).json({
+            message: "Order expired"
+          });
         }
 
-        /* SAFE PARSE */
-        const cart =
-          typeof pending.cart_data === "string"
-            ? JSON.parse(pending.cart_data)
-            : pending.cart_data;
-
-        const pricing =
-          typeof pending.pricing === "string"
-            ? JSON.parse(pending.pricing)
-            : pending.pricing;
-
-        const userDetails =
-          typeof pending.user_details === "string"
-            ? JSON.parse(pending.user_details)
-            : pending.user_details;
+        const cart = safeParse(pending.cart_data);
+        const pricing = safeParse(pending.pricing);
+        const userDetails = safeParse(pending.user_details);
 
         const notes = pending.notes || "";
 
         if (!cart || !pricing || !userDetails) {
           await connection.rollback();
-          return res.status(500).json({ message: "Invalid pending order data" });
+
+          return res.status(500).json({
+            message: "Invalid pending order data"
+          });
         }
 
-        /* GENERATE ORDER ID */
-        const newOrderId = await generateUniqueOrderId();
-        const paymentStatus = method === "cod" ? "pending" : "paid";
+        if (
+          pricing.subtotal == null ||
+          pricing.gst == null ||
+          pricing.total == null
+        ) {
+          await connection.rollback();
 
-        /* CREATE ORDER */
+          return res.status(500).json({
+            message: "Corrupted pricing data"
+          });
+        }
+
+        const subtotal = Number(pricing.subtotal ?? 0);
+        const gst = Number(pricing.gst ?? 0);
+
+        const deliveryFee = Number(pricing.delivery_fee ?? 0);
+        const platformFee = Number(pricing.platform_fee ?? 0);
+        const packingFee = Number(pricing.packing_fee ?? 0);
+
+        const tip = Number(pricing.tip ?? 0);
+        const discount = Number(pricing.discount ?? 0);
+
+        const total = Number(pricing.total ?? 0);
+
+        console.log("Pricing Object:", pricing);
+
+        const newOrderId = await generateUniqueOrderId();
+
+        const paymentStatus =
+          method === "cod"
+            ? "pending"
+            : "paid";
+
         const [orderResult] = await connection.query(
           `
           INSERT INTO orders
-          (order_id, user_id, name, phone, address, notes,
-          subtotal, gst, delivery_fee, platform_fee, packing_fee,
-          tip, discount, total, status, payment_status, payment_method)
+          (
+            order_id,
+            user_id,
+            name,
+            phone,
+            address,
+            notes,
+            subtotal,
+            gst,
+            delivery_fee,
+            platform_fee,
+            packing_fee,
+            tip,
+            discount,
+            total,
+            status,
+            payment_status,
+            payment_method
+          )
           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           `,
           [
             newOrderId,
             req.user.id,
+
             userDetails.name,
             userDetails.phone,
             userDetails.address,
+
             notes,
-            pricing.subtotal,
-            pricing.gst,
-            pricing.DELIVERY_FEE,
-            pricing.PLATFORM_FEE,
-            pricing.PACKING_FEE,
-            pricing.tip,
-            pricing.discount,
-            pricing.total,
-            "pending",        
+
+            subtotal,
+            gst,
+
+            deliveryFee,
+            platformFee,
+            packingFee,
+
+            tip,
+            discount,
+
+            total,
+
+            "pending",
             paymentStatus,
             method
           ]
@@ -223,7 +278,6 @@ router.post("/confirm", auth, async (req, res) => {
 
         const internalId = orderResult.insertId;
 
-        /* INSERT ITEMS */
         const itemsValues = cart.map(item => [
           internalId,
           item.name,
@@ -232,45 +286,45 @@ router.post("/confirm", auth, async (req, res) => {
         ]);
 
         await connection.query(
-          "INSERT INTO order_items (order_id, name, price, qty) VALUES ?",
+          `
+          INSERT INTO order_items
+          (order_id, name, price, qty)
+          VALUES ?
+          `,
           [itemsValues]
         );
 
-        /* CLEAR CART */
         await connection.query(
           "DELETE FROM cart WHERE user_id=?",
           [req.user.id]
         );
 
-        /* DELETE PENDING */
-        const [deleteResult] = await connection.query(
+        await connection.query(
           "DELETE FROM pending_orders WHERE id=?",
           [paymentId]
         );
 
-        if (deleteResult.affectedRows === 0) {
-          console.warn("Pending order already deleted or missing:", paymentId);
-        }
-
         await connection.commit();
 
-        /* FETCH ORDER FOR EMAIL */
         const [[fullOrder]] = await db.query(
-          `SELECT o.*, u.email
+          `
+          SELECT o.*, u.email
           FROM orders o
           JOIN users u ON o.user_id = u.id
-          WHERE o.order_id=?`,
+          WHERE o.order_id=?
+          `,
           [newOrderId]
         );
 
         const [items] = await db.query(
-          `SELECT name, qty, price
+          `
+          SELECT name, qty, price
           FROM order_items
-          WHERE order_id=?`,
+          WHERE order_id=?
+          `,
           [internalId]
         );
 
-        /* SEND EMAIL (ONLY ONLINE) */
         if (paymentStatus === "paid") {
           try {
             await sendPaymentBill(fullOrder.email, {
@@ -286,14 +340,19 @@ router.post("/confirm", auth, async (req, res) => {
           success: true,
           type: "order",
           id: newOrderId,
-          amount: Number(pricing.total),
+          amount: total,
           payment_status: paymentStatus
         });
 
       } catch (err) {
+
         await connection.rollback();
+
         console.error("Unified Payment Error:", err);
-        return res.status(500).json({ message: "Payment failed" });
+
+        return res.status(500).json({
+          message: "Payment failed"
+        });
       }
     }
     

@@ -1,7 +1,8 @@
 const express = require("express");
 const db = require("../db");
 const auth = require("../middleware/auth.middleware");
-const upload = require("../middleware/upload.middleware");
+const createUploader = require("../middleware/upload.middleware");
+const imageUpload = createUploader("profile");
 const fs = require("fs");
 
 const router = express.Router();
@@ -108,7 +109,7 @@ router.put("/", auth, async (req, res) => {
 router.post(
   "/upload-image",
   auth,
-  upload.single("profile_image"),
+  imageUpload.single("profile_image"),
   async (req, res) => {
     try {
       if (!req.file) {

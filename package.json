@@ -12,8 +12,10 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
+    "csurf": "^1.2.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-mysql-session": "^3.0.3",
@@ -24,7 +26,7 @@
     "helmet": "^8.1.0",
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^8.0.7",
     "socket.io": "^4.8.3",
     "uuid": "^13.0.0"
   }

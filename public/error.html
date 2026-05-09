@@ -4,163 +4,159 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Something Went Wrong</title>
-
 <link rel="icon" type="image/png" href="assets/logo-image.png">
-
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-
-:root{
-  --primary:#6f4e37;
-  --danger:#e63946;
-  --bg:#faf6ef;
-  --text:#333;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Poppins, sans-serif;
-}
-
-body{
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:20px;
-}
-
-/* ========================
-   ERROR CARD
-======================== */
-
-.error-box{
-  max-width:480px;
-  width:100%;
-  background:#fff;
-  padding:50px 35px;
-  border-radius:22px;
-  text-align:center;
-
-  box-shadow:0 25px 60px rgba(0,0,0,.08);
-
-  animation:fadeIn .4s ease;
-}
-
-/* ========================
-   ERROR CODE
-======================== */
-
-.error-code{
-  font-size:90px;
-  font-weight:800;
-  color:var(--danger);
-  line-height:1;
-  margin-bottom:10px;
-}
-
-/* ========================
-   TITLE
-======================== */
-
-.error-title{
-  font-size:24px;
-  font-weight:600;
-  color:var(--text);
-  margin-bottom:10px;
-}
-
-/* ========================
-   MESSAGE
-======================== */
-
-.error-message{
-  font-size:15px;
-  color:#666;
-  margin-bottom:30px;
-}
-
-/* ========================
-   BUTTONS
-======================== */
-
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  padding:12px 20px;
-  border-radius:12px;
-  border:none;
-  cursor:pointer;
-  font-size:14px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  transition:.25s;
-}
-
-.btn-primary{
-  background:var(--primary);
-  color:#fff;
-}
-
-.btn-primary:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 20px rgba(0,0,0,.1);
-}
-
-.btn-outline{
-  background:#eee;
-}
-
-.btn-outline:hover{
-  background:#ddd;
-}
-
-/* ========================
-   ANIMATION
-======================== */
-
-@keyframes fadeIn{
-  from{
-    opacity:0;
-    transform:translateY(20px);
+  :root{
+    --primary:#6f4e37;
+    --danger:#e63946;
+    --bg:#faf6ef;
+    --text:#333;
   }
-  to{
-    opacity:1;
-    transform:translateY(0);
+
+  *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Poppins, sans-serif;
   }
-}
 
-/* ========================
-   MOBILE
-======================== */
+  body{
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+  }
 
-@media(max-width:480px){
+  /* ========================
+    ERROR CARD
+  ======================== */
 
   .error-box{
-    padding:35px 25px;
+    max-width:480px;
+    width:100%;
+    background:#fff;
+    padding:50px 35px;
+    border-radius:22px;
+    text-align:center;
+
+    box-shadow:0 25px 60px rgba(0,0,0,.08);
+
+    animation:fadeIn .4s ease;
   }
+
+  /* ========================
+    ERROR CODE
+  ======================== */
 
   .error-code{
-    font-size:70px;
+    font-size:90px;
+    font-weight:800;
+    color:var(--danger);
+    line-height:1;
+    margin-bottom:10px;
   }
+
+  /* ========================
+    TITLE
+  ======================== */
 
   .error-title{
-    font-size:20px;
+    font-size:24px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:10px;
   }
 
-}
+  /* ========================
+    MESSAGE
+  ======================== */
 
+  .error-message{
+    font-size:15px;
+    color:#666;
+    margin-bottom:30px;
+  }
+
+  /* ========================
+    BUTTONS
+  ======================== */
+
+  .actions{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    padding:12px 20px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.25s;
+  }
+
+  .btn-primary{
+    background:var(--primary);
+    color:#fff;
+  }
+
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(0,0,0,.1);
+  }
+
+  .btn-outline{
+    background:#eee;
+  }
+
+  .btn-outline:hover{
+    background:#ddd;
+  }
+
+  /* ========================
+    ANIMATION
+  ======================== */
+
+  @keyframes fadeIn{
+    from{
+      opacity:0;
+      transform:translateY(20px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
+  /* ========================
+    MOBILE
+  ======================== */
+
+  @media(max-width:480px){
+
+    .error-box{
+      padding:35px 25px;
+    }
+
+    .error-code{
+      font-size:70px;
+    }
+
+    .error-title{
+      font-size:20px;
+    }
+
+  }
 </style>
 </head>
 

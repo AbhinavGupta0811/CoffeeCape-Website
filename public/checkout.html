@@ -287,7 +287,7 @@ input, textarea{width:96%;padding:10px;border-radius:8px;border:1px solid #ccc;}
 <div class="section">
   <h2>Delivery Details</h2>
   <input id="name" placeholder="Full Name">
-  <input id="phone" placeholder="Phone Number">
+  <input id="phone" type="tel" maxlength="10" inputmode="numeric" placeholder="Phone Number"/>
   <textarea id="address" placeholder="Delivery Address"></textarea>
 </div>
 
@@ -305,7 +305,7 @@ input, textarea{width:96%;padding:10px;border-radius:8px;border:1px solid #ccc;}
     <div class="tip-btn" data-tip="20">₹20</div>
     <div class="tip-btn" data-tip="50">₹50</div>
     <div class="tip-btn" data-tip="0">No tip</div>
-    <input id="customTip" placeholder="Custom tip ₹">
+    <input id="customTip" type="number" min="0" max="500" placeholder="Custom tip ₹"/>
   </div>
 </div>
 
@@ -314,22 +314,10 @@ input, textarea{width:96%;padding:10px;border-radius:8px;border:1px solid #ccc;}
   <h2>Apply Coupon</h2>
 
   <div class="coupon-box">
-    <input
-      type="text"
-      id="couponCode"
-      placeholder="Enter coupon code"
-      autocomplete="off"
-    />
-    <button id="applyCouponBtn" type="button">Apply</button>
-    <button id="removeCouponBtn" type="button" class="hidden">
-      Remove
+    <input type="text" id="couponCode" placeholder="Enter coupon code" autocomplete="off"/>
+    <button id="applyCouponBtn" type="button">
+      Validate
     </button>
-  </div>
-
-  <div class="coupon-hints">
-    <div><strong>FOOD50</strong> - ₹50 off on orders above ₹1999</div>
-    <div><strong>SAVE10</strong> - 10% off (max ₹100)</div>
-    <div><strong>DELIVERYFREE</strong> - Free delivery above ₹2999</div>
   </div>
 </div>
 

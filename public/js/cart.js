@@ -1,4 +1,5 @@
 (() => {
+  const socket = io();
   const API_BASE = "/api/cart";
   const CART_PAGE = "cart.html";
   const AUTH_PAGE = "Auth.html";
@@ -57,6 +58,173 @@
   }
 
   /* ======================
+    LOAD PRODUCTS
+  ====================== */
+  async function loadProducts() {
+
+    const menuGrids =
+      document.querySelectorAll(".menu-grid");
+
+    if (!menuGrids.length) return;
+
+    for (const menuGrid of menuGrids) {
+
+      const category =
+        menuGrid.dataset.category;
+
+      if (!category) continue;
+
+      try {
+
+        menuGrid.innerHTML = `
+          <p style="
+            text-align:center;
+            padding:40px;
+            font-weight:600;
+          ">
+            Loading products...
+          </p>
+        `;
+
+        const res =
+          await fetch(
+            `/api/products/category/${category}`
+          );
+
+        if (!res.ok) {
+          throw new Error("Failed to load");
+        }
+
+        const data =
+          await res.json();
+
+        if (!data.products?.length) {
+
+          menuGrid.innerHTML = `
+            <p style="
+              text-align:center;
+              padding:40px;
+              font-weight:600;
+            ">
+              No products found
+            </p>
+          `;
+
+          continue;
+        }
+
+        menuGrid.innerHTML =
+          data.products
+            .map(createProductCard)
+            .join("");
+        initFilters();
+
+      } catch (err) {
+
+        console.error(
+          `Load ${category} error:`,
+          err
+        );
+
+        menuGrid.innerHTML = `
+          <p style="
+            text-align:center;
+            padding:40px;
+            color:red;
+            font-weight:600;
+          ">
+            Failed to load products
+          </p>
+        `;
+      }
+    }
+  }
+
+  /* ======================
+    PRODUCT CARD
+  ====================== */
+  function createProductCard(product) {
+
+    const finalPrice =
+      product.offer_price || product.price;
+
+    const outOfStock =
+      product.availability === "out_of_stock";
+
+    return `
+
+      <div class="card ${product.subcategory || ""}">
+
+        <img
+          src="${
+            product.image?.startsWith("/")
+              ? product.image
+              : `/uploads/products/${product.image}`
+          }"
+          alt="${escapeHtml(product.name)}"
+          onerror="this.src='/assets/default-food.png'"
+        />
+
+        <div class="card-content">
+
+          <h2>
+            ${escapeHtml(product.name)}
+          </h2>
+
+          <div class="price">
+
+            ${
+              product.offer_price
+              ? `
+                <span style="
+                  color:#c97b63;
+                  font-weight:700;
+                ">
+                  ₹${product.offer_price}
+                </span>
+
+                <span style="
+                  text-decoration:line-through;
+                  color:#888;
+                  margin-left:8px;
+                ">
+                  ₹${product.price}
+                </span>
+              `
+              : `₹${product.price}`
+            }
+
+          </div>
+
+          <p>
+            ${escapeHtml(product.description || "")}
+          </p>
+
+          <button
+            class="order-btn"
+
+            data-id="${product.id}"
+
+            data-qty="1"
+
+            ${outOfStock ? "disabled" : ""}
+          >
+
+            ${
+              outOfStock
+              ? "Out of Stock"
+              : "Add to Cart"
+            }
+
+          </button>
+
+        </div>
+
+      </div>
+    `;
+  }
+
+  /* ======================
      ADD TO CART
   ====================== */
   async function addToCart(item) {
@@ -96,8 +264,7 @@
     if (!btn) return;
 
     addToCart({
-      name: btn.dataset.name,
-      price: Number(btn.dataset.price),
+      product_id: Number(btn.dataset.id),
       qty: Number(btn.dataset.qty || 1)
     });
   });
@@ -174,29 +341,42 @@
   }
 
   /* ======================
-     FILTER BUTTONS
+    FILTER BUTTONS
   ====================== */
   function initFilters() {
-    const filterBtns = document.querySelectorAll(".filter-btn");
+
+    const filterBtns =
+      document.querySelectorAll(".filter-btn");
+
     if (!filterBtns.length) return;
 
-    const cards = document.querySelectorAll(".card");
-
     filterBtns.forEach(btn => {
+
       btn.addEventListener("click", () => {
 
-        const filter = btn.dataset.filter;
+        const filter =
+          btn.dataset.filter;
 
-        filterBtns.forEach(b => b.classList.remove("active"));
+        filterBtns.forEach(b =>
+          b.classList.remove("active")
+        );
+
         btn.classList.add("active");
 
-        cards.forEach(card => {
-          card.style.display =
-            filter === "all" || card.classList.contains(filter)
-              ? "flex"
-              : "none";
-        });
+        document
+          .querySelectorAll(".card")
+          .forEach(card => {
 
+            card.style.display =
+
+              filter === "all" ||
+
+              card.classList.contains(filter)
+
+              ? "flex"
+
+              : "none";
+          });
       });
     });
   }
@@ -209,21 +389,21 @@
     if (!toggle) return;
 
     // Detect which menus exist on current page
-    const drinksMenu = document.getElementById("drinksMenu");
-    const snacksMenu = document.getElementById("snacksMenu");
+    const coldDrinksMenu = document.getElementById("coldDrinksMenu");
+    const refreshmentMenu = document.getElementById("refreshmentMenu");
     const burgersMenu = document.getElementById("burgersMenu");
     const friesMenu = document.getElementById("friesMenu");
 
     function updateMenuView() {
 
       // Refreshment page
-      if (drinksMenu && snacksMenu) {
+      if (coldDrinksMenu && refreshmentMenu) {
         if (toggle.checked) {
-          drinksMenu.classList.add("hidden");
-          snacksMenu.classList.remove("hidden");
+          coldDrinksMenu.classList.add("hidden");
+          refreshmentMenu.classList.remove("hidden");
         } else {
-          drinksMenu.classList.remove("hidden");
-          snacksMenu.classList.add("hidden");
+          coldDrinksMenu.classList.remove("hidden");
+          refreshmentMenu.classList.add("hidden");
         }
       }
 
@@ -277,11 +457,59 @@
   }
 
   /* ======================
+    ESCAPE HTML
+  ====================== */
+  function escapeHtml(text = "") {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  /* ======================
+    LIVE PRODUCT UPDATES
+  ====================== */
+  socket.on(
+    "productAdded",
+    async () => {
+
+      await loadProducts();
+    }
+  );
+
+  socket.on(
+    "productUpdated",
+    async () => {
+
+      await loadProducts();
+    }
+  );
+
+  socket.on(
+    "productDeleted",
+    async () => {
+
+      await loadProducts();
+    }
+  );
+
+  socket.on(
+    "productAvailabilityUpdated",
+    async () => {
+
+      await loadProducts();
+    }
+  );
+
+  /* ======================
      INIT
   ====================== */
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     initNextButton();
-    syncCartState();
+    await syncCartState();
+    await loadProducts();
     initFilters();
     initToggleSwitch();
   });

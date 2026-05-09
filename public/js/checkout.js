@@ -25,6 +25,7 @@
   let platform_fee = PLATFORM_FEE;
   let packing_fee = PACKING_FEE;
   let total = 0; 
+  let isSubmittingOrder = false;
 
   /* =========================
      DOM ELEMENTS
@@ -100,6 +101,23 @@
       window.location.href = "error.html?type=network";
       return null;
     }
+  }
+
+  /* IDEMPOTENCY KEY */
+  function generateIdempotencyKey() {
+    return (
+      "order_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).substring(2, 12)
+    );
+  }
+
+  let checkoutKey = sessionStorage.getItem("checkoutKey");
+
+  if (!checkoutKey) {
+    checkoutKey = generateIdempotencyKey();
+    sessionStorage.setItem("checkoutKey", checkoutKey);
   }
 
   /* =========================
@@ -226,115 +244,73 @@
   });
 
   /* =========================
-     COUPONS
-  ========================= */
-  const coupons = [
-    { code: "FOOD50", min: 199, type: "flat", value: 50 },
-    { code: "SAVE10", min: 0, type: "percent", value: 0.1 },
-    { code: "DELIVERYFREE", min: 299, type: "delivery", value: DELIVERY_FEE }
-  ];
-
-  window.applyCoupon = function () {
-    const code = couponInput.value.trim().toUpperCase();
-    discount = 0;
-
-    const c = coupons.find(x => x.code === code);
-    if (!c) {
-      showToast(`<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Invalid coupon`, "error");
-      updateTotals();
-      return;
-    }
-
-    if (subtotal < c.min) {
-      showToast(`Add ₹${(c.min - subtotal).toFixed(2)} more`, "warning");
-      return;
-    }
-
-    if (c.type === "flat") discount = c.value;
-    if (c.type === "percent") discount = Math.min(subtotal * c.value, 100);
-    if (c.type === "delivery") discount = DELIVERY_FEE;
-
-    showToast(`<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i> ${c.code} applied`, "success");
-    updateTotals();
-
-    couponInput.disabled = true;
-    applyCouponBtn.classList.add("hidden");
-    removeCouponBtn.classList.remove("hidden");
-  };
-
-  function removeCoupon() {
-    discount = 0;
-    couponInput.value = "";
-    couponInput.disabled = false;
-
-    applyCouponBtn.classList.remove("hidden");
-    removeCouponBtn.classList.add("hidden");
-
-    updateTotals();
-    showToast(`<i class="fa-solid fa-circle-info" style="margin-right:6px;"></i> Coupon removed`, "info");
-  }
-
-  applyCouponBtn?.addEventListener("click", applyCoupon);
-  removeCouponBtn?.addEventListener("click", removeCoupon);
-
-  /* =========================
      PLACE ORDER
   ========================= */
   async function placeOrder() {
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const notes = document.getElementById("notes")?.value.trim() || "";
+    if (isSubmittingOrder) return;
+    isSubmittingOrder = true;
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const notes = document.getElementById("notes")?.value.trim() || "";
 
-  if (!name || !phone || !address) {
-    showToast(`<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Please fill all delivery details`, "warning");
-    return;
-  }
+    if (!name || !phone || !address) {
+      showToast(`<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Please fill all delivery details`, "warning");
+      return;
+    }
+    const phoneRegex = /^[6-9]\d{9}$/;
 
-  if (!cart.length) {
-    showToast(`<i class="fa-solid fa-cart-shopping"></i> Cart is empty`, "warning");
-    return;
-  }
-
-  payNowBtn.disabled = true;
-  showToast(`<i class="fa-solid fa-circle-info"></i> Placing your order...`, "info");
-
-  try {
-    const orderPayload = {
-      name,
-      phone,
-      address,
-      notes,
-      subtotal: Number(subtotal.toFixed(2)),
-      gst: Number(gst.toFixed(2)),
-      delivery_fee: Number(delivery.toFixed(2)),
-      platform_fee: Number(platform_fee.toFixed(2)),
-      packing_fee: Number(packing_fee.toFixed(2)),
-      tip: Number(tip.toFixed(2)),
-      discount: Number(discount.toFixed(2)),
-      total: Number(total.toFixed(2))
-    };
-
-    const res = await apiRequest(ORDER_API, "POST", orderPayload);
-
-    if (!res || !res.success) {
-      payNowBtn.disabled = false;
-      showToast(res?.message || "Order failed", "error");
+    if (!phoneRegex.test(phone)) {
+      showToast(
+        `<i class="fa-solid fa-circle-xmark"></i> Invalid phone number`,
+        "error"
+      );
       return;
     }
 
-    showToast(`<i class="fa-solid fa-circle-check"></i> Order placed successfully`, "success");
+    if (!cart.length) {
+      showToast(`<i class="fa-solid fa-cart-shopping"></i> Cart is empty`, "warning");
+      return;
+    }
 
-    setTimeout(() => {
-      window.location.href = `payment.html?type=order&id=${res.pendingOrderId}`;
-    }, 1200);
+    payNowBtn.disabled = true;
+    showToast(`<i class="fa-solid fa-circle-info"></i> Placing your order...`, "info");
 
-  } catch (err) {
-    console.error(err);
-    showToast("Order failed", "error");
-    payNowBtn.disabled = false;
+    try {
+      const orderPayload = {
+        name,
+        phone,
+        address,
+        notes,
+        tip: Number(tip.toFixed(2)),
+        couponCode: couponInput.value.trim().toUpperCase(),
+        idempotencyKey: checkoutKey
+      };
+
+      const res = await apiRequest(ORDER_API, "POST", orderPayload);
+
+      if (!res || !res.success) {
+        payNowBtn.disabled = false;
+        showToast(res?.message || "Order failed", "error");
+        return;
+      }
+
+      showToast(`<i class="fa-solid fa-circle-check"></i> Order placed successfully`, "success");
+      sessionStorage.removeItem("checkoutKey");
+
+      setTimeout(() => {
+        window.location.href = `payment.html?type=order&id=${res.pendingOrderId}`;
+      }, 1200);
+      
+    } catch (err) {
+      console.error(err);
+      showToast("Order failed", "error");
+    } finally {
+      payNowBtn.disabled = false;
+      isSubmittingOrder = false;
+    }
   }
-}
+  
   /* =========================
      EVENTS
   ========================= */

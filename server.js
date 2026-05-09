@@ -23,7 +23,8 @@ const adminRoutes = require("./routes/admin.routes");
 const contactRoutes = require("./routes/contact.routes");
 const reviewsRoute = require("./routes/reviews.route");
 const adminBookingRoutes = require("./routes/admin.booking.routes");
-
+const adminProductRoutes = require("./routes/admin.products.routes");
+const productRoutes = require("./routes/products.routes");
 const app = express();
 
 /* ================================
@@ -120,6 +121,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/reviews", reviewsRoute);
 app.use("/api/admin/bookings", adminBookingRoutes);
+app.use("/api/admin/products", adminProductRoutes);
+app.use("/api/products", productRoutes);
 
 /* ================================
    GLOBAL ERROR HANDLER 

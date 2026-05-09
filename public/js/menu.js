@@ -93,7 +93,10 @@
     cartContainer.innerHTML =
       cart
         .map(item => {
-          total += item.price * item.qty;
+          const finalPrice =
+            item.offer_price || item.price;
+
+          total += finalPrice * item.qty;
 
           return `
             <div class="cart-item" data-id="${item.id}">
