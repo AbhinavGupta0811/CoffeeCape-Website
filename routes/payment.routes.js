@@ -357,225 +357,458 @@ router.post("/confirm", auth, async (req, res) => {
     }
     
    /* =========================
-      BOOKING PAYMENT 
-    ========================= */
-    if (type === "booking") {
-      const io = req.app.get("io");
-      let pending = null;
-      let booking = null;
+    BOOKING PAYMENT
+  ========================= */
+  if (type === "booking") {
 
-      /* FETCH BASED ON ID TYPE */
-      if (paymentId.startsWith("PBK-")) {
+    const io = req.app.get("io");
 
-        const [[p]] = await connection.query(
-          `SELECT * FROM pending_bookings WHERE id=? AND user_id=?`,
-          [paymentId, req.user.id]
-        );
+    let pending = null;
+    let booking = null;
 
-        pending = p;
+    /* =====================================
+      FETCH BASED ON PAYMENT ID
+    ===================================== */
+    if (paymentId.startsWith("PBK-")) {
 
-        if (!pending) {
-          await connection.rollback();
-          return res.status(404).json({ message: "Pending booking not found" });
-        }
+      const [[p]] = await connection.query(
+        `
+        SELECT *
+        FROM pending_bookings
+        WHERE id=? AND user_id=?
+        `,
+        [paymentId, req.user.id]
+      );
 
-        /* ⏳ EXPIRY CHECK */
-        if (new Date() > new Date(pending.expires_at)) {
-          await connection.rollback();
-          return res.status(400).json({ message: "Booking session expired" });
-        }
+      pending = p;
 
-      } else if (paymentId.startsWith("EVT-")) {
-
-        const [[b]] = await connection.query(
-          `SELECT * FROM bookings WHERE booking_id=? AND user_id=?`,
-          [paymentId, req.user.id]
-        );
-
-        booking = b;
-
-        if (!booking) {
-          await connection.rollback();
-          return res.status(404).json({ message: "Booking not found" });
-        }
-
-      } else {
+      if (!pending) {
         await connection.rollback();
-        return res.status(400).json({ message: "Invalid booking ID" });
+
+        return res.status(404).json({
+          message: "Pending booking not found"
+        });
       }
 
-      /* FIRST PAYMENT (FROM PENDING) */
-      if (pending) {
-
-        /* 🔒 SLOT LOCK */
-        const [slotCheck] = await connection.query(
-          `SELECT COUNT(*) AS total
-          FROM bookings
-          WHERE event_type=? AND event_date=? AND event_time=?
-          AND payment_status='completed'
-          FOR UPDATE`,
-          [pending.event_type, pending.event_date, pending.event_time]
-        );
-
-        if (slotCheck[0].total >= 5) {
-          await connection.rollback();
-          return res.status(409).json({ message: "Slot is full" });
-        }
-
-        /* 🔁 IDEMPOTENCY */
-        const [[existing]] = await connection.query(
-          `SELECT booking_id FROM bookings
-          WHERE user_id=? AND event_type=? AND event_date=? AND event_time=?
-          AND payment_status IN ('partial','completed')`,
-          [
-            req.user.id,
-            pending.event_type,
-            pending.event_date,
-            pending.event_time
-          ]
-        );
-
-        if (existing) {
-          await connection.rollback();
-          return res.status(409).json({ message: "Booking already exists" });
-        }
-
-        /* 🔥 CREATE BOOKING */
-        const bookingId = await generateUniqueBookingId(connection);
-
-        const total = Number(pending.total) || 0;
-        const advance = Number((total * 0.5).toFixed(2));
-
-        const bookingData =
-          typeof pending.booking_data === "string"
-            ? pending.booking_data
-            : JSON.stringify(pending.booking_data);
-
-        await connection.query(
-          `INSERT INTO bookings
-          (booking_id, user_id, event_type, event_date, event_time,
-            full_name, email, phone, booking_data, total,
-            paid_amount, status, payment_status, payment_method)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            bookingId,
-            pending.user_id,
-            pending.event_type,
-            pending.event_date,
-            pending.event_time,
-            pending.full_name,
-            pending.email,
-            pending.phone,
-            bookingData,
-            total,
-            advance,
-            "pending",
-            "partial",
-            method
-          ]
-        );
+      /* =====================================
+        SESSION EXPIRY CHECK
+      ===================================== */
+      if (new Date() > new Date(pending.expires_at)) {
 
         await connection.query(
           `DELETE FROM pending_bookings WHERE id=?`,
           [paymentId]
         );
 
-        await connection.commit();
+        await connection.rollback();
 
-        /* 📧 EMAIL */
-        try {
-          const [[fullBooking]] = await connection.query(
-            `SELECT b.*, u.email
-            FROM bookings b
-            JOIN users u ON b.user_id=u.id
-            WHERE b.booking_id=?`,
-            [bookingId]
-          );
-
-          if (fullBooking?.email) {
-            await sendBookingPaymentBill(fullBooking.email, fullBooking);
-          }
-        } catch (err) {
-          console.error("Email failed:", err);
-        }
-
-        /* 🔔 SOCKET */
-        if (io) {
-          io.to("admin_room").emit("newBooking", { bookingId });
-          io.to(`user_${req.user.id}`).emit("bookingConfirmed", {
-            bookingId,
-            status: "pending"
-          });
-        }
-
-        return res.json({
-          success: true,
-          type: "booking",
-          id: bookingId,
-          payment_status: "partial"
+        return res.status(400).json({
+          message: "Booking session expired"
         });
       }
 
-      /* SECOND PAYMENT (FROM BOOKING) */
-      if (booking) {
+    }
 
-        const total = Number(booking.total) || 0;
-        const paid = Number(booking.paid_amount) || 0;
+    /* =====================================
+      SECOND PAYMENT FLOW
+    ===================================== */
+    else if (paymentId.startsWith("EVT-")) {
 
-        if (paid >= total) {
-          await connection.rollback();
-          return res.status(409).json({ message: "Already fully paid" });
-        }
+      const [[b]] = await connection.query(
+        `
+        SELECT *
+        FROM bookings
+        WHERE booking_id=? AND user_id=?
+        FOR UPDATE
+        `,
+        [paymentId, req.user.id]
+      );
 
-        const remaining = Number((total - paid).toFixed(2));
+      booking = b;
 
-        await connection.query(
-          `UPDATE bookings
-          SET paid_amount = ?, payment_status='completed', status='confirmed'
-          WHERE booking_id=?`,
-          [total, booking.booking_id]
-        );
+      if (!booking) {
+        await connection.rollback();
 
-        await connection.commit();
-
-        /* 📧 EMAIL */
-        try {
-          const [[fullBooking]] = await connection.query(
-            `SELECT b.*, u.email
-            FROM bookings b
-            JOIN users u ON b.user_id=u.id
-            WHERE b.booking_id=?`,
-            [booking.booking_id]
-          );
-
-          if (fullBooking?.email) {
-            await sendBookingPaymentBill(fullBooking.email, fullBooking);
-          }
-        } catch (err) {
-          console.error("Email failed:", err);
-        }
-
-        /* 🔔 SOCKET */
-        if (io) {
-          io.to("admin_room").emit("bookingUpdated", {
-            bookingId: booking.booking_id
-          });
-
-          io.to(`user_${req.user.id}`).emit("bookingConfirmed", {
-            bookingId: booking.booking_id,
-            status: "confirmed"
-          });
-        }
-
-        return res.json({
-          success: true,
-          type: "booking",
-          id: booking.booking_id,
-          payment_status: "completed"
+        return res.status(404).json({
+          message: "Booking not found"
         });
       }
     }
 
+    else {
+
+      await connection.rollback();
+
+      return res.status(400).json({
+        message: "Invalid booking ID"
+      });
+    }
+
+    /* =====================================
+      FIRST PAYMENT (CREATE BOOKING)
+    ===================================== */
+    if (pending) {
+
+      /* =====================================
+        SLOT LOCK
+      ===================================== */
+      const [[slotCheck]] = await connection.query(
+        `
+        SELECT COUNT(*) AS total
+        FROM bookings
+        WHERE event_type=?
+        AND event_date=?
+        AND event_time=?
+        AND status IN ('pending','confirmed')
+        FOR UPDATE
+        `,
+        [
+          pending.event_type,
+          pending.event_date,
+          pending.event_time
+        ]
+      );
+
+      if (slotCheck.total >= 5) {
+
+        await connection.rollback();
+
+        return res.status(409).json({
+          message: "Selected slot is full"
+        });
+      }
+
+      /* =====================================
+        IDEMPOTENCY CHECK
+      ===================================== */
+      const [[existing]] = await connection.query(
+        `
+        SELECT booking_id
+        FROM bookings
+        WHERE user_id=?
+        AND event_type=?
+        AND event_date=?
+        AND event_time=?
+        AND status IN ('pending','confirmed')
+        LIMIT 1
+        `,
+        [
+          req.user.id,
+          pending.event_type,
+          pending.event_date,
+          pending.event_time
+        ]
+      );
+
+      if (existing) {
+
+        await connection.rollback();
+
+        return res.status(409).json({
+          message: "Booking already exists for this slot"
+        });
+      }
+
+      /* =====================================
+        GENERATE BOOKING
+      ===================================== */
+      const bookingId =
+        await generateUniqueBookingId(connection);
+
+      const total =
+        Number(pending.total) || 0;
+
+      if (!total || total <= 0) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          message: "Invalid booking amount"
+        });
+      }
+
+      /* =====================================
+        ADVANCE PAYMENT (50%)
+      ===================================== */
+      const advance =
+        Number((total * 0.5).toFixed(2));
+
+      /* =====================================
+        BOOKING DATA
+      ===================================== */
+      const bookingData =
+        typeof pending.booking_data === "string"
+          ? pending.booking_data
+          : JSON.stringify(pending.booking_data);
+
+      /* =====================================
+        INSERT BOOKING
+      ===================================== */
+      await connection.query(
+        `
+        INSERT INTO bookings
+        (
+          booking_id,
+          user_id,
+          event_type,
+          event_date,
+          event_time,
+          full_name,
+          email,
+          phone,
+          booking_data,
+          total,
+          paid_amount,
+          status,
+          payment_status,
+          payment_method
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+          bookingId,
+          pending.user_id,
+
+          pending.event_type,
+          pending.event_date,
+          pending.event_time,
+
+          pending.full_name,
+          pending.email,
+          pending.phone,
+
+          bookingData,
+
+          total,
+          advance,
+
+          "pending",
+          "partial",
+
+          method
+        ]
+      );
+
+      /* =====================================
+        DELETE PENDING BOOKING
+      ===================================== */
+      await connection.query(
+        `
+        DELETE FROM pending_bookings
+        WHERE id=?
+        `,
+        [paymentId]
+      );
+
+      await connection.commit();
+
+      /* =====================================
+        FETCH FINAL BOOKING
+      ===================================== */
+      const [[fullBooking]] = await db.query(
+        `
+        SELECT b.*, u.email
+        FROM bookings b
+        JOIN users u ON b.user_id=u.id
+        WHERE b.booking_id=?
+        `,
+        [bookingId]
+      );
+
+      /* =====================================
+        EMAIL
+      ===================================== */
+      try {
+
+        if (fullBooking?.email) {
+
+          await sendBookingPaymentBill(
+            fullBooking.email,
+            fullBooking
+          );
+        }
+
+      } catch (mailErr) {
+
+        console.error(
+          "Booking payment email failed:",
+          mailErr
+        );
+      }
+
+      /* =====================================
+        SOCKET EVENTS
+      ===================================== */
+      if (io) {
+
+        io.to("admin_room").emit(
+          "newBooking",
+          {
+            bookingId,
+            payment_status: "partial",
+            status: "pending"
+          }
+        );
+
+        io.to(`user_${req.user.id}`).emit(
+          "bookingConfirmed",
+          {
+            bookingId,
+            payment_status: "partial",
+            status: "pending"
+          }
+        );
+      }
+
+      /* =====================================
+        SUCCESS RESPONSE
+      ===================================== */
+      return res.json({
+        success: true,
+        type: "booking",
+        id: bookingId,
+        payment_status: "partial",
+        status: "pending",
+        paid_amount: advance,
+        remaining_amount: Number(
+          (total - advance).toFixed(2)
+        )
+      });
+    }
+
+    /* =====================================
+      SECOND / FINAL PAYMENT
+    ===================================== */
+    if (booking) {
+
+      const total =
+        Number(booking.total) || 0;
+
+      const alreadyPaid =
+        Number(booking.paid_amount) || 0;
+
+      /* =====================================
+        ALREADY FULLY PAID
+      ===================================== */
+      if (alreadyPaid >= total) {
+
+        await connection.rollback();
+
+        return res.status(409).json({
+          message: "Booking already fully paid"
+        });
+      }
+
+      /* =====================================
+        REMAINING PAYMENT
+      ===================================== */
+      const remaining =
+        Number((total - alreadyPaid).toFixed(2));
+
+      if (remaining <= 0) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          message: "Invalid remaining amount"
+        });
+      }
+
+      /* =====================================
+        UPDATE BOOKING
+      ===================================== */
+      await connection.query(
+        `
+        UPDATE bookings
+        SET
+          paid_amount=?,
+          payment_status='paid',
+          status='confirmed',
+          payment_method=?
+        WHERE booking_id=?
+        `,
+        [
+          total,
+          method,
+          booking.booking_id
+        ]
+      );
+
+      await connection.commit();
+
+      /* =====================================
+        FETCH UPDATED BOOKING
+      ===================================== */
+      const [[updatedBooking]] = await db.query(
+        `
+        SELECT b.*, u.email
+        FROM bookings b
+        JOIN users u ON b.user_id=u.id
+        WHERE b.booking_id=?
+        `,
+        [booking.booking_id]
+      );
+
+      /* =====================================
+        EMAIL
+      ===================================== */
+      try {
+
+        if (updatedBooking?.email) {
+
+          await sendBookingPaymentBill(
+            updatedBooking.email,
+            updatedBooking
+          );
+        }
+
+      } catch (mailErr) {
+
+        console.error(
+          "Final booking payment email failed:",
+          mailErr
+        );
+      }
+
+      /* =====================================
+        SOCKET EVENTS
+      ===================================== */
+      if (io) {
+
+        io.to("admin_room").emit(
+          "bookingUpdated",
+          {
+            bookingId: booking.booking_id,
+            payment_status: "paid",
+            status: "confirmed"
+          }
+        );
+
+        io.to(`user_${req.user.id}`).emit(
+          "bookingConfirmed",
+          {
+            bookingId: booking.booking_id,
+            payment_status: "paid",
+            status: "confirmed"
+          }
+        );
+      }
+
+      /* =====================================
+        SUCCESS RESPONSE
+      ===================================== */
+      return res.json({
+        success: true,
+        type: "booking",
+        id: booking.booking_id,
+        payment_status: "paid",
+        status: "confirmed",
+        paid_amount: total,
+        remaining_amount: 0
+      });
+    }
+  }
+    
   } catch (err) {
     await connection.rollback();
     console.error("Unified Payment Error:", err);
