@@ -311,73 +311,84 @@ function renderProducts(products) {
     return;
   }
 
-  productsTable.innerHTML = products.map(product => {
+  productsTable.innerHTML =
+    products.map(product => {
 
-    const image =
-      product.image
-        ? `/uploads/products/${product.image}`
-        : "/assets/default-food.png";
+      const image =
+        product.image
+          ? product.image
+          : "/assets/default-food.png";
 
-    const inStock =
-      product.availability === "in_stock";
+      const inStock =
+        product.availability === "in_stock";
 
-    return `
-      <tr>
+      return `
+        <tr>
 
-        <td>
-          <img
-            src="${image}"
-            class="product-thumb"
-            alt="${escapeHTML(product.name)}"
-            onerror="this.src='/assets/default-food.png'"
-          >
-        </td>
+          <td>
+            <img
+              src="${image}"
+              class="product-thumb"
+              alt="${escapeHTML(product.name)}"
+              onerror="this.src='/assets/default-food.png'"
+            >
+          </td>
 
-        <td>
-          ${escapeHTML(product.name)}
-        </td>
+          <td>
+            ${escapeHTML(product.name)}
+          </td>
 
-        <td>
-          ${escapeHTML(product.category)}
-        </td>
+          <td>
+            ${escapeHTML(product.category)}
+          </td>
 
-        <td>
-          ₹${product.price}
-        </td>
+          <td>
+            ₹${product.price}
+          </td>
 
-        <td>
-          <span class="status ${inStock ? "active" : "blocked"}">
-            ${inStock ? "In Stock" : "Out Of Stock"}
-          </span>
-        </td>
+          <td>
+            <span class="status ${
+              inStock
+                ? "active"
+                : "blocked"
+            }">
+              ${
+                inStock
+                  ? "In Stock"
+                  : "Out Of Stock"
+              }
+            </span>
+          </td>
 
-        <td class="action-buttons">
-          <button
-            class="btn-primary"
-            onclick='editProduct(${JSON.stringify(product)})'
-          >
-            Edit
-          </button>
+          <td class="action-buttons">
 
-          <button
-            class="btn-view"
-            onclick="toggleAvailability(${product.id}, '${product.availability}')"
-          >
-            Toggle
-          </button>
+            <button
+              class="btn-primary"
+              onclick='editProduct(${JSON.stringify(product)})'
+            >
+              Edit
+            </button>
 
-          <button
-            class="btn-danger"
-            onclick="deleteProduct(${product.id})"
-          >
-            Delete
-          </button>
+            <button
+              class="btn-view"
+              onclick="toggleAvailability(${product.id}, '${product.availability}')"
+            >
+              Toggle
+            </button>
 
-        </td>
-      </tr>
-    `;
+            <button
+              class="btn-danger"
+              onclick="deleteProduct(${product.id})"
+            >
+              Delete
+            </button>
 
-  }).join("");
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
 }
 
 /* =====================================
