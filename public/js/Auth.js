@@ -369,21 +369,19 @@ document.getElementById("resendOtp")?.addEventListener("click", async () => {
 /************************************************************
  * LOGIN REDIRECT
  ************************************************************/
-function loginConfirmedRedirect(seconds = 2, role = "user") {
-  let timeLeft = seconds;
+function loginConfirmedRedirect(role = "user") {
+  if (role === "admin") {
+    showToast("Login successful! Redirecting to admin dashboard...", "success", 2000);
 
-  const interval = setInterval(() => {
-    showToast(`Redirecting in ${timeLeft}s...`, "success", 1000);
-    timeLeft--;
+    setTimeout(() => {
+      window.location.href = "/admin/dashboard.html";
+    }, 2000);
 
-    if (timeLeft < 0) {
-      clearInterval(interval);
+  } else {
+    showToast("Login successful! Redirecting...", "success", 2000);
 
-      if (role === "admin") {
-        window.location.href = "/admin/dashboard.html";
-      } else {
-        window.location.href = "/Index.html";
-      }
-    }
-  }, 1000);
+    setTimeout(() => {
+      window.location.href = "/Index.html";
+    }, 2000);
+  }
 }
