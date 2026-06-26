@@ -1,6 +1,6 @@
 /************************************************************
  * API PATHS
- ************************************************************/
+*************************************************************/
 const API = {
   USERS_STATS: "/api/admin/users/stats",
   USERS: "/api/admin/users",
@@ -48,10 +48,10 @@ async function loadUsers() {
       usersTableBody.insertAdjacentHTML("beforeend", `
         <tr>
 
-          <td>#${u.id}</td>
+          <td>US00${u.id}</td>
           <td>${u.first_name} ${u.last_name}</td>
           <td>${u.email}</td>
-          <td>${u.phone || "N/A"}</td>
+          <td>${u.phone || "Not Provided"}</td>
           <td>${u.role.toUpperCase()}</td>
           <td>${new Date(u.created_at).toLocaleDateString()}</td>
 

@@ -1,141 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin | Orders</title>
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-<link rel="stylesheet" href="css/admin.css">
+  <meta charset="UTF-8">
+  <title>Admin | Orders</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 
 <body>
 
-<div class="admin-wrapper">
+  <div class="admin-wrapper">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+        <span class="logo-text">CoffeeCape</span>
+      </div>
 
-    <h2 class="logo">CoffeeCape</h2>
+      <nav>
+        <a href="dashboard.html" class="active">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
 
-    <nav>
-      <a href="dashboard.html">
-        <i class="fa-solid fa-chart-line"></i> Dashboard
-      </a>
+        <a href="user.html">
+          <i class="fa-solid fa-users"></i> Users
+        </a>
 
-      <a href="user.html">
-        <i class="fa-solid fa-users"></i> Users
-      </a>
+        <a href="product.html">
+          <i class="fa-solid fa-burger"></i> Products
+        </a>
 
-      <a href="orders.html" class="active">
-        <i class="fa-solid fa-box"></i> Orders
-      </a>
+        <a href="orders.html">
+          <i class="fa-solid fa-box"></i> Orders
+        </a>
 
-      <a href="booking.html">
-        <i class="fa-solid fa-calendar-check"></i> Bookings
-      </a>
+        <a href="booking.html">
+          <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
 
-      <a href="product.html">
-        <i class="fa-solid fa-burger"></i> Products
-      </a>
+        <a href="messages.html">
+          <i class="fa-solid fa-envelope"></i> Messages
+        </a>
 
-      <a href="messages.html">
-        <i class="fa-solid fa-envelope"></i> Messages
-      </a>
+        <a href="setting.html">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
 
-      <a href="setting.html">
-        <i class="fa-solid fa-gear"></i> Settings
-      </a>
-    </nav>
+      <!-- <button id="logoutBtn" class="logout-btn">
+        Logout
+      </button> -->
+    </aside>
 
-  </aside>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
 
+      <div class="page-header">
+        <h2>Order Management</h2>
+        <p>Manage customer orders and refunds</p>
+      </div>
 
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
+      <!-- ORDER STATS -->
+      <section class="stats-grid">
 
-    <div class="page-header">
-      <h2>Order Management</h2>
-      <p>Manage customer orders and refunds</p>
-    </div>
-
-
-    <!-- ORDER FILTER -->
-    <div class="orders-filters">
-
-      <button id="activeOrdersBtn" class="filter-btn active">
-        Active Orders
-      </button>
-
-      <button id="pastOrdersBtn" class="filter-btn">
-        Past Orders
-      </button>
-
-    </div>
-
-
-    <!-- TABLE -->
-    <div class="table-container">
-
-      <table class="admin-table">
-
-        <thead>
-
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Payment</th>
-            <th>Actions</th>
-            <th>Buttons</th>
-          </tr>
-
-        </thead>
-
-
-        <tbody id="ordersTableBody">
-        </tbody>
-
-      </table>
-        <!-- EMPTY STATE -->
-        <div id="emptyState">
-          No orders found
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Total Orders Today</h4>
+            <h2 id="todayOrders">0</h2>
+          </div>
         </div>
-    </div>
-  </main>
-</div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Total Revenue</h4>
+            <h2 id="totalRevenue">₹0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Pending Orders</h4>
+            <h2 id="pendingOrders">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Processing Orders</h4>
+            <h2 id="processingOrders">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Delivered Orders</h4>
+            <h2 id="deliveredOrders">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <i class="fa-solid fa-rotate-left"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Refund Requests</h4>
+            <h2 id="refundRequests">0</h2>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ORDER FILTER -->
+      <div class="orders-filters">
+
+        <button id="activeOrdersBtn" class="filter-btn active">
+          Active Orders
+        </button>
+
+        <button id="pastOrdersBtn" class="filter-btn">
+          Past Orders
+        </button>
+
+        <button id="exportOrdersBtn" class="btn-secondary">
+          Export Orders CSV
+        </button>
+
+      </div>
 
 
-<!-- ORDER MODAL -->
-<div id="orderModal" class="modal-overlay">
+      <!-- TABLE -->
+      <div class="table-container">
 
-  <div class="modal-box">
+        <table class="admin-table">
 
-    <span id="closeOrderModal" class="close-btn">
-      &times;
-    </span>
+          <thead>
 
-    <h3>Order Details</h3>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Actions</th>
+              <th>Buttons</th>
+            </tr>
 
-    <div id="orderModalContent" class="modal-content"></div>
+          </thead>
 
+
+          <tbody id="ordersTableBody">
+          </tbody>
+
+        </table>
+          <!-- EMPTY STATE -->
+          <div id="emptyState">
+            No orders found
+          </div>
+      </div>
+    </main>
   </div>
 
-</div>
+  <!-- ORDER MODAL -->
+  <div id="orderModal" class="modal-overlay">
+    <div class="modal-box">
 
+      <span id="closeOrderModal" class="close-btn">
+        &times;
+      </span>
 
-<!-- UI NOTIFICATIONS -->
+      <h3>Order Details</h3>
 
-<div id="bottomSlider"></div>
-<div id="toastContainer"></div>
+      <div id="orderModalContent" class="modal-content"></div>
+    </div>
+  </div>
 
+  <!-- UI NOTIFICATIONS -->
+  <div id="bottomSlider"></div>
+  <div id="toastContainer"></div>
 
-<!-- SCRIPTS -->
-
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script src="js/admin-orders.js"></script>
+  <!-- SCRIPTS -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="js/admin-orders.js"></script>
 
 </body>
 </html>

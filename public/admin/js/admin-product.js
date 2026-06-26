@@ -395,53 +395,75 @@ function renderProducts(products) {
    EDIT PRODUCT
 ===================================== */
 function editProduct(product) {
-
+  console.log("Editing product:", product);
   editMode = true;
-
   editingProductId = product.id;
 
-  productForm.name.value =
-    product.name || "";
+  if (productForm.name) {
+    productForm.name.value = product.name || "";
+  }
 
-  productForm.category.value =
-    product.category || "";
+  if (productForm.category) {
+    productForm.category.value = product.category || "";
+  }
 
-  productForm.subcategory.value =
-    product.subcategory || "";
+  if (productForm.subcategory) {
+    productForm.subcategory.value = product.subcategory || "";
+  }
 
-  productForm.price.value =
-    product.price || "";
+  if (productForm.price) {
+    productForm.price.value = product.price || "";
+  }
 
-  productForm.offer_price.value =
-    product.offer_price || "";
+  if (productForm.offer_price) {
+    productForm.offer_price.value = product.offer_price || "";
+  }
 
-  productForm.stock_qty.value =
-    product.stock_qty || "";
+  if (productForm.stock_qty) {
+    productForm.stock_qty.value = product.stock_qty || "";
+  }
 
-  productForm.prep_time.value =
-    product.prep_time || "";
+  if (productForm.prep_time) {
+    productForm.prep_time.value = product.prep_time || "";
+  }
 
-  productForm.badge.value =
-    product.badge || "";
+  if (productForm.badge) {
+    productForm.badge.value = product.badge || "";
+  }
 
-  productForm.availability.value =
-    product.availability || "in_stock";
+  // Availability field is currently removed from HTML
+  if (productForm.availability) {
+    productForm.availability.value =
+      product.availability || "in_stock";
+  }
 
-  productForm.description.value =
-    product.description || "";
+  const descriptionField =
+    productForm.querySelector(
+      "textarea[name='description']"
+    );
+
+  if (descriptionField) {
+    descriptionField.value =
+      product.description || "";
+  }
 
   const submitBtn =
-    productForm.querySelector("button[type='submit']");
+    productForm.querySelector(
+      "button[type='submit']"
+    );
 
-  submitBtn.innerHTML = `
-    <i class="fa-solid fa-pen"></i>
-    Update Product
-  `;
+  if (submitBtn) {
+    submitBtn.innerHTML = `
+      <i class="fa-solid fa-pen"></i>
+      Update Product
+    `;
+  }
 
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
+
 }
 
 /* =====================================
@@ -611,19 +633,14 @@ function showToast(
     );
   });
 
-  toastTimeout =
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove(
+      "show"
+    );
+
     setTimeout(() => {
-
-      toast.classList.remove(
-        "show"
-      );
-
-      setTimeout(() => {
-
-        toast.style.display =
-          "none";
-
+      toast.style.display =
+        "none";
       }, 300);
-
     }, 2500);
 }

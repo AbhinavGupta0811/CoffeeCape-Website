@@ -6,7 +6,8 @@
 <link rel="icon" type="image/png" href="assets/logo-image.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<style>
+<link rel="stylesheet" href="css/activity.css" />
+<!-- <style>
 /* ===============================
    GLOBAL
 ================================ */
@@ -665,61 +666,145 @@ th{
   }
 
 }
-</style>
+</style> -->
 </head>
 <body>
-<header>
-  <div class="header-wrapper">
-    <h1>My Activity</h1>
-  </div>
 
-  <!-- Professional Toggle Buttons -->
-  <div class="activity-tabs">
-    <button class="tab-btn active" id="ordersTab">
-      <i class="fa-solid fa-receipt"></i> My Orders
-    </button>
-    <button class="tab-btn" id="bookingsTab">
-      <i class="fa-solid fa-calendar-check"></i> My Bookings
-    </button>
-  </div>
-</header>
+  <!-- ==========================
+       HEADER
+  =========================== -->
+  <header>
 
-<div class="container" id="ordersContainer">
-  <div class="empty">Loading your orders…</div>
-</div>
-
-<!-- Modal -->
-<div id="orderModal">
-  <div class="modal-box">
-    <span class="close" id="closeModal">×</span>
-    <h2 id="modalTitle">Details</h2>
-    <div class="modal-body" id="modalContent"></div>
-    <div id="statusTimeline" class="timeline"></div>
-  </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div id="confirmModal" class="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-icon">
-      <i class="fa-solid fa-triangle-exclamation"></i>
+    <div class="header-wrapper">
+      <h1>
+        <i class="fa-solid fa-clipboard-list"></i>
+        My Activity
+      </h1>
     </div>
-    <h3 id="confirmTitle">Confirm Action</h3>
-    <p id="confirmMessage">Are you sure?</p>
-    <div class="confirm-actions">
-      <button id="confirmCancel" class="btn-secondary">No</button>
-      <button id="confirmOk" class="btn-danger">Yes, Continue</button>
-    </div>
-  </div>
-</div>
 
-<!-- Toast Message -->
-<div id="toast" class="toast"></div>
-<!-- Floating Home Button -->
-<button class="floating-home" id="floatingHomeBtn" title="Go Home">
-  <i class="fa-solid fa-house"></i>
-</button>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script src="js/activity.js"></script>
+    <div class="activity-tabs">
+
+      <button class="tab-btn active" id="ordersTab">
+        <i class="fa-solid fa-receipt"></i>
+        My Orders
+      </button>
+
+      <button class="tab-btn" id="bookingsTab">
+        <i class="fa-solid fa-calendar-check"></i>
+        My Bookings
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ==========================
+       MAIN CONTENT
+  =========================== -->
+  <main class="container">
+
+    <div id="ordersContainer">
+
+      <div class="empty">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <p>Loading your orders...</p>
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ==========================
+       ORDER / BOOKING DETAILS MODAL
+  =========================== -->
+  <div id="orderModal">
+
+    <div class="modal-box">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+
+        <h2 id="modalTitle">
+          Order Details
+        </h2>
+
+        <button class="close" id="closeModal" type="button" aria-label="Close Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Dynamic Content -->
+        <div id="modalContent"></div>
+
+        <!-- Status Timeline -->
+        <div id="statusTimeline" class="timeline"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================
+       CONFIRMATION MODAL
+  =========================== -->
+
+  <div id="confirmModal" class="confirm-overlay">
+
+    <div class="confirm-box">
+
+      <div class="confirm-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <h3 id="confirmTitle">
+        Confirm Action
+      </h3>
+
+      <p id="confirmMessage">
+        Are you sure?
+      </p>
+
+      <div class="confirm-actions">
+
+        <button id="confirmCancel" class="btn secondary" type="button">
+          No
+        </button>
+
+        <button id="confirmOk" class="btn danger" type="button">
+          Yes, Continue
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==========================
+       TOAST
+  =========================== -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ==========================
+       FLOATING HOME BUTTON
+  =========================== -->
+  <button class="floating-home" id="floatingHomeBtn" title="Go Home" aria-label="Go Home">
+    <i class="fa-solid fa-house"></i>
+  </button>
+
+  <!-- ==========================
+       SCRIPTS
+  =========================== -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="js/activity.js"></script>
+
 </body>
 </html>

@@ -1,1415 +1,1223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Booking Confirmed</title>
-
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
-
-<style>
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-:root{
-  --primary:#9d7bff;
-  --secondary:#5f27ff;
-  --bg:#060816;
-  --glass:rgba(255,255,255,.08);
-  --border:rgba(255,255,255,.09);
-  --text:#ffffff;
-  --muted:#b9bfd6;
-}
-
-body{
-  font-family:"Poppins",sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
-  background:
-    radial-gradient(circle at top left,#7c3aed44,transparent 30%),
-    radial-gradient(circle at bottom right,#5f27ff33,transparent 30%),
-    linear-gradient(135deg,#050816,#0c1024);
-
-  color:var(--text);
-  position:relative;
-}
-
-/* =========================
-   FLOATING PARTICLES
-========================= */
-
-.particle{
-  position:fixed;
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:rgba(255,255,255,.6);
-  animation:floatParticle linear infinite;
-  z-index:0;
-}
-
-@keyframes floatParticle{
-
-  0%{
-    transform:translateY(100vh);
-    opacity:0;
-  }
-
-  10%{
-    opacity:1;
-  }
-
-  100%{
-    transform:translateY(-120px);
-    opacity:0;
-  }
-
-}
-
-/* =========================
-   GLOW ORBS
-========================= */
-
-.glow{
-  position:fixed;
-  border-radius:50%;
-  filter:blur(100px);
-  opacity:.4;
-  z-index:0;
-}
-
-.glow.one{
-  width:340px;
-  height:340px;
-  background:#7c3aed;
-  top:-120px;
-  left:-120px;
-}
-
-.glow.two{
-  width:300px;
-  height:300px;
-  background:#5f27ff;
-  bottom:-100px;
-  right:-100px;
-}
-
-/* =========================
-   MAIN WRAPPER
-========================= */
-
-.wrapper{
-  position:relative;
-  z-index:2;
-  width:min(1100px,92%);
-  margin:40px auto 100px;
-}
-
-/* =========================
-   HERO
-========================= */
-
-.hero{
-  text-align:center;
-  margin-bottom:40px;
-  animation:fadeUp 1s ease;
-}
-
-.success-orb{
-  width:160px;
-  height:160px;
-  margin:0 auto 30px;
-  position:relative;
-}
-
-.ring{
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  border:2px solid rgba(255,255,255,.15);
-  animation:pulseRing 3s infinite;
-}
-
-.ring:nth-child(2){
-  animation-delay:1s;
-}
-
-.ring:nth-child(3){
-  animation-delay:2s;
-}
-
-@keyframes pulseRing{
-
-  0%{
-    transform:scale(.6);
-    opacity:1;
-  }
-
-  100%{
-    transform:scale(1.5);
-    opacity:0;
-  }
-
-}
-
-.orb-core{
-  position:absolute;
-  inset:24px;
-
-  border-radius:50%;
-
-  background:
-    linear-gradient(
-      135deg,
-      #9d7bff,
-      #5f27ff
-    );
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  box-shadow:
-    0 0 60px rgba(125,58,237,.6),
-    inset 0 6px 18px rgba(255,255,255,.15);
-
-  animation:orbFloat 4s ease-in-out infinite;
-}
-
-@keyframes orbFloat{
-
-  0%,100%{
-    transform:translateY(0px);
-  }
-
-  50%{
-    transform:translateY(-10px);
-  }
-
-}
-
-.orb-core i{
-  font-size:64px;
-}
-
-.hero h1{
-  font-size:4rem;
-  font-weight:800;
-  margin-bottom:14px;
-  letter-spacing:-2px;
-}
-
-.hero p{
-  color:var(--muted);
-  max-width:700px;
-  margin:auto;
-  line-height:1.8;
-  font-size:1.05rem;
-}
-
-/* =========================
-   COUNTDOWN
-========================= */
-
-.countdown-card{
-  margin:40px auto 0;
-
-  width:max-content;
-
-  padding:18px 28px;
-
-  border-radius:24px;
-
-  background:var(--glass);
-
-  border:1px solid var(--border);
-
-  backdrop-filter:blur(18px);
-
-  box-shadow:
-    0 10px 40px rgba(0,0,0,.35);
-}
-
-.countdown-title{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:10px;
-  text-align:center;
-}
-
-.countdown{
-  display:flex;
-  gap:18px;
-}
-
-.time-box{
-  min-width:90px;
-  text-align:center;
-}
-
-.time-box h2{
-  font-size:2.3rem;
-}
-
-.time-box p{
-  color:var(--muted);
-  font-size:13px;
-}
-
-/* =========================
-   GLASS TICKET
-========================= */
-
-.ticket{
-  margin-top:50px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.12),
-      rgba(255,255,255,.04)
-    );
-
-  border:1px solid rgba(255,255,255,.1);
-
-  backdrop-filter:blur(22px);
-
-  border-radius:34px;
-
-  overflow:hidden;
-
-  position:relative;
-
-  box-shadow:
-    0 25px 80px rgba(0,0,0,.45);
-
-  animation:fadeUp 1.2s ease;
-}
-
-.ticket::before{
-  content:"";
-  position:absolute;
-  inset:0;
-
-  background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(255,255,255,.08),
-      transparent
-    );
-
-  transform:translateX(-120%);
-  animation:shine 5s linear infinite;
-}
-
-@keyframes shine{
-  to{
-    transform:translateX(120%);
-  }
-}
-
-.ticket-grid{
-  display:grid;
-  grid-template-columns:1.2fr 320px;
-}
-
-.ticket-left{
-  padding:45px;
-}
-
-.ticket-right{
-  border-left:1px dashed rgba(255,255,255,.12);
-
-  padding:45px 30px;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-
-  position:relative;
-}
-
-.ticket-right::before,
-.ticket-right::after{
-  content:"";
-  position:absolute;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  background:#060816;
-  left:-17px;
-}
-
-.ticket-right::before{
-  top:-17px;
-}
-
-.ticket-right::after{
-  bottom:-17px;
-}
-
-.ticket-label{
-  font-size:13px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-.event-title{
-  font-size:2.6rem;
-  font-weight:800;
-  line-height:1.1;
-  margin-bottom:28px;
-}
-
-.info-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:20px;
-}
-
-.info-card{
-  background:rgba(255,255,255,.05);
-
-  border:1px solid rgba(255,255,255,.06);
-
-  border-radius:20px;
-
-  padding:18px;
-}
-
-.info-card i{
-  color:#b69cff;
-  margin-bottom:12px;
-}
-
-.info-card h4{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-.info-card p{
-  font-weight:600;
-}
-
-/* =========================
-   QR
-========================= */
-
-.qr-box{
-  width:170px;
-  height:170px;
-
-  background:#fff;
-
-  border-radius:20px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  overflow:hidden;
-
-  margin-bottom:20px;
-
-  animation:qrPulse 3s ease infinite;
-}
-
-@keyframes qrPulse{
-
-  0%,100%{
-    transform:scale(1);
-  }
-
-  50%{
-    transform:scale(1.04);
-  }
-
-}
-
-.qr-box img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.booking-id{
-  text-align:center;
-}
-
-.booking-id h3{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:8px;
-}
-
-.booking-id p{
-  font-size:1.2rem;
-  font-weight:700;
-}
-
-/* =========================
-   TIMELINE
-========================= */
-
-.timeline-section{
-  margin-top:40px;
-
-  background:var(--glass);
-
-  border:1px solid var(--border);
-
-  border-radius:30px;
-
-  padding:40px;
-
-  backdrop-filter:blur(18px);
-}
-
-.timeline-title{
-  font-size:1.6rem;
-  margin-bottom:34px;
-}
-
-.timeline{
-  position:relative;
-}
-
-.timeline::before{
-  content:"";
-  position:absolute;
-  left:20px;
-  top:0;
-  width:4px;
-  height:100%;
-  background:rgba(255,255,255,.08);
-}
-
-.timeline-progress{
-  position:absolute;
-  left:20px;
-  top:0;
-  width:4px;
-  height:55%;
-  background:
-    linear-gradient(
-      to bottom,
-      #9d7bff,
-      #5f27ff
-    );
-}
-
-.step{
-  position:relative;
-  display:flex;
-  gap:24px;
-  margin-bottom:34px;
-}
-
-.step-icon{
-  width:44px;
-  height:44px;
-  min-width:44px;
-
-  border-radius:50%;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  background:
-    linear-gradient(
-      135deg,
-      #9d7bff,
-      #5f27ff
-    );
-
-  box-shadow:
-    0 0 25px rgba(125,58,237,.45);
-}
-
-.step.pending .step-icon{
-  background:#24283c;
-  box-shadow:none;
-}
-
-.step-content h4{
-  margin-bottom:6px;
-}
-
-.step-content p{
-  color:var(--muted);
-  font-size:14px;
-}
-
-/* =========================
-   ACTIONS
-========================= */
-
-.actions{
-  margin-top:40px;
-  display:flex;
-  gap:20px;
-}
-
-.btn{
-  flex:1;
-
-  border:none;
-
-  border-radius:20px;
-
-  padding:18px;
-
-  cursor:pointer;
-
-  font-size:15px;
-  font-weight:600;
-
-  transition:.35s ease;
-}
-
-.btn-primary{
-  background:
-    linear-gradient(
-      135deg,
-      #9d7bff,
-      #5f27ff
-    );
-
-  color:#fff;
-
-  box-shadow:
-    0 15px 35px rgba(95,39,255,.35);
-}
-
-.btn-primary:hover{
-  transform:translateY(-3px);
-}
-
-.btn-secondary{
-  background:rgba(255,255,255,.06);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.btn-secondary:hover{
-  transform:translateY(-3px);
-}
-
-.btn:active{
-  transform:scale(.97);
-}
-
-/* =========================
-   ANIMATION
-========================= */
-
-@keyframes fadeUp{
-
-  from{
-    opacity:0;
-    transform:translateY(40px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:920px){
-
-  .ticket-grid{
-    grid-template-columns:1fr;
-  }
-
-  .ticket-right{
-    border-left:none;
-    border-top:1px dashed rgba(255,255,255,.12);
-  }
-
-}
-
-@media(max-width:768px){
-
-  .hero h1{
-    font-size:2.4rem;
-  }
-
-  .countdown{
-    flex-wrap:wrap;
-    justify-content:center;
-  }
-
-  .info-grid{
-    grid-template-columns:1fr;
-  }
-
-  .ticket-left{
-    padding:32px 24px;
-  }
-
-  .timeline-section{
-    padding:30px 22px;
-  }
-
-  .actions{
-    flex-direction:column;
-  }
-
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmed</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/booking-success.css">
 </head>
 
 <body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
 
-<div class="glow one"></div>
-<div class="glow two"></div>
+  <div class="wrapper">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="success-orb">
 
-<div class="wrapper">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
 
-  <!-- HERO -->
-  <section class="hero">
-
-    <div class="success-orb">
-
-      <div class="ring"></div>
-      <div class="ring"></div>
-      <div class="ring"></div>
-
-      <div class="orb-core">
-        <i class="fa-solid fa-check"></i>
+        <div class="orb-core">
+          <i class="fa-solid fa-check"></i>
+        </div>
       </div>
 
-    </div>
+      <h1>Your Experience Awaits ✨</h1>
 
-    <h1>Your Experience Awaits ✨</h1>
+      <p>
+        Your reservation has been successfully confirmed. We are preparing an unforgettable experience specially for you.
+      </p>
 
-    <p>
-      Your reservation has been successfully confirmed. We are preparing an unforgettable experience specially for you.
-    </p>
-
-    <!-- COUNTDOWN -->
-    <div class="countdown-card">
-
-      <div class="countdown-title">
-        EXPERIENCE STARTS IN
-      </div>
-
-      <div class="countdown">
-
-        <div class="time-box">
-          <h2 id="days">03</h2>
-          <p>Days</p>
+      <!-- COUNTDOWN -->
+      <div class="countdown-card">
+        <div class="countdown-title">
+          EXPERIENCE STARTS IN
         </div>
 
-        <div class="time-box">
-          <h2 id="hours">12</h2>
-          <p>Hours</p>
-        </div>
-
-        <div class="time-box">
-          <h2 id="minutes">24</h2>
-          <p>Minutes</p>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- TICKET -->
-  <section class="ticket">
-
-    <div class="ticket-grid">
-
-      <!-- LEFT -->
-      <div class="ticket-left">
-
-        <div class="ticket-label">
-          PREMIUM EXPERIENCE PASS
-        </div>
-
-        <h2 class="event-title"
-        id="eventName">
-
-          Luxury Rooftop Dinner
-
-        </h2>
-
-        <div class="info-grid">
-
-          <div class="info-card">
-
-            <i class="fa-solid fa-calendar-days"></i>
-
-            <h4>Date</h4>
-
-            <p id="bookingDate">
-              12 Aug 2026
-            </p>
-
+        <div class="countdown">
+          <div class="time-box">
+            <h2 id="days">03</h2>
+            <p>Days</p>
           </div>
 
-          <div class="info-card">
-
-            <i class="fa-solid fa-clock"></i>
-
-            <h4>Time</h4>
-
-            <p id="bookingTime">
-              08:00 PM
-            </p>
-
+          <div class="time-box">
+            <h2 id="hours">12</h2>
+            <p>Hours</p>
           </div>
 
-          <div class="info-card">
+          <div class="time-box">
+            <h2 id="minutes">24</h2>
+            <p>Minutes</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <i class="fa-solid fa-user-group"></i>
+    <!-- TICKET -->
+    <section class="ticket">
+      <div class="ticket-grid">
 
-            <h4>Guests</h4>
-
-            <p id="guestCount">
-              4 Guests
-            </p>
-
+        <!-- LEFT -->
+        <div class="ticket-left">
+          <div class="ticket-label">
+            PREMIUM EXPERIENCE PASS
           </div>
 
-          <div class="info-card">
+          <h2 class="event-title"
+          id="eventName">
 
-            <i class="fa-solid fa-location-dot"></i>
+            Luxury Rooftop Dinner
 
-            <h4>Venue</h4>
+          </h2>
 
-            <p id="venueName">
-              Skyline Lounge
-            </p>
+          <div class="info-grid">
+            <div class="info-card">
+              <i class="fa-solid fa-calendar-days"></i>
 
+              <h4>Date</h4>
+
+              <p id="bookingDate">
+                12 Aug 2026
+              </p>
+            </div>
+
+            <div class="info-card">
+              <i class="fa-solid fa-clock"></i>
+              <h4>Time</h4>
+
+              <p id="bookingTime">
+                08:00 PM
+              </p>
+            </div>
+
+            <div class="info-card">
+              <i class="fa-solid fa-user-group"></i>
+              <h4>Guests</h4>
+
+              <p id="guestCount">
+                4 Guests
+              </p>
+            </div>
+
+            <div class="info-card">
+              <i class="fa-solid fa-location-dot"></i>
+              <h4>Venue</h4>
+
+              <p id="venueName">
+                Navi Mumbai
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="ticket-right">
+          <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BOOKING-CONFIRMED" alt="QR Code">
           </div>
 
+          <div class="booking-id">
+            <h3>Booking ID</h3>
+            <p id="bookingId">
+              BK-20931
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="timeline-section">
+      <h2 class="timeline-title">
+        Experience Progress
+      </h2>
+
+      <div class="timeline">
+        <div class="timeline-progress"></div>
+        <div class="step">
+
+          <div class="step-icon">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+
+          <div class="step-content">
+            <h4>Booking Confirmed</h4>
+            <p>Your reservation has been successfully verified.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+
+          <div class="step-content">
+            <h4>Host Assigned</h4>
+            <p>Your premium experience host is being assigned.</p>
+          </div>
+        </div>
+
+        <div class="step pending">
+          <div class="step-icon">
+            <i class="fa-solid fa-champagne-glasses"></i>
+          </div>
+
+          <div class="step-content">
+            <h4>Preparing Experience</h4>
+            <p>Everything is being prepared for your arrival.</p>
+          </div>
+        </div>
+
+        <div class="step pending">
+          <div class="step-icon">
+            <i class="fa-solid fa-star"></i>
+          </div>
+
+          <div class="step-content">
+            <h4>Ready For Arrival</h4>
+            <p>Your unforgettable experience will be ready soon.</p>
+          </div>
         </div>
 
       </div>
 
-      <!-- RIGHT -->
-      <div class="ticket-right">
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="btn btn-primary" id="viewBookingBtn">
+          View Experience
+        </button>
 
-        <div class="qr-box">
-
-          <img
-          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BOOKING-CONFIRMED"
-          alt="QR Code">
-
-        </div>
-
-        <div class="booking-id">
-
-          <h3>Booking ID</h3>
-
-          <p id="bookingId">
-            #BK-20931
-          </p>
-
-        </div>
-
+        <button class="btn btn-secondary" id="homeBtn">
+          Back To Home
+        </button>
       </div>
+    </section>
+  </div>
+  <script>
+    /* =====================================
+      FLOATING PARTICLES
+    ===================================== */
+    for(let i = 0; i < 40; i++){
 
-    </div>
+      const particle =
+        document.createElement("div");
 
-  </section>
+      particle.className = "particle";
 
-  <!-- TIMELINE -->
-  <section class="timeline-section">
+      particle.style.left =
+        Math.random() * 100 + "vw";
 
-    <h2 class="timeline-title">
-      Experience Progress
-    </h2>
+      particle.style.animationDuration =
+        (Math.random() * 10 + 10) + "s";
 
-    <div class="timeline">
+      particle.style.animationDelay =
+        Math.random() * 5 + "s";
 
-      <div class="timeline-progress"></div>
+      particle.style.opacity =
+        Math.random();
 
-      <div class="step">
+      particle.style.width =
+        particle.style.height =
+        (Math.random() * 5 + 3) + "px";
 
-        <div class="step-icon">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-
-        <div class="step-content">
-          <h4>Booking Confirmed</h4>
-          <p>Your reservation has been successfully verified.</p>
-        </div>
-
-      </div>
-
-      <div class="step">
-
-        <div class="step-icon">
-          <i class="fa-solid fa-user-check"></i>
-        </div>
-
-        <div class="step-content">
-          <h4>Host Assigned</h4>
-          <p>Your premium experience host is being assigned.</p>
-        </div>
-
-      </div>
-
-      <div class="step pending">
-
-        <div class="step-icon">
-          <i class="fa-solid fa-champagne-glasses"></i>
-        </div>
-
-        <div class="step-content">
-          <h4>Preparing Experience</h4>
-          <p>Everything is being prepared for your arrival.</p>
-        </div>
-
-      </div>
-
-      <div class="step pending">
-
-        <div class="step-icon">
-          <i class="fa-solid fa-star"></i>
-        </div>
-
-        <div class="step-content">
-          <h4>Ready For Arrival</h4>
-          <p>Your unforgettable experience will be ready soon.</p>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="actions">
-
-      <button class="btn btn-primary"
-      id="viewBookingBtn">
-
-        View Experience
-
-      </button>
-
-      <button class="btn btn-secondary"
-      id="homeBtn">
-
-        Back To Home
-
-      </button>
-
-    </div>
-
-  </section>
-
-</div>
-<script>
-  /* =====================================
-    FLOATING PARTICLES
-  ===================================== */
-
-  for(let i = 0; i < 40; i++){
-
-    const particle =
-      document.createElement("div");
-
-    particle.className = "particle";
-
-    particle.style.left =
-      Math.random() * 100 + "vw";
-
-    particle.style.animationDuration =
-      (Math.random() * 10 + 10) + "s";
-
-    particle.style.animationDelay =
-      Math.random() * 5 + "s";
-
-    particle.style.opacity =
-      Math.random();
-
-    particle.style.width =
-      particle.style.height =
-      (Math.random() * 5 + 3) + "px";
-
-    document.body.appendChild(particle);
-  }
-
-  /* =====================================
-    CONFIG
-  ===================================== */
-
-  const BOOKING_API =
-    "/api/booking/details";
-
-  const params =
-    new URLSearchParams(window.location.search);
-
-  const bookingId =
-    params.get("bookingId");
-
-  /* =====================================
-    DOM
-  ===================================== */
-
-  const eventNameEl =
-    document.getElementById("eventName");
-
-  const bookingDateEl =
-    document.getElementById("bookingDate");
-
-  const bookingTimeEl =
-    document.getElementById("bookingTime");
-
-  const guestCountEl =
-    document.getElementById("guestCount");
-
-  const venueNameEl =
-    document.getElementById("venueName");
-
-  const bookingIdEl =
-    document.getElementById("bookingId");
-
-  const qrImage =
-    document.querySelector(".qr-box img");
-
-  /* =====================================
-    VALIDATION
-  ===================================== */
-
-  if(!bookingId){
-
-    window.location.href =
-      "error.html?type=invalid-booking";
-  }
-
-  /* =====================================
-    LOAD BOOKING
-  ===================================== */
-
-  async function loadBooking(){
-
-    try{
-
-      const res = await fetch(
-        `${BOOKING_API}/${bookingId}`,
-        {
-          credentials:"include"
-        }
-      );
-
-      const data = await res.json();
-
-      if(res.status === 401){
-
-        window.location.href =
-          "error.html?type=unauthorized";
-
-        return;
-      }
-
-      if(!res.ok){
-
-        throw new Error(
-          data.message || "Booking not found"
-        );
-      }
-
-      const booking =
-        data.booking || data;
-
-      renderBooking(booking);
-
-      initCountdown(booking.event_date);
-
-    } catch(err){
-
-      console.error(err);
-
-      showToast(
-        err.message || "Failed to load booking",
-        "error"
-      );
-
-      setTimeout(() => {
-
-        window.location.href =
-          "booking.html";
-
-      }, 1500);
+      document.body.appendChild(particle);
     }
-  }
 
-  /* =====================================
-    RENDER BOOKING
-  ===================================== */
+    /* =====================================
+      CONFIG
+    ===================================== */
+    const BOOKING_API = "/api/booking/details";
 
-  function renderBooking(booking){
+    const params = new URLSearchParams(
+      window.location.search
+    );
 
-    bookingIdEl.textContent =
-      booking.booking_id;
+    const bookingId =
+      params.get("bookingId");
 
-    /* EVENT NAME */
-    eventNameEl.textContent =
-      formatEventName(
-        booking.event_type
+    /* =====================================
+      DOM
+    ===================================== */
+    const eventNameEl =
+      document.getElementById("eventName");
+
+    const bookingDateEl =
+      document.getElementById("bookingDate");
+
+    const bookingTimeEl =
+      document.getElementById("bookingTime");
+
+    const guestCountEl =
+      document.getElementById("guestCount");
+
+    const venueNameEl =
+      document.getElementById("venueName");
+
+    const bookingIdEl =
+      document.getElementById("bookingId");
+
+    const qrImage =
+      document.querySelector(
+        ".qr-box img"
       );
 
-    /* DATE */
-    bookingDateEl.textContent =
-      formatDate(
-        booking.event_date
+    /* =====================================
+      STATE
+    ===================================== */
+    let currentBooking = null;
+
+    /* =====================================
+      VALIDATION
+    ===================================== */
+    if (!bookingId) {
+      window.location.replace(
+        "error.html?type=invalid-booking"
+      );
+    }
+
+    /* =====================================
+      LOAD BOOKING
+    ===================================== */
+    async function loadBooking() {
+      try {
+        const response =
+          await fetch(
+            `${BOOKING_API}/${encodeURIComponent(bookingId)}`,
+            {credentials: "include"}
+          );
+
+        if (response.status === 401) {
+          window.location.href =
+            "error.html?type=unauthorized";
+          return;
+        }
+
+        const result =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message ||"Booking not found"
+          );
+        }
+
+        currentBooking =
+          result.booking || result;
+
+        prepareBooking(
+          currentBooking
+        );
+
+      }
+
+      catch (err) {
+        console.error(err);
+        showToast(
+          err.message ||
+          "Unable to load booking",
+          "error"
+        );
+
+        setTimeout(() => {
+          window.location.href =
+            "booking.html";
+        }, 1500);
+
+      }
+
+    }
+
+    /* =====================================
+      PREPARE BOOKING
+    ===================================== */
+    function prepareBooking(
+      booking
+    ) {
+
+      const bookingData =
+        safeParse(
+          booking.booking_data
+        ) || {};
+
+      booking._event =
+        bookingData.event || {};
+
+      booking._pricing =
+        bookingData.pricing || {};
+
+      renderBooking(
+        booking
       );
 
-    /* TIME */
-    bookingTimeEl.textContent =
-      formatTime(
+      updateTimeline(
+        booking
+      );
+
+      initCountdown(
+        booking.event_date,
         booking.event_time
       );
 
-    /* GUESTS */
-    const parsed =
-      safeParse(
-        booking.booking_data
+    }
+
+    /* =====================================
+      RENDER BOOKING
+    ===================================== */
+    function renderBooking(
+      booking
+    ) {
+
+      bookingIdEl.textContent =
+
+        booking.booking_id ||
+
+        booking.id ||
+
+        "-";
+
+      /* EVENT */
+
+      eventNameEl.textContent =
+
+        formatEventName(
+
+          booking.event_type ||
+
+          booking.event_category
+
+        );
+
+      /* DATE */
+
+      bookingDateEl.textContent =
+
+        formatDate(
+
+          booking.event_date
+
+        );
+
+      /* TIME */
+
+      bookingTimeEl.textContent =
+
+        formatTime(
+
+          booking.event_time
+
+        );
+
+      /* GUESTS */
+
+      const guests =
+
+        Number(
+
+          booking.guest_count ||
+
+          booking._event.guestCount ||
+
+          booking._event.participants ||
+
+          1
+
+        );
+
+      guestCountEl.textContent =
+
+        `${guests} Guest${guests > 1 ? "s" : ""}`;
+
+      /* VENUE */
+
+      venueNameEl.textContent =
+
+        getVenueName(
+          booking
+        );
+
+      /* QR */
+
+      qrImage.src =
+
+        `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+
+          booking.booking_id ||
+
+          booking.id
+
+        )}`;
+
+    }
+
+    /* =====================================
+      TIMELINE UPDATE
+    ===================================== */
+    function updateTimeline(booking){
+
+      const steps =
+        document.querySelectorAll(".step");
+
+      steps.forEach(step=>{
+        step.classList.add("pending");
+      });
+
+      const payment =
+        String(
+          booking.payment_status || ""
+        ).toLowerCase();
+
+      const status =
+        String(
+          booking.status || ""
+        ).toLowerCase();
+
+      /* Booking Created */
+
+      steps[0]?.classList.remove(
+        "pending"
       );
 
-    const guests =
-      parsed?.guestCount ||
-      parsed?.participants ||
-      1;
+      /* Payment */
 
-    guestCountEl.textContent =
-      `${guests} Guest${guests > 1 ? "s" : ""}`;
+      if(
 
-    /* VENUE */
-    venueNameEl.textContent =
-      getVenueName(
-        booking.event_type
-      );
+        payment==="paid" ||
 
-    /* QR */
-    qrImage.src =
-      `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${booking.booking_id}`;
+        payment==="completed" ||
 
-    /* TIMELINE */
-    updateTimeline(booking);
-  }
+        status==="confirmed" ||
 
-  /* =====================================
-    TIMELINE UPDATE
-  ===================================== */
+        status==="completed"
 
-  function updateTimeline(booking){
+      ){
 
-    const steps =
-      document.querySelectorAll(".step");
+        steps[1]?.classList.remove(
+          "pending"
+        );
 
-    /* RESET */
-    steps.forEach(step => {
-      step.classList.add("pending");
-    });
+      }
 
-    /* STEP 1 */
-    steps[0]?.classList.remove("pending");
+      /* Preparation */
 
-    /* STEP 2 */
-    if(
-      booking.payment_status === "paid" ||
-      booking.status === "confirmed"
-    ){
-      steps[1]?.classList.remove("pending");
+      if(
+
+        status==="confirmed" ||
+
+        status==="completed"
+
+      ){
+
+        steps[2]?.classList.remove(
+          "pending"
+        );
+
+      }
+
+      /* Completed */
+
+      if(
+
+        status==="completed"
+
+      ){
+
+        steps[3]?.classList.remove(
+          "pending"
+        );
+
+      }
+
+      const progress =
+        document.querySelector(
+          ".timeline-progress"
+        );
+
+      let percent=25;
+
+      if(
+        payment==="paid"
+      ){
+        percent=50;
+      }
+
+      if(
+        status==="confirmed"
+      ){
+        percent=75;
+      }
+
+      if(
+        status==="completed"
+      ){
+        percent=100;
+      }
+
+      if(
+        status==="cancelled"
+      ){
+        percent=0;
+      }
+
+      progress.style.height=
+        percent+"%";
+
     }
 
-    /* STEP 3 */
-    if(
-      booking.status === "confirmed"
+    /* =====================================
+      COUNTDOWN
+    ===================================== */
+    function initCountdown(
+      date,
+      time
     ){
-      steps[2]?.classList.remove("pending");
-    }
 
-    /* STEP 4 */
-    if(
-      booking.status === "completed"
-    ){
-      steps[3]?.classList.remove("pending");
-    }
+      let target;
 
-    /* PROGRESS BAR */
-    const progress =
-      document.querySelector(
-        ".timeline-progress"
-      );
+      try{
 
-    let height = "25%";
+        if(date){
 
-    if(
-      booking.payment_status === "partial"
-    ){
-      height = "40%";
-    }
+          target = new Date(date);
 
-    if(
-      booking.payment_status === "paid"
-    ){
-      height = "70%";
-    }
+          if(
+            time &&
+            typeof time === "string"
+          ){
 
-    if(
-      booking.status === "completed"
-    ){
-      height = "100%";
-    }
+            const parts =
+              time.split(":");
 
-    progress.style.height = height;
-  }
+            const hour =
+              parseInt(parts[0]) || 0;
 
-  /* =====================================
-    COUNTDOWN
-  ===================================== */
+            const minute =
+              parseInt(parts[1]) || 0;
 
-  function initCountdown(date){
+            target.setHours(
+              hour,
+              minute,
+              0,
+              0
+            );
 
-    const target =
-      new Date(date);
+          }
 
-    function update(){
+        }
 
-      const now =
-        new Date();
+        if(
+          !target ||
+          isNaN(target.getTime())
+        ){
 
-      const diff =
-        target - now;
+          setTime(0,0,0);
 
-      if(diff <= 0){
+          return;
 
-        document.getElementById("days")
-        .textContent = "00";
+        }
 
-        document.getElementById("hours")
-        .textContent = "00";
+      }
 
-        document.getElementById("minutes")
-        .textContent = "00";
+      catch{
+
+        setTime(0,0,0);
 
         return;
+
       }
 
-      const days =
-        Math.floor(
-          diff / (1000 * 60 * 60 * 24)
-        );
+      function update(){
 
-      const hours =
-        Math.floor(
-          (diff / (1000 * 60 * 60)) % 24
-        );
+        const now =
+          new Date();
 
-      const minutes =
-        Math.floor(
-          (diff / (1000 * 60)) % 60
-        );
+        let diff =
+          target.getTime() -
+          now.getTime();
 
-      document.getElementById("days")
-      .textContent =
-        String(days).padStart(2,"0");
+        if(diff<=0){
 
-      document.getElementById("hours")
-      .textContent =
-        String(hours).padStart(2,"0");
+          setTime(
+            0,
+            0,
+            0
+          );
 
-      document.getElementById("minutes")
-      .textContent =
-        String(minutes).padStart(2,"0");
-    }
+          return;
 
-    update();
-
-    setInterval(update, 60000);
-  }
-
-  /* =====================================
-    HELPERS
-  ===================================== */
-
-  function safeParse(data){
-
-    try{
-
-      return typeof data === "string"
-        ? JSON.parse(data)
-        : data;
-
-    } catch {
-
-      return null;
-    }
-  }
-
-  function formatEventName(type){
-
-    if(!type) return "Premium Experience";
-
-    return type
-      .replace(/-/g," ")
-      .replace(/\b\w/g,
-        c => c.toUpperCase()
-      );
-  }
-
-  function formatDate(date){
-
-    return new Date(date)
-      .toLocaleDateString(
-        "en-IN",
-        {
-          day:"numeric",
-          month:"short",
-          year:"numeric"
         }
-      );
-  }
 
-  function formatTime(time){
+        const days =
+          Math.floor(
+            diff/
+            86400000
+          );
 
-    const [h,m] =
-      time.split(":");
+        diff%=86400000;
 
-    const date =
-      new Date();
+        const hours =
+          Math.floor(
+            diff/
+            3600000
+          );
 
-    date.setHours(h,m);
+        diff%=3600000;
 
-    return date.toLocaleTimeString(
-      "en-IN",
-      {
-        hour:"2-digit",
-        minute:"2-digit"
+        const minutes =
+          Math.floor(
+            diff/
+            60000
+          );
+
+        setTime(
+          days,
+          hours,
+          minutes
+        );
+
       }
-    );
-  }
 
-  function getVenueName(type){
+      update();
 
-    const venues = {
+      setInterval(
+        update,
+        60000
+      );
 
-      dinner:
+    }
+
+    function setTime(
+      days,
+      hours,
+      minutes
+    ){
+
+      document.getElementById(
+        "days"
+      ).textContent=
+        String(days)
+        .padStart(2,"0");
+
+      document.getElementById(
+        "hours"
+      ).textContent=
+        String(hours)
+        .padStart(2,"0");
+
+      document.getElementById(
+        "minutes"
+      ).textContent=
+        String(minutes)
+        .padStart(2,"0");
+
+    }
+
+    /* =====================================
+      SAFE JSON
+    ===================================== */
+    function safeParse(
+      value
+    ){
+
+      try{
+
+        if(!value)
+          return {};
+
+        return typeof value==="string"
+
+          ?
+
+          JSON.parse(value)
+
+          :
+
+          value;
+
+      }
+
+      catch{
+
+        return {};
+
+      }
+
+    }
+
+    /* =====================================
+      EVENT NAME
+    ===================================== */
+
+    function formatEventName(
+      type
+    ){
+
+      if(!type){
+
+        return "Premium Experience";
+
+      }
+
+      return String(type)
+
+        .replace(
+          /-/g,
+          " "
+        )
+
+        .replace(
+
+          /\b\w/g,
+
+          letter=>
+          letter.toUpperCase()
+
+        );
+
+    }
+
+    /* =====================================
+      DATE
+    ===================================== */
+    function formatDate(
+      date
+    ){
+
+      if(!date)
+        return "-";
+
+      return new Date(
+        date
+      ).toLocaleDateString(
+
+        "en-IN",
+
+        {
+
+          day:"numeric",
+
+          month:"short",
+
+          year:"numeric"
+
+        }
+
+      );
+
+    }
+
+    /* =====================================
+      TIME
+    ===================================== */
+    function formatTime(
+      time
+    ){
+
+      if(!time)
+        return "-";
+
+      const parts=
+        time.split(":");
+
+      const d=
+        new Date();
+
+      d.setHours(
+        Number(parts[0]),
+        Number(parts[1]||0)
+      );
+
+      return d.toLocaleTimeString(
+
+        "en-IN",
+
+        {
+
+          hour:"2-digit",
+
+          minute:"2-digit"
+
+        }
+
+      );
+
+    }
+
+    /* =====================================
+      VENUE
+    ===================================== */
+    function getVenueName(
+      booking
+    ){
+
+      if(
+
+        booking?._event?.venue
+
+      ){
+
+        return booking._event.venue;
+
+      }
+
+      const venues={
+
+        dinner:
         "Skyline Lounge",
 
-      karaoke:
+        karaoke:
         "Soundwave Arena",
 
-      tasting:
-        "Chef's Studio",
-
-      openmic:
+        openmic:
         "Aurora Stage",
 
-      private:
+        tasting:
+        "Chef's Studio",
+
+        get:
+        "Community Hall",
+
+        private:
         "Royal Chamber"
-    };
 
-    return venues[type] || "Premium Lounge";
-  }
+      };
 
-  /* =====================================
-    TOAST
-  ===================================== */
+      return(
 
-  function showToast(message,type="info"){
+        venues[
+          booking.event_type
+        ]
 
-    let toast =
-      document.getElementById("toast");
+        ||
 
-    if(!toast){
+        "Premium Lounge"
 
-      toast =
-        document.createElement("div");
+      );
 
-      toast.id = "toast";
-
-      toast.style.cssText = `
-        position:fixed;
-        bottom:30px;
-        right:30px;
-        padding:14px 18px;
-        border-radius:14px;
-        color:#fff;
-        z-index:9999;
-        font-size:14px;
-        backdrop-filter:blur(18px);
-        transition:.3s;
-      `;
-
-      document.body.appendChild(toast);
     }
 
-    toast.style.background =
-      type === "error"
-        ? "#ff4d6d"
-        : "#5f27ff";
+    /* =====================================
+      TOAST
+    ===================================== */
+    function showToast(
+      message,
+      type="info"
+    ){
 
-    toast.innerHTML = message;
+      let toast=
+        document.getElementById(
+          "toast"
+        );
 
-    toast.style.opacity = "1";
+      if(!toast){
 
-    clearTimeout(toast.timer);
+        toast=
+          document.createElement(
+            "div"
+          );
 
-    toast.timer =
-      setTimeout(() => {
+        toast.id="toast";
 
-        toast.style.opacity = "0";
+        toast.style.cssText=`
+          position:fixed;
+          right:30px;
+          bottom:30px;
+          min-width:220px;
+          max-width:350px;
+          padding:14px 18px;
+          border-radius:14px;
+          color:#fff;
+          font-size:14px;
+          z-index:99999;
+          transition:.3s;
+          backdrop-filter:blur(18px);
+          box-shadow:0 10px 30px rgba(0,0,0,.2);
+        `;
 
+        document.body.appendChild(
+          toast
+        );
+
+      }
+
+      const colors={
+
+        success:"#16a34a",
+
+        error:"#dc2626",
+
+        warning:"#d97706",
+
+        info:"#2563eb"
+
+      };
+
+      toast.style.background=
+        colors[type]||
+        colors.info;
+
+      toast.textContent=
+        String(message);
+
+      toast.style.opacity="1";
+
+      clearTimeout(
+        toast.timer
+      );
+
+      toast.timer= setTimeout(()=>{
+        toast.style.opacity="0";
       },2500);
-  }
+    }
 
-  /* =====================================
-    BUTTONS
-  ===================================== */
+    /* =====================================
+      PRICING
+    ===================================== */
+    function getPricing(){
 
-  document
-  .getElementById("viewBookingBtn")
-  .addEventListener("click", () => {
+      if(
+        !currentBooking
+      ){
 
-    window.location.href =
-      `My-Activity.html?id=${bookingId}`;
-  });
+        return {};
 
-  document
-  .getElementById("homeBtn")
-  .addEventListener("click", () => {
+      }
 
-    window.location.href =
+      return(
+
+        currentBooking._pricing||
+
+        {}
+
+      );
+
+    }
+
+    /* =====================================
+      ADDONS
+    ===================================== */
+    function getAddons(){
+
+      if(
+        !currentBooking
+      ){
+
+        return {};
+
+      }
+
+      return(
+
+        currentBooking._event||
+
+        {}
+
+      );
+
+    }
+
+    /* =====================================
+      PAYMENT STATUS
+    ===================================== */
+    function isPaid(){
+
+      const payment=
+        String(
+
+          currentBooking
+          ?.payment_status||
+
+          ""
+
+        ).toLowerCase();
+
+      return(
+
+        payment==="paid"||
+
+        payment==="completed"
+
+      );
+
+    }
+
+    /* =====================================
+      BOOKING STATUS
+    ===================================== */
+    function isCompleted(){
+
+      return(
+
+        String(
+
+          currentBooking
+          ?.status||
+
+          ""
+
+        ).toLowerCase()
+
+        ===
+
+        "completed"
+
+      );
+
+    }
+
+    /* =====================================
+      BUTTON EVENTS
+    ===================================== */
+    document
+
+    .getElementById(
+      "viewBookingBtn"
+    )
+
+    .addEventListener(
+
+    "click",
+
+    ()=>{
+
+      if(
+        !bookingId
+      ){
+
+        return;
+
+      }
+
+      window.location.href=
+
+      `My-Activity.html?id=${
+
+        encodeURIComponent(
+          bookingId
+        )
+
+      }`;
+
+    }
+
+    );
+
+    document
+
+    .getElementById(
+      "homeBtn"
+    )
+
+    .addEventListener(
+
+    "click",
+
+    ()=>{
+
+      window.location.href=
+
       "index.html";
-  });
 
-  /* =====================================
-    INIT
-  ===================================== */
-  loadBooking();
+    }
 
-</script>
+    );
+
+    /* =====================================
+      PARTICLES
+    ===================================== */
+    (function(){
+
+      for(
+
+        let i=0;
+
+        i<40;
+
+        i++
+
+      ){
+
+        const particle=
+
+        document.createElement(
+          "div"
+        );
+
+        particle.className=
+          "particle";
+
+        particle.style.left=
+
+          Math.random()*100+
+
+          "vw";
+
+        particle.style.animationDuration=
+
+          Math.random()*10+
+
+          10+
+
+          "s";
+
+        particle.style.animationDelay=
+
+          Math.random()*5+
+
+          "s";
+
+        particle.style.opacity=
+
+          Math.random();
+
+        particle.style.width=
+
+        particle.style.height=
+
+          Math.random()*5+
+
+          3+
+
+          "px";
+
+        document.body.appendChild(
+          particle
+        );
+
+      }
+
+    })();
+
+    /* =====================================
+      DEBUG
+    ===================================== */
+    function printBooking(){
+      console.log({
+        booking:
+        currentBooking,
+
+        event:
+        currentBooking
+        ?._event,
+
+        pricing:
+        currentBooking
+        ?._pricing
+      });
+    }
+
+    /* =====================================
+      INITIALIZE
+    ===================================== */
+    document.addEventListener("DOMContentLoaded",()=>{
+        loadBooking();
+      }
+    );
+  </script>
 </body>
 </html>

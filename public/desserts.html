@@ -7,181 +7,435 @@
   <title>Desserts Menu</title>
   <link rel="icon" type="image/png" href="assets/logo-image.png">
   <style>
-    :root {
-      --bg: #f9f5f0;
-      --card-bg: #ffffff;
-      --accent: #d17a22;
-      --accent-dark: #a45716;
-      --text: #2b2b2b;
+:root{
+    --bg:#fff8f0;
+    --surface:#ffffff;
+    --accent:#d17a22;
+    --accent-dark:#a45716;
+    --accent-light:#f3c17f;
+    --text:#2b2b2b;
+    --text-light:#6b7280;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --border:#ece7df;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    user-select:none;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:
+        radial-gradient(circle at top left,#fff4e5,#fff8f0 45%);
+    color:var(--text);
+    min-height:100vh;
+    padding:25px;
+}
+
+/* HEADER */
+
+h1{
+    font-family:'Playfair Display',serif;
+    font-size:clamp(2rem,4vw,3.5rem);
+    color:var(--accent-dark);
+    text-align:center;
+    margin-bottom:35px;
+    letter-spacing:.5px;
+}
+
+.close-btn{
+    position:fixed;
+    top:20px;
+    right:20px;
+
+    width:48px;
+    height:48px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    color:#444;
+
+    text-decoration:none;
+
+    font-size:28px;
+    font-weight:700;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.1);
+
+    transition:.35s ease;
+
+    z-index:1000;
+}
+
+.close-btn:hover{
+    background:#e63946;
+    color:#fff;
+    transform:rotate(90deg);
+}
+
+/* GRID */
+
+.menu-grid{
+    width:100%;
+    max-width:1400px;
+    margin:auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(320px,1fr)
+        );
+
+    gap:28px;
+}
+
+/* CARD */
+
+.card{
+    background:rgba(255,255,255,.92);
+
+    backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,.7);
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+
+    transition:
+        transform .4s ease,
+        box-shadow .4s ease;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.08);
+}
+
+.card:hover{
+    transform:translateY(-10px);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.12);
+}
+
+/* IMAGE */
+
+.card-image-wrapper{
+    position:relative;
+    overflow:hidden;
+}
+
+.card img{
+    width:100%;
+    height:240px;
+    object-fit:cover;
+
+    transition:transform .6s ease;
+}
+
+.card:hover img{
+    transform:scale(1.08);
+}
+
+/* BADGE */
+
+.product-badge{
+    position:absolute;
+    top:15px;
+    left:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7b54,
+            #ff4d6d
+        );
+
+    color:#fff;
+
+    padding:8px 14px;
+
+    border-radius:50px;
+
+    font-size:12px;
+    font-weight:700;
+
+    letter-spacing:.5px;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.15);
+
+    z-index:2;
+}
+
+/* CONTENT */
+
+.card-content{
+    padding:22px;
+
+    display:flex;
+    flex-direction:column;
+
+    flex-grow:1;
+}
+
+/* HEADER */
+
+.product-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+
+    margin-bottom:12px;
+}
+
+.product-header h2{
+    font-family:'Playfair Display',serif;
+    font-size:1.45rem;
+    color:var(--accent-dark);
+    text-align:left;
+    line-height:1.4;
+}
+
+/* STOCK */
+
+.stock-status{
+    padding:6px 12px;
+
+    border-radius:50px;
+
+    font-size:11px;
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
+}
+
+.stock-status.in{
+    background:#dcfce7;
+    color:var(--success);
+}
+
+.stock-status.out{
+    background:#fee2e2;
+    color:var(--danger);
+}
+
+/* META */
+
+.product-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-bottom:16px;
+}
+
+.product-meta span{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    font-size:.85rem;
+    color:var(--text-light);
+}
+
+.product-meta i{
+    color:var(--accent);
+}
+
+/* DESCRIPTION */
+
+.product-description{
+    text-align:left;
+
+    color:#555;
+
+    line-height:1.8;
+
+    font-size:.92rem;
+
+    margin-bottom:18px;
+}
+
+/* EXTRA INFO */
+
+.product-extra-info{
+    background:#faf7f2;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    padding:12px;
+
+    display:grid;
+
+    gap:8px;
+
+    text-align:left;
+
+    margin-bottom:18px;
+}
+
+.product-extra-info div{
+    font-size:.88rem;
+    color:#555;
+}
+
+.product-extra-info strong{
+    color:var(--text);
+}
+
+/* PRICE */
+
+.product-price{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    margin-top:auto;
+    margin-bottom:20px;
+}
+
+.offer-price{
+    font-size:1.7rem;
+    font-weight:800;
+    color:var(--accent);
+}
+
+.original-price{
+    color:#9ca3af;
+    text-decoration:line-through;
+    font-size:1rem;
+}
+
+/* BUTTON */
+
+.order-btn{
+    width:100%;
+
+    border:none;
+
+    border-radius:16px;
+
+    padding:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent-dark)
+        );
+
+    color:#fff;
+
+    font-size:1rem;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.3s ease;
+}
+
+.order-btn:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(209,122,34,.35);
+}
+
+.order-btn:disabled{
+    background:#d1d5db;
+    color:#6b7280;
+    cursor:not-allowed;
+    box-shadow:none;
+}
+
+/* HIDDEN */
+
+.hidden{
+    display:none !important;
+}
+
+/* TABLET */
+
+@media(max-width:768px){
+
+    .menu-grid{
+        grid-template-columns:
+            repeat(
+                auto-fill,
+                minmax(250px,1fr)
+            );
     }
 
-    *{
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
+    .card img{
+        height:220px;
     }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    .close-btn{
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 32px;
-      font-weight: bold;
-      color: #333;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.3s ease;
+    .product-header h2{
+        font-size:1.25rem;
     }
 
-    .close-btn:hover {
-      color: #e63946; /* hover effect */
+    .offer-price{
+        font-size:1.4rem;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width:480px){
+
+    body{
+        padding:15px;
     }
 
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      color: var(--accent-dark);
-      margin-bottom: 25px;
+    .menu-grid{
+        grid-template-columns:1fr;
+        gap:18px;
     }
 
-    /* Menu grid */
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-      max-width: 1100px;
-      margin: 0 auto;
+    .card-content{
+        padding:18px;
     }
 
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    .card img{
+        height:220px;
     }
 
-    .card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
+    .product-header{
+        flex-direction:column;
+        align-items:flex-start;
     }
 
-    .card-content {
-      padding: 15px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    .offer-price{
+        font-size:1.3rem;
     }
 
-    .card h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      color: var(--accent-dark);
-      margin: 10px 0;
+    .order-btn{
+        padding:13px;
+        font-size:.95rem;
     }
-
-    .price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-
-    .card p {
-      font-size: 0.95rem;
-      margin-bottom: 15px;
-      color: #555;
-    }
-
-    .order-btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border: none;
-      padding: 10px;
-      color: #fff;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: 0.3s ease;
-    }
-
-    .order-btn:hover {
-      opacity: 0.9;
-      transform: scale(1.05);
-    }
-
-    /* #nextBtn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      padding: 14px 22px;
-      font-size: 16px;
-      border-radius: 30px;
-      border: none;
-      cursor: not-allowed;
-      background: #ccc;
-      color: #666;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      z-index: 9999;
-      transition: all 0.3s ease;
-    }
-
-    #nextBtn.active {
-      background: #4a90e2;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    #nextBtn.active:hover {
-      background: #357bd8;
-    } */
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .menu-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-      }
-      .card h2 {
-        font-size: 1.2rem;
-      }
-      .price {
-        font-size: 1rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-      .menu-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-      .order-btn {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 <body>
   <a href="Index.html#menu" class="close-btn">&times;</a>

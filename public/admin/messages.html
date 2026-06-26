@@ -1,110 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin | Messages</title>
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-  crossorigin="anonymous" />
-<link rel="stylesheet" href="css/admin.css">
-
+  <meta charset="UTF-8">
+  <title>Admin | Messages</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/admin.css">
 </head>
-
 <body>
+  <div class="admin-wrapper">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+        <span class="logo-text">CoffeeCape</span>
+      </div>
 
-<div class="admin-wrapper">
+      <nav>
+        <a href="dashboard.html" class="active">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
+        <a href="user.html">
+          <i class="fa-solid fa-users"></i> Users
+        </a>
 
-  <h2 class="logo">CoffeeCape</h2>
+        <a href="product.html">
+          <i class="fa-solid fa-burger"></i> Products
+        </a>
 
-  <nav>
-    <a href="dashboard.html">
-      <i class="fa-solid fa-chart-line"></i> Dashboard
-    </a>
+        <a href="orders.html">
+          <i class="fa-solid fa-box"></i> Orders
+        </a>
 
-    <a href="user.html">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
+        <a href="booking.html">
+          <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
 
-    <a href="orders.html">
-      <i class="fa-solid fa-box"></i> Orders
-    </a>
+        <a href="messages.html">
+          <i class="fa-solid fa-envelope"></i> Messages
+        </a>
 
-    <a href="booking.html">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
+        <a href="setting.html">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
 
-    <a href="product.html">
-      <i class="fa-solid fa-burger"></i> Products
-    </a>
+      <!-- <button id="logoutBtn" class="logout-btn">
+        Logout
+      </button> -->
+    </aside>
 
-    <a href="messages.html" class="active">
-      <i class="fa-solid fa-envelope"></i> Messages
-    </a>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Contact Messages</h2>
+        <p>View and manage all customer messages</p>
+      </div>
 
-    <a href="setting.html">
-      <i class="fa-solid fa-gear"></i> Settings
-    </a>
-  </nav>
+      <!-- MESSAGES PANEL -->
+      <div class="panel large-panel">
+        <table class="modern-table" id="messagesTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-  <!-- <button id="logoutBtn" class="logout-btn">
-    Logout
-  </button> -->
+        <tbody>
+        <!-- Messages will load here -->
+        </tbody>
 
-</aside>
+        </table>
+      </div>
+    </main>
+  </div>
 
-<!-- MAIN CONTENT -->
-<main class="main-content">
+  <!-- MESSAGE MODAL -->
+  <div id="messageModal" class="modal-overlay">
+    <div class="modal-box">
+      <span id="closeModal" class="close-btn">×</span>
 
-<div class="page-header">
-  <h2>Contact Messages</h2>
-  <p>View and manage all customer messages</p>
-</div>
+      <h3>Message Details</h3>
 
-<!-- MESSAGES PANEL -->
-<div class="panel large-panel">
+      <div id="modalContent" class="modal-content"></div>
+    </div>
+  </div>
 
-<table class="modern-table" id="messagesTable">
-
-<thead>
-<tr>
-  <th>Name</th>
-  <th>Email</th>
-  <th>Subject</th>
-  <th>Status</th>
-  <th>Action</th>
-</tr>
-</thead>
-
-<tbody>
-<!-- Messages will load here -->
-</tbody>
-
-</table>
-
-</div>
-
-</main>
-</div>
-
-<!-- MESSAGE MODAL -->
-<div id="messageModal" class="modal-overlay">
-
-<div class="modal-box">
-
-<span id="closeModal" class="close-btn">×</span>
-
-<h3>Message Details</h3>
-
-<div id="modalContent" class="modal-content"></div>
-
-</div>
-</div>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script src="js/admin-messages.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="js/admin-messages.js"></script>
 </body>
 </html>

@@ -6,206 +6,202 @@
   <link rel="icon" type="image/png" href="assets/logo-image.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
-    *{user-select: none;}
-    body {
-      font-family: Poppins, sans-serif;
-      background: #f9f5f0;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .cart-container {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 0;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .cart-item:last-child {
-      border-bottom: none;
-    }
-
-    .item-info {
-      flex: 2;
-    }
-
-    .item-info h3 {
-      margin: 0 0 5px;
-    }
-
-    .price {
-      font-weight: bold;
-      color: #d17a22;
-    }
-
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .qty-controls button {
-      width: 30px;
-      height: 30px;
-      border: none;
-      background: #ddd;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    .remove-btn {
-      background: #e63946;
-      color: #fff;
-      border: none;
-      margin-left: 20px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .cart-footer {
-      margin-top: 25px;
-      text-align: right;
-    }
-
-    .total {
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-
-    .checkout-btn {
-      margin-top: 15px;
-      padding: 12px 20px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .empty {
-      text-align: center;
-      color: #777;
-      padding: 40px;
-    }
-    .back-home {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: #333;
-      font-weight: 600;
-      background: #fff;
-      padding: 8px 14px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      transition: 0.25s ease;
-    }
-
-    .back-home i {
-      font-size: 16px;
-    }
-
-    .back-home:hover {
-      background: #4a90e2;
-      color: #fff;
-      transform: translateX(-3px);
-    }
-
-    @media (max-width: 576px){
-      body{
-        padding: 15px;
-      }
-      h1{
-        font-size: 22px;
-        margin-bottom: 20px;
-      }
-      .cart-container{
-        padding: 15px;
-        border-radius: 12px;
-      }
-      .cart-item{
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .item-info h3{
-        font-size: 16px;
-      }
-      .price{
-        font-size: 14px;
-      }
-      .qty-controls{
-        width: 100%;
-        justify-content: flex-start;
-      }
-      .qty-controls button{
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
-      }
-      .remove-btn{
-        margin-left: 0;
-        padding: 8px 12px;
-      }
-      .cart-footer{
-        text-align: center;
-      }
-      .total{
-        font-size: 1.2rem;
-      }
-      .checkout-btn{
-        width: 100%;
-        padding: 14px;
-        font-size: 15px;
-      }
-      .back-home{
-        font-size: 14px;
-        padding: 6px 12px;
-      }
-    }
-
-    @media (min-width: 577px) and (max-width: 992px){
-      .cart-container{
-        width: 95%;
-        padding: 18px;
-      }
-      .cart-item{
-        gap: 15px;
-      }
-      .checkout-btn{
-        width: 100%;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="css/cart.css">
 </head>
 <body>
-  <a href="Index.html#menu" class="back-home">
-    <i class="fa-solid fa-arrow-left"></i>
-    Home
-  </a>
-  <h1><i class="fa-sharp fa-solid fa-cart-shopping"></i>Your Cart</h1>
 
-  <div class="cart-container" id="cartContainer">
-    <p class="empty">Loading cart...</p>
+  <!-- Header -->
+  <header class="cart-header">
+    <div class="cart-title">
+      <div class="cart-icon">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </div>
+
+      <div>
+        <h1>Your Cart</h1>
+        <p>Freshly crafted for you.</p>
+      </div>
+    </div>
+
+    <div class="cart-count">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <span id="cartCount">0</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="cart-page">
+    <!-- Left Side -->
+    <section class="cart-main">
+
+      <!-- Dynamic Cart -->
+      <div class="cart-container" id="cartContainer">
+        <p class="empty">
+          Loading Cart...
+        </p>
+      </div>
+
+      <!-- Continue Shopping -->
+      <section class="continue-shopping">
+        <div class="section-heading">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <div>
+            <h2>
+              Continue Shopping
+            </h2>
+            <p>
+              Looking for something delicious?
+            </p>
+          </div>
+        </div>
+
+        <div class="category-grid">
+          <a href="hot-beverages.html">
+            <i class="fa-solid fa-mug-hot"></i>
+            <span>Hot Beverages</span>
+          </a>
+
+          <a href="cold-beverages.html">
+            <i class="fa-solid fa-glass-water"></i>
+            <span>Cold Beverages</span>
+
+          </a>
+
+          <a href="burger-frenchfries.html">
+            <i class="fa-solid fa-burger"></i>
+            <span>Burgers & Fries</span>
+          </a>
+
+          <a href="desserts.html">
+            <i class="fa-solid fa-cake-candles"></i>
+            <span>Desserts</span>
+          </a>
+
+          <a href="refreshment.html">
+            <i class="fa-solid fa-glass-water"></i>
+            <span>Drinks & Snacks</span>
+          </a>
+
+          <a href="special-combo.html">
+            <i class="fa-solid fa-gift"></i>
+            <span>Combos</span>
+          </a>
+        </div>
+
+        <a href="Index.html#menu" class="browse-btn">
+          Browse Menu
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </section>
+
+      <!-- Frequently Bought Together -->
+      <!-- <section class="recommend-section">
+        <div class="section-heading">
+          <i class="fa-solid fa-heart"></i>
+          <div>
+            <h2>
+              Frequently Bought Together
+            </h2>
+            <p>
+              Perfect pairings.
+            </p>
+          </div>
+        </div>
+
+        <div class="recommend-grid" id="recommendGrid"></div>
+      </section> -->
+    </section>
+
+    <!-- Right Side -->
+    <aside class="cart-summary">
+
+      <div class="summary-card">
+        <h2>Order Summary</h2>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal">₹0</span>
+        </div>
+
+        <div class="summary-row">
+          <span>
+            You Saved
+          </span>
+          <span id="savedAmount">
+            ₹0
+          </span>
+        </div>
+
+        <hr>
+
+        <div class="delivery-progress">
+          <i class="fa-solid fa-truck"></i>
+          Add
+          <span id="remainingAmount">
+            ₹200
+          </span>
+          more for
+          <strong>
+            FREE DELIVERY
+          </strong>
+        </div>
+
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            id="progressFill">
+          </div>
+        </div>
+
+        <div
+          class="summary-addon"
+          id="summaryAddon">
+        </div>
+
+        <button
+          class="continue-btn">
+          Continue Shopping
+        </button>
+
+        <button
+          class="checkout-btn">
+          <i class="fa-solid fa-lock"></i>
+          Secure Checkout
+        </button>
+
+        <p class="secure-text">
+          <i class="fa-solid fa-shield"></i>
+          100% Secure Payments
+        </p>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="cart-footer-area">
+    <div>
+      <i class="fa-solid fa-shield-halved"></i>
+      Secure Payment
+    </div>
+
+    <div>
+      <i class="fa-solid fa-truck-fast"></i>
+      Fast Delivery
+    </div>
+
+    <div>
+      <i class="fa-solid fa-box-open"></i>
+      Easy Returns
+    </div>
+
+    <div>
+      <i class="fa-solid fa-award"></i>
+      Best Price
+    </div>
+  </footer>
+
+  <div class="cart-thankyou">
+    Thank you for choosing CoffeeCape ☕
   </div>
 
   <script src="js/menu.js"></script>

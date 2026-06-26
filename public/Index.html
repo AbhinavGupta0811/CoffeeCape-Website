@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Main Landing Page</title>
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.css" integrity="sha512-pmAAV1X4Nh5jA9m+jcvwJXFQvCBi3T17aZ1KWkqXr7g/O2YMvO8rfaa5ETWDuBvRq6fbDjlw4jHL44jNTScaKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="css/Style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Landing Page</title>
+    <link rel="icon" type="image/png" href="assets/logo-image.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.css" integrity="sha512-pmAAV1X4Nh5jA9m+jcvwJXFQvCBi3T17aZ1KWkqXr7g/O2YMvO8rfaa5ETWDuBvRq6fbDjlw4jHL44jNTScaKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
     <!-- Header / Navbar -->
@@ -326,7 +327,6 @@
             <h2 class="section-title">Contact Us</h2>
 
             <div class="section-content">
-
                 <!-- CONTACT INFO -->
                 <ul class="contact-info-list">
                 <li class="contact-info">
@@ -377,10 +377,8 @@
                 
                 <!-- LANDING PAGE CONTACT FORM -->
                 <form id="landingContactForm" class="landing-contact-form" novalidate>
-                <input type="text" name="name" placeholder="Your name" required aria-label="Your name">
-                <input type="text" name="email" placeholder="Your email" required aria-label="Your email">
-                <textarea name='message' placeholder="Your message" rows="4" required aria-label="Your message"></textarea>
-                <button type="submit">Continue to Contact</button>
+                <textarea name='message' placeholder="How can we help you?" rows="4" required aria-label="Your message"></textarea>
+                <button type="submit">Contact Support</button>
                 </form>
             </div>
         </section>
@@ -389,53 +387,69 @@
         <footer class="footer">
             <div class="footer-container">
                 <div class="footer-column">
-                <h3>CoffeeCape</h3>
-                <p>
-                    Freshly crafted luxury coffee, made for modern tastemakers.
-                </p>
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Browse Restaurants</a></li>
+                        <li><a href="MyOrder.html">My Orders</a></li>
+                        <li><a href="contact.html">Contact Support</a></li>
+                    </ul>
                 </div>
 
                 <div class="footer-column">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Browse Restaurants</a></li>
-                    <li><a href="MyOrder.html">My Orders</a></li>
-                    <li><a href="contact.html">Contact Support</a></li>
-                </ul>
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Order Issues</a></li>
+                        <li><a href="refund-policy.html">Refund Policy</a></li>
+                        <li><a href="#">Cancellation Policy</a></li>
+                    </ul>
                 </div>
 
                 <div class="footer-column">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Order Issues</a></li>
-                    <li><a href="refund-policy.html">Refund Policy</a></li>
-                    <li><a href="#">Cancellation Policy</a></li>
-                </ul>
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                    </ul>
                 </div>
 
                 <div class="footer-column">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="#">Terms & Conditions</a></li>
-                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                    <li><a href="#">Cookie Policy</a></li>
-                </ul>
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Partner With Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
                 </div>
-
             </div>
 
             <div class="footer-bottom">
-                <p>© 2025 FoodApp. All rights reserved.</p>
+                <div class="footer-download">
+                    <a href="#">
+                        <img src="assets/download-on-the-app-store.svg"
+                        alt="Download on the App Store">
+                    </a>
+                    <a href="#">
+                        <img src="assets/Google_Play_Store_badge_EN.svg"
+                        alt="Get it on Google Play">
+                    </a>
+                </div>
+                <p>
+                    © 2025 CoffeeCape. All rights reserved.
+                </p>
             </div>
         </footer>
     </main>
-    <!-- 🆙 Scroll-to-Top Button -->
-    <button id="scrollTopBtn" class="scroll-top">
-    <i class="fas fa-arrow-up"></i>
-    </button>
+
+    <!-- Scroll-to-Top Button -->
+    <!-- <button id="scrollTopBtn" class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js" integrity="sha512-Ysw1DcK1P+uYLqprEAzNQJP+J4hTx4t/3X2nbVwszao8wD+9afLjBQYjz7Uk4ADP+Er++mJoScI42ueGtQOzEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="js/Script.js"></script>
+    <script src="js/chatbot.js"></script>
 </body>
 </html>

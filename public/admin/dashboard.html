@@ -1,165 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin Dashboard</title>
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- PROFESSIONAL ICONS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<!-- CUSTOM CSS -->
-<link rel="stylesheet" href="css/admin.css">
-<!-- CHART LIBRARY -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PROFESSIONAL ICONS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- CUSTOM CSS -->
+  <link rel="stylesheet" href="css/admin.css">
+  <!-- CHART LIBRARY -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <div class="admin-wrapper">
 
-<!-- ================= SIDEBAR ================= -->
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+      <span class="logo-text">CoffeeCape</span>
+    </div>
 
-<aside class="sidebar">
+    <nav>
+      <a href="dashboard.html" class="active">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
 
-  <h2 class="logo">CoffeeCape</h2>
+      <a href="user.html">
+        <i class="fa-solid fa-users"></i> Users
+      </a>
 
-  <nav>
-    <a href="dashboard.html" class="active">
-      <i class="fa-solid fa-chart-line"></i> Dashboard
-    </a>
+      <a href="product.html">
+        <i class="fa-solid fa-burger"></i> Products
+      </a>
 
-    <a href="user.html">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
+      <a href="orders.html">
+        <i class="fa-solid fa-box"></i> Orders
+      </a>
 
-    <a href="orders.html">
-      <i class="fa-solid fa-box"></i> Orders
-    </a>
+      <a href="booking.html">
+        <i class="fa-solid fa-calendar-check"></i> Bookings
+      </a>
 
-    <a href="booking.html">
-      <i class="fa-solid fa-calendar-check"></i> Bookings
-    </a>
+      <a href="messages.html">
+        <i class="fa-solid fa-envelope"></i> Messages
+      </a>
 
-    <a href="product.html">
-      <i class="fa-solid fa-burger"></i> Products
-    </a>
-    
-    <a href="messages.html">
-      <i class="fa-solid fa-envelope"></i> Messages
-    </a>
+      <a href="setting.html">
+        <i class="fa-solid fa-gear"></i> Settings
+      </a>
+    </nav>
 
-    <a href="setting.html">
-      <i class="fa-solid fa-gear"></i> Settings
-    </a>
-  </nav>
+    <button id="logoutBtn" class="logout-btn">
+      Logout
+    </button>
+  </aside>
 
-  <button id="logoutBtn" class="logout-btn">
-    Logout
-  </button>
+  <!-- ================= MAIN CONTENT ================= -->
 
-</aside>
+  <main class="main-content">
 
-<!-- ================= MAIN CONTENT ================= -->
+    <!-- ===== STAT CARDS ===== -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        Total Users
+        <h3 id="totalUsers">–</h3>
+      </div>
 
-<main class="main-content">
+      <div class="stat-card">
+        Today Registered
+        <h3 id="todayUsers">–</h3>
+      </div>
 
-<!-- ===== STAT CARDS ===== -->
+      <div class="stat-card">
+        Active Users
+        <h3 id="activeUsers">–</h3>
+      </div>
 
-<section class="stats-grid">
+      <div class="stat-card">
+        Orders Today
+        <h3 id="todayOrders">–</h3>
+      </div>
 
-  <div class="stat-card">
-    Total Users
-    <h3 id="totalUsers">–</h3>
-  </div>
+      <div class="stat-card highlight">
+        Revenue Today
+        <h3>₹<span id="todayRevenue">0</span></h3>
+      </div>
+    </section>
 
-  <div class="stat-card">
-    Today Registered
-    <h3 id="todayUsers">–</h3>
-  </div>
+    <!-- ===== CHARTS SECTION ===== -->
+    <section class="charts-grid">
+      <div class="chart-box">
+        <h4>Revenue Over Time</h4>
+        <canvas id="revenueChart"></canvas>
+      </div>
 
-  <div class="stat-card">
-    Active Users
-    <h3 id="activeUsers">–</h3>
-  </div>
+      <div class="chart-box">
+        <h4>Orders Per Day</h4>
+        <canvas id="ordersChart"></canvas>
+      </div>
 
-  <div class="stat-card">
-    Orders Today
-    <h3 id="todayOrders">–</h3>
-  </div>
+      <div class="chart-box">
+        <h4>Order Status Distribution</h4>
+        <canvas id="statusChart"></canvas>
+      </div>
 
-  <div class="stat-card highlight">
-    Revenue Today
-    <h3>₹<span id="todayRevenue">0</span></h3>
-  </div>
+      <div class="chart-box">
+        <h4>Top Selling Items</h4>
+        <canvas id="itemsChart"></canvas>
+      </div>
 
-</section>
+      <div class="chart-box">
+        <h4>Booking Growth</h4>
+        <canvas id="bookingGrowthChart"></canvas>
+      </div>
 
-<!-- ===== CHARTS SECTION ===== -->
+      <div class="chart-box">
+        <h4>Booking Status Distribution</h4>
+        <canvas id="bookingStatusChart"></canvas>
+      </div>
 
-<section class="charts-grid">
+      <div class="chart-box">
+        <h4>Booking Revenue</h4>
+        <canvas id="bookingRevenueChart"></canvas>
+      </div>
+    </section>
 
-  <div class="chart-box">
-    <h4>Revenue Over Time</h4>
-    <canvas id="revenueChart"></canvas>
-  </div>
+    <!-- ===== ORDER REMINDER ===== -->
 
-  <div class="chart-box">
-    <h4>Orders Per Day</h4>
-    <canvas id="ordersChart"></canvas>
-  </div>
+    <section class="panel">
+      <h4>Pending Order Reminders</h4>
 
-  <div class="chart-box">
-    <h4>Order Status Distribution</h4>
-    <canvas id="statusChart"></canvas>
-  </div>
+      <div id="orderReminderBox" class="reminder-box">
+        Loading pending orders...
+      </div>
+    </section>
 
-  <div class="chart-box">
-    <h4>Top Selling Items</h4>
-    <canvas id="itemsChart"></canvas>
-  </div>
-
-  <div class="chart-box">
-    <h4>Booking Growth</h4>
-    <canvas id="bookingGrowthChart"></canvas>
-  </div>
-
-  <div class="chart-box">
-    <h4>Booking Status Distribution</h4>
-    <canvas id="bookingStatusChart"></canvas>
-  </div>
-
-  <div class="chart-box">
-    <h4>Booking Revenue</h4>
-    <canvas id="bookingRevenueChart"></canvas>
-  </div>
-
-</section>
-
-<!-- ===== ORDER REMINDER ===== -->
-
-<section class="panel">
-
-<h4>Pending Order Reminders</h4>
-
-<div id="orderReminderBox" class="reminder-box">
-  Loading pending orders...
-</div>
-
-</section>
-<div class="panel">
-  <h4>New Contact Messages</h4>
-  <div id="contactReminderBox" class="reminder-box"></div>
-</div>
-</main>
+    <div class="panel">
+      <h4>New Contact Messages</h4>
+      <div id="contactReminderBox" class="reminder-box"></div>
+    </div>
+  </main>
 
 </div>
 
 <!-- ================= ORDER DETAIL MODAL ================= -->
-
 <div id="orderModal" class="modal-overlay">
-
   <div class="modal-box">
-
     <span id="closeOrderModal" class="close-btn">×</span>
 
     <h3>Order Details</h3>
@@ -167,7 +158,6 @@
     <div id="orderModalContent" class="modal-content"></div>
 
   </div>
-
 </div>
 
 <!-- ================= MAIN JS ================= -->

@@ -1,35 +1,40 @@
 /************************************************************
-API PATHS
+  API PATHS
 ************************************************************/
 const API={
-ORDERS:"/api/admin/orders",
-ORDER_DETAILS:id=>`/api/admin/orders/${id}`,
-UPDATE_STATUS:id=>`/api/admin/orders/${id}/status`,
-CANCEL_ORDER:id=>`/api/admin/orders/${id}/cancel`,
-REFUND_APPROVE:id=>`/api/admin/orders/${id}/refund`,
-REFUND_REJECT:id=>`/api/admin/orders/${id}/refund/reject`,
-LOGIN_PAGE:"/Auth.html"
+  ORDERS:"/api/admin/orders",
+  ORDER_DETAILS:id=>`/api/admin/orders/${id}`,
+  UPDATE_STATUS:id=>`/api/admin/orders/${id}/status`,
+  CANCEL_ORDER:id=>`/api/admin/orders/${id}/cancel`,
+  REFUND_APPROVE:id=>`/api/admin/orders/${id}/refund`,
+  REFUND_REJECT:id=>`/api/admin/orders/${id}/refund/reject`,
+  LOGIN_PAGE:"/Auth.html"
 };
 
 /************************************************************
-CONSTANTS
+  CONSTANTS
 ************************************************************/
 const FINAL_STATUSES=["cancelled","refunded","delivered","refund_rejected"];
 
 /************************************************************
-ELEMENTS
+  ELEMENTS
 ************************************************************/
 const ordersTableBody=document.getElementById("ordersTableBody");
 const emptyState=document.getElementById("emptyState");
 const modal=document.getElementById("orderModal");
 const modalContent=document.getElementById("orderModalContent");
 const closeModalBtn=document.getElementById("closeOrderModal");
-
+const todayOrdersEl=document.getElementById("todayOrders");
+const totalRevenueEl=document.getElementById("totalRevenue");
+const pendingOrdersEl=document.getElementById("pendingOrders");
+const processingOrdersEl=document.getElementById("processingOrders");
+const deliveredOrdersEl=document.getElementById("deliveredOrders");
+const refundRequestsEl=document.getElementById("refundRequests");
 const activeBtn=document.getElementById("activeOrdersBtn");
 const pastBtn=document.getElementById("pastOrdersBtn");
 
 /************************************************************
-STATE
+  STATE
 ************************************************************/
 let currentOrderType="active";
 
@@ -37,7 +42,7 @@ let currentOrderType="active";
 HELPERS
 ************************************************************/
 function labelize(text){
-return text.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+  return text.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
 }
 
 /************************************************************
@@ -59,178 +64,279 @@ function initSocket() {
     console.error("❌ Socket connection error:", err.message);
   });
 
-  socket.on("new-order", (data) => {
+  socket.on("new-order",async (data) => {
     console.log("📦 New Order:", data);
     loadOrders();
-    loadStats();
+    loadAllOrderStats()
     loadPendingReminders();
     fetchAnalytics();
   });
 
-  socket.on("order-status-updated", (data) => {
+  socket.on("order-status-updated",async (data) => {
     console.log("🔄 Status Updated:", data);
     loadOrders();
-    loadStats();
+    loadAllOrderStats()
     loadPendingReminders();
     fetchAnalytics();
   });
 }
 
 /************************************************************
-LOAD ORDERS
+  ORDER STATS
 ************************************************************/
-async function loadOrders(){
+async function loadAllOrderStats(){
 
-try{
+  try{
 
-const res=await fetch(`${API.ORDERS}?type=${currentOrderType}`,{
-credentials:"include"
-});
+    const res = await fetch(
+      `${API.ORDERS}?type=all`,
+      {
+        credentials:"include"
+      }
+    );
 
-if(res.status===401){
-location.href=API.LOGIN_PAGE;
-return;
+    const data = await res.json();
+
+    updateOrderStats(data.orders || []);
+
+  }catch(err){
+    console.error("Stats error:",err);
+  }
+
 }
 
-const data=await res.json();
-renderOrders(data.orders||[]);
+function updateOrderStats(orders=[]){
 
-}catch(err){
-console.error("Orders load error:",err);
-}
+  const today=new Date();
+
+  let todayOrders=0;
+  let totalRevenue=0;
+  let pendingOrders=0;
+  let processingOrders=0;
+  let deliveredOrders=0;
+  let refundRequests=0;
+
+  orders.forEach(order=>{
+
+    const orderDate=new Date(order.created_at);
+
+    const isToday=
+    orderDate.getDate()===today.getDate() &&
+    orderDate.getMonth()===today.getMonth() &&
+    orderDate.getFullYear()===today.getFullYear();
+
+    if(isToday){
+      todayOrders++;
+    }
+
+    if(
+      order.payment_status==="paid" ||
+      order.payment_status==="completed"
+      ){
+      totalRevenue+=Number(order.total||0);
+    }
+
+    if(order.status==="pending"){
+      pendingOrders++;
+    }
+
+    if(
+      order.status==="confirmed" ||
+      order.status==="preparing" ||
+      order.status==="out_for_delivery"
+      ){
+      processingOrders++;
+    }
+
+    if(order.status==="delivered"){
+      deliveredOrders++;
+    }
+
+    if(order.status==="refund_requested"){
+      refundRequests++;
+    }
+
+  });
+
+  if(todayOrdersEl){
+    todayOrdersEl.textContent=todayOrders;
+  }
+
+  if(totalRevenueEl){
+    totalRevenueEl.textContent=`₹${totalRevenue.toLocaleString("en-IN")}`;
+  }
+
+  if(pendingOrdersEl){
+    pendingOrdersEl.textContent=pendingOrders;
+  }
+
+  if(processingOrdersEl){
+    processingOrdersEl.textContent=processingOrders;
+  }
+
+  if(deliveredOrdersEl){
+    deliveredOrdersEl.textContent=deliveredOrders;
+  }
+
+  if(refundRequestsEl){
+    refundRequestsEl.textContent=refundRequests;
+  }
 
 }
 
 /************************************************************
-RENDER ORDERS
+  LOAD ORDERS
+************************************************************/
+async function loadOrders(){
+  try{
+    const res=await fetch(`${API.ORDERS}?type=${currentOrderType}`,{
+      credentials:"include"
+    });
+
+    if(res.status===401){
+      location.href=API.LOGIN_PAGE;
+      return;
+    }
+
+    const data=await res.json();
+    const orders=data.orders||[];
+    renderOrders(orders);
+
+  }catch(err){
+    console.error("Orders load error:",err);
+  }
+
+}
+
+/************************************************************
+  RENDER ORDERS
 ************************************************************/
 function renderOrders(orders){
 
-if(!ordersTableBody)return;
+  if(!ordersTableBody)return;
 
-ordersTableBody.innerHTML="";
-emptyState.style.display="none";
+  ordersTableBody.innerHTML="";
+  emptyState.style.display="none";
 
-if(!orders.length){
-emptyState.style.display="block";
-return;
-}
+  if(!orders.length){
+    emptyState.style.display="block";
+    return;
+  }
 
-orders.forEach(order=>{
+  orders.forEach(order=>{
+    const isFinal=FINAL_STATUSES.includes(order.status);
+    const isRefundRequest=order.status==="refund_requested";
 
-const isFinal=FINAL_STATUSES.includes(order.status);
-const isRefundRequest=order.status==="refund_requested";
+    let actionButtons="";
 
-let actionButtons="";
+    if(isFinal){
 
-if(isFinal){
+    actionButtons=`<span class="status completed">Final Order</span>`;
 
-actionButtons=`<span class="status completed">Final Order</span>`;
+    }
 
-}
+    else if(isRefundRequest){
 
-else if(isRefundRequest){
+    actionButtons=`
+    <button class="btn-warning" data-action="approve-refund" data-id="${order.id}">
+    Approve
+    </button>
 
-actionButtons=`
-<button class="btn-warning" data-action="approve-refund" data-id="${order.id}">
-Approve
-</button>
+    <button class="btn-danger" data-action="reject-refund" data-id="${order.id}">
+    Reject
+    </button>
+    `;
 
-<button class="btn-danger" data-action="reject-refund" data-id="${order.id}">
-Reject
-</button>
-`;
+    }
 
-}
+    else if(order.status==="pending"){
 
-else if(order.status==="pending"){
+    actionButtons=`
+    <button class="btn-primary" data-action="approve" data-id="${order.id}">
+    Approve
+    </button>
 
-actionButtons=`
-<button class="btn-primary" data-action="approve" data-id="${order.id}">
-Approve
-</button>
+    <button class="btn-danger" data-action="cancel" data-id="${order.id}">
+    Cancel
+    </button>
+    `;
 
-<button class="btn-danger" data-action="cancel" data-id="${order.id}">
-Cancel
-</button>
-`;
+    }
 
-}
+    else if(order.status==="confirmed"){
 
-else if(order.status==="confirmed"){
+    actionButtons=`
+    <button class="btn-primary" data-action="next" data-next="preparing" data-id="${order.id}">
+    Start Preparing
+    </button>
+    `;
 
-actionButtons=`
-<button class="btn-primary" data-action="next" data-next="preparing" data-id="${order.id}">
-Start Preparing
-</button>
-`;
+    }
 
-}
+    else if(order.status==="preparing"){
 
-else if(order.status==="preparing"){
+    actionButtons=`
+    <button class="btn-primary" data-action="next" data-next="out_for_delivery" data-id="${order.id}">
+    Send For Delivery
+    </button>
+    `;
 
-actionButtons=`
-<button class="btn-primary" data-action="next" data-next="out_for_delivery" data-id="${order.id}">
-Send For Delivery
-</button>
-`;
+    }
 
-}
+    else if(order.status==="out_for_delivery"){
 
-else if(order.status==="out_for_delivery"){
+    actionButtons=`
+    <button class="btn-primary" data-action="next" data-next="delivered" data-id="${order.id}">
+    Mark Delivered
+    </button>
+    `;
 
-actionButtons=`
-<button class="btn-primary" data-action="next" data-next="delivered" data-id="${order.id}">
-Mark Delivered
-</button>
-`;
+    }
 
-}
+    ordersTableBody.insertAdjacentHTML("beforeend",`
 
-ordersTableBody.insertAdjacentHTML("beforeend",`
+    <tr>
 
-<tr>
+    <td>${order.order_id}</td>
+    <td>${order.name}</td>
+    <td>${order.customer_email}</td>
+    <td>₹${order.total}</td>
 
-<td>${order.order_id}</td>
-<td>${order.name}</td>
-<td>${order.customer_email}</td>
-<td>₹${order.total}</td>
+    <td>
+    <span class="status ${order.status}">
+    ${labelize(order.status)}
+    </span>
+    </td>
 
-<td>
-<span class="status ${order.status}">
-${labelize(order.status)}
-</span>
-</td>
+    <td>
+    <span class="status ${order.payment_status}">
+    ${labelize(order.payment_status)}
+    </span>
+    </td>
 
-<td>
-<span class="status ${order.payment_status}">
-${labelize(order.payment_status)}
-</span>
-</td>
+    <td>
+    ${
+    order.status==="cancelled"
+    ?`<span class="status cancelled">${labelize(order.cancelled_by||"unknown")}</span>`
+    :"None"
+    }
+    </td>
 
-<td>
-${
-order.status==="cancelled"
-?`<span class="status cancelled">${labelize(order.cancelled_by||"unknown")}</span>`
-:"None"
-}
-</td>
+    <td>
 
-<td>
+    <button class="btn-view" data-action="view" data-id="${order.id}">
+    View
+    </button>
 
-<button class="btn-view" data-action="view" data-id="${order.id}">
-View
-</button>
+    ${actionButtons}
 
-${actionButtons}
+    </td>
 
-</td>
+    </tr>
 
-</tr>
+    `);
 
-`);
-
-});
+  });
 
 }
 
@@ -239,96 +345,101 @@ TABLE EVENTS
 ************************************************************/
 if(ordersTableBody){
 
-ordersTableBody.addEventListener("click",async e=>{
+  ordersTableBody.addEventListener("click",async e=>{
 
-const viewBtn=e.target.closest("[data-action='view']");
-const approveBtn=e.target.closest("[data-action='approve']");
-const nextBtn=e.target.closest("[data-action='next']");
-const cancelBtn=e.target.closest("[data-action='cancel']");
-const approveRefundBtn=e.target.closest("[data-action='approve-refund']");
-const rejectRefundBtn=e.target.closest("[data-action='reject-refund']");
+  const viewBtn=e.target.closest("[data-action='view']");
+  const approveBtn=e.target.closest("[data-action='approve']");
+  const nextBtn=e.target.closest("[data-action='next']");
+  const cancelBtn=e.target.closest("[data-action='cancel']");
+  const approveRefundBtn=e.target.closest("[data-action='approve-refund']");
+  const rejectRefundBtn=e.target.closest("[data-action='reject-refund']");
 
-if(viewBtn){
-openOrderModal(viewBtn.dataset.id);
-}
+  if(viewBtn){
+    openOrderModal(viewBtn.dataset.id);
+  }
 
-if(approveBtn){
+  if(approveBtn){
 
-if(!confirm("Approve this order?"))return;
+    if(!confirm("Approve this order?"))return;
 
-await fetch(API.UPDATE_STATUS(approveBtn.dataset.id),{
-method:"PUT",
-headers:{"Content-Type":"application/json"},
-credentials:"include",
-body:JSON.stringify({status:"confirmed"})
-});
+    await fetch(API.UPDATE_STATUS(approveBtn.dataset.id),{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      credentials:"include",
+      body:JSON.stringify({status:"confirmed"})
+    });
 
-loadOrders();
+    await loadOrders();
+    await loadAllOrderStats();
 
-}
+  }
 
-if(nextBtn){
+  if(nextBtn){
 
-const nextStatus=nextBtn.dataset.next;
+    const nextStatus=nextBtn.dataset.next;
 
-await fetch(API.UPDATE_STATUS(nextBtn.dataset.id),{
-method:"PUT",
-headers:{"Content-Type":"application/json"},
-credentials:"include",
-body:JSON.stringify({status:nextStatus})
-});
+    await fetch(API.UPDATE_STATUS(nextBtn.dataset.id),{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      credentials:"include",
+      body:JSON.stringify({status:nextStatus})
+    });
 
-loadOrders();
+    await loadOrders();
+    await loadAllOrderStats();
 
-}
+  }
 
-if(cancelBtn){
+  if(cancelBtn){
 
-if(!confirm("Cancel this order?"))return;
+    if(!confirm("Cancel this order?"))return;
 
-await fetch(API.CANCEL_ORDER(cancelBtn.dataset.id),{
-method:"POST",
-credentials:"include"
-});
+    await fetch(API.CANCEL_ORDER(cancelBtn.dataset.id),{
+    method:"POST",
+    credentials:"include"
+    });
 
-loadOrders();
+    await loadOrders();
+    await loadAllOrderStats();
 
-}
+  }
 
-if(approveRefundBtn){
+  if(approveRefundBtn){
 
-if(!confirm("Approve refund for this order?"))return;
+    if(!confirm("Approve refund for this order?"))return;
 
-await fetch(API.REFUND_APPROVE(approveRefundBtn.dataset.id),{
-method:"POST",
-credentials:"include"
-});
+    await fetch(API.REFUND_APPROVE(approveRefundBtn.dataset.id),{
+    method:"POST",
+    credentials:"include"
+    });
 
-loadOrders();
+    await loadOrders();
+    await loadAllOrderStats();
 
-}
+  }
 
-if(rejectRefundBtn){
+  if(rejectRefundBtn){
 
-const reason=prompt("Enter reason for rejecting refund:");
+    const reason=prompt("Enter reason for rejecting refund:");
 
-if(!reason||reason.trim().length<5){
-alert("Rejection reason must be at least 5 characters");
-return;
-}
+    if(!reason||reason.trim().length<5){
+    alert("Rejection reason must be at least 5 characters");
+    return;
+  }
 
-await fetch(API.REFUND_REJECT(rejectRefundBtn.dataset.id),{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-credentials:"include",
-body:JSON.stringify({reason})
-});
+  await fetch(API.REFUND_REJECT(rejectRefundBtn.dataset.id),{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    credentials:"include",
+    body:JSON.stringify({reason})
+  });
 
-loadOrders();
+  await loadOrders();
+  await loadAllOrderStats();
 
-}
+  }
 
-});
+  });
 
 }
 
@@ -338,7 +449,7 @@ ORDER MODAL
 async function openOrderModal(orderId){
 
 const res=await fetch(API.ORDER_DETAILS(orderId),{
-credentials:"include"
+  credentials:"include"
 });
 
 const {order}=await res.json();
@@ -437,51 +548,55 @@ modal.classList.add("active");
 }
 
 /************************************************************
-CLOSE MODAL
+  CLOSE MODAL
 ************************************************************/
 if(closeModalBtn){
 
-closeModalBtn.addEventListener("click",()=>{
-modal.classList.remove("active");
-});
+  closeModalBtn.addEventListener("click",()=>{
+  modal.classList.remove("active");
+  });
 
 }
 
 /************************************************************
-FILTER BUTTONS
+  FILTER BUTTONS
 ************************************************************/
 function setActiveFilter(btn){
 
-activeBtn.classList.remove("active");
-pastBtn.classList.remove("active");
+  activeBtn.classList.remove("active");
+  pastBtn.classList.remove("active");
 
-btn.classList.add("active");
+  btn.classList.add("active");
 
 }
 
 if(activeBtn){
-
-activeBtn.addEventListener("click",()=>{
-currentOrderType="active";
-setActiveFilter(activeBtn);
-loadOrders();
-});
-
+  activeBtn.addEventListener("click", async()=>{
+    currentOrderType="active";
+    setActiveFilter(activeBtn);
+    await loadOrders();
+  });
 }
 
 if(pastBtn){
-
-pastBtn.addEventListener("click",()=>{
-currentOrderType="past";
-setActiveFilter(pastBtn);
-loadOrders();
-});
-
+    pastBtn.addEventListener("click", async()=>{
+    currentOrderType="past";
+    setActiveFilter(pastBtn);
+    await loadOrders();
+  });
 }
 
+document
+.getElementById("exportOrdersBtn")
+.addEventListener("click", () => {
+    window.location.href =
+    "/api/admin/orders/export";
+});
+
 /************************************************************
-INIT
+  INIT
 ************************************************************/
 document.addEventListener("DOMContentLoaded",()=>{
-loadOrders();
+  loadAllOrderStats();
+  loadOrders();
 });

@@ -1,7 +1,6 @@
 /* =====================================================
    ADMIN BOOKINGS - COMPLETE PROFESSIONAL VERSION
 ===================================================== */
-
 const API = "/api/admin/bookings";
 
 const tableBody = document.getElementById("bookingsTableBody");
@@ -10,9 +9,8 @@ const modalContent = document.getElementById("bookingDetailContent");
 const closeModalBtn = document.getElementById("closeBookingModal");
 
 /* =====================================================
-   SOCKET.IO (ADMIN REAL-TIME) - OPTIMIZED
+   SOCKET.IO (ADMIN REAL-TIME) 
 ===================================================== */
-
 const socket = io({
   withCredentials: true
 });
@@ -42,19 +40,35 @@ socket.on("disconnect", () => {
    COMMON FUNCTION
 =============================== */
 function refreshDashboard() {
-  loadBookingStats(); // ✅ update cards
+  loadBookingStats(); // update cards
+}
+
+/* ===============================
+   BOOKING SOCKET UPDATE
+=============================== */
+function handleBookingRealtime(data = {}) {
+  if (!data.bookingId) {
+    safeReload();
+    return;
+  }
+
+  updateBookingRow(
+    data.bookingId,
+    data.status,
+    data.payment_status || null
+  );
+  refreshDashboard();
 }
 
 /* ===============================
    REAL-TIME EVENTS
 =============================== */
-
-/* 🔥 NEW BOOKING */
+/* NEW BOOKING */
 socket.on("newBooking", async (data) => {
 
   showToast("New booking received", "info");
 
-  refreshDashboard(); // ✅ update stats
+  refreshDashboard(); // update stats
 
   if (!data?.bookingId) {
     safeReload();
@@ -79,37 +93,72 @@ socket.on("newBooking", async (data) => {
   }
 });
 
-/* 🔄 STATUS UPDATED */
-socket.on("bookingUpdated", (data) => {
-  updateBookingRow(data.bookingId, data.status);
-  refreshDashboard();
-});
+/* STATUS UPDATED */
+socket.on( "bookingUpdated", data => {
+    console.log(
+      "📅 Booking Updated",
+      data
+    );
+    handleBookingRealtime(data);
+  }
+);
 
-/* ✅ CONFIRMED */
-socket.on("bookingConfirmed", (data) => {
-  updateBookingRow(data.bookingId, "confirmed");
-  refreshDashboard();
-});
+/* CONFIRMED */
+socket.on( "bookingConfirmed", data => {
+    console.log(
+      "Legacy bookingConfirmed"
+    );
 
-/* 🎯 COMPLETED */
-socket.on("bookingCompleted", (data) => {
-  updateBookingRow(data.bookingId, "completed", "completed");
-  refreshDashboard();
-});
+    if (!data.status) {
+      data.status =
+      "confirmed";
+    }
+    handleBookingRealtime(data);
+  }
+);
 
-/* ❌ CANCELLED */
-socket.on("bookingCancelled", (data) => {
-  updateBookingRow(data.bookingId, "cancelled");
-  refreshDashboard();
-});
+/* COMPLETED */
+socket.on( "bookingCompleted", data => {
+    console.log(
+      "Legacy bookingCompleted"
+    );
+
+    data.status =
+      "completed";
+
+    data.payment_status =
+      "completed";
+
+    handleBookingRealtime(data);
+  }
+);
+
+/* CANCELLED */
+socket.on( "bookingCancelled", data => {
+    console.log(
+      "Legacy bookingCancelled"
+    );
+
+    data.status =
+      "cancelled";
+
+    handleBookingRealtime(data);
+  }
+);
 
 function updateBookingRow(bookingId, newStatus, newPaymentStatus = null) {
 
   const buttons = document.querySelectorAll(`button[data-id="${bookingId}"]`);
-  if (!buttons.length) return;
+  if (!buttons.length) {
+    safeReload();
+    return;
+  }
 
   const row = buttons[0].closest("tr");
-  if (!row) return;
+  if (!row) {
+    safeReload();
+    return;
+  }
 
   /* ===== UPDATE STATUS ===== */
   if (newStatus) {
@@ -718,9 +767,6 @@ async function acceptBooking(id, button) {
       return;
     }
 
-    // ✅ Update AFTER success
-    updateBookingRow(id, "confirmed");
-
     showToast("Booking confirmed", "success");
 
   } catch {
@@ -751,9 +797,6 @@ async function completeBooking(id, button) {
       button.innerText = "Mark Completed";
       return;
     }
-
-    // ✅ Update AFTER success
-    updateBookingRow(id, "completed", "completed");
 
     showToast("Booking completed", "success");
 
@@ -786,9 +829,6 @@ async function cancelBooking(id, button) {
       return;
     }
 
-    // ✅ Update AFTER success
-    updateBookingRow(id, "cancelled");
-
     showToast("Booking cancelled & refunded", "success");
 
   } catch {
@@ -801,7 +841,6 @@ async function cancelBooking(id, button) {
 /* =====================================================
    EVENT LISTENER
 ===================================================== */
-
 tableBody.addEventListener("click", (e) => {
   const button = e.target.closest("button");
   if (!button) return;
@@ -813,6 +852,10 @@ tableBody.addEventListener("click", (e) => {
   if (action === "accept") acceptBooking(id, button);
   if (action === "complete") completeBooking(id, button);
   if (action === "cancel") cancelBooking(id, button);
+});
+
+document.getElementById("exportBookingsBtn").addEventListener("click", () => {
+  window.location.href = "/api/admin/bookings/export";
 });
 
 /* =====================================================

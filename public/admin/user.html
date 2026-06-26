@@ -1,115 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin | Users</title>
-<link rel="icon" type="image/png" href="assets/logo-image.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="css/admin.css">
+  <meta charset="UTF-8">
+  <title>Admin | Users</title>
+  <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 
 <body>
 
-<div class="admin-wrapper">
+  <div class="admin-wrapper">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+        <span class="logo-text">CoffeeCape</span>
+      </div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
+      <nav>
+        <a href="dashboard.html" class="active">
+          <i class="fa-solid fa-chart-line"></i> Dashboard
+        </a>
 
-  <h2 class="logo">CoffeeCape</h2>
+        <a href="user.html">
+          <i class="fa-solid fa-users"></i> Users
+        </a>
 
-  <nav>
-    <a href="dashboard.html">
-      <i class="fa-solid fa-chart-line"></i> Dashboard
-    </a>
+        <a href="product.html">
+          <i class="fa-solid fa-burger"></i> Products
+        </a>
 
-    <a href="user.html" class="active">
-      <i class="fa-solid fa-users"></i> Users
-    </a>
+        <a href="orders.html">
+          <i class="fa-solid fa-box"></i> Orders
+        </a>
 
-    <a href="orders.html">
-      <i class="fa-solid fa-box"></i> Orders
-    </a>
+        <a href="booking.html">
+          <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
 
-    <a href="booking.html">
-      <i class="fa-solid fa-calendar-check"></i> Booking
-    </a>
+        <a href="messages.html">
+          <i class="fa-solid fa-envelope"></i> Messages
+        </a>
 
-    <a href="product.html">
-      <i class="fa-solid fa-burger"></i> Products
-    </a>
+        <a href="setting.html">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </nav>
 
-    <a href="messages.html">
-      <i class="fa-solid fa-envelope"></i> Messages
-    </a>
+      <!-- <button id="logoutBtn" class="logout-btn">
+        Logout
+      </button> -->
+    </aside>
 
-    <a href="setting.html">
-      <i class="fa-solid fa-gear"></i> Settings
-    </a>
-  </nav>
+    <!-- MAIN -->
+    <main class="main-content">
 
-  <!-- <button id="logoutBtn" class="logout-btn">
-    Logout
-  </button> -->
+      <div class="page-header">
+        <h2>Registered Users</h2>
+        <p>All customers and admins in system</p>
+      </div>
 
-</aside>
+      <div class="panel large-panel">
 
-<!-- MAIN -->
-<main class="main-content">
+        <table class="modern-table" id="usersTable">
 
-<div class="page-header">
-  <h2>Registered Users</h2>
-  <p>All customers and admins in system</p>
-</div>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-<div class="panel large-panel">
+        <tbody>
+        <!-- Filled automatically by admin-dashboard.js -->
+        </tbody>
 
-<table class="modern-table" id="usersTable">
+        </table>
 
-<thead>
-<tr>
-  <th>ID</th>
-  <th>Name</th>
-  <th>Email</th>
-  <th>Phone</th>
-  <th>Role</th>
-  <th>Joined</th>
-  <th>Status</th>
-  <th>Action</th>
-</tr>
-</thead>
+      </div>
 
-<tbody>
-<!-- Filled automatically by admin-dashboard.js -->
-</tbody>
+    </main>
+  </div>
 
-</table>
+  <div class="modal-overlay" id="userDetailModal">
 
-</div>
+    <div class="modal-box">
 
-</main>
-</div>
+      <!-- Close Button -->
+      <span class="close-btn" id="closeUserModal">&times;</span>
 
-<div class="modal-overlay" id="userDetailModal">
+      <!-- Title -->
+      <h3>User Details</h3>
 
-  <div class="modal-box">
+      <!-- Dynamic Content -->
+      <div class="modal-content" id="userDetailContent">
+        <!-- Filled by admin-dashboard.js -->
+      </div>
 
-    <!-- Close Button -->
-    <span class="close-btn" id="closeUserModal">&times;</span>
-
-    <!-- Title -->
-    <h3>User Details</h3>
-
-    <!-- Dynamic Content -->
-    <div class="modal-content" id="userDetailContent">
-      <!-- Filled by admin-dashboard.js -->
     </div>
 
   </div>
-
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-<script src="js/admin-users.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="js/admin-users.js"></script>
 </body>
 </html>
