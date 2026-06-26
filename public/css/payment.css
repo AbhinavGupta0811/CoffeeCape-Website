@@ -1,0 +1,191 @@
+/* ================= GLOBAL ================= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #222;
+}
+
+/* ================= AMOUNT BOX ================= */
+.amount-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  border: 1px solid #e0e0e0;
+}
+
+.amount-box strong {
+  font-size: 16px;
+  color: #444;
+}
+
+.amount-box .amount {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c7be5;
+}
+
+/* ================= PAYMENT SECTIONS ================= */
+form {
+  margin-top: 20px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.method-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.method-card.active {
+  border-color: #2c7be5;
+  background: #eef6ff;
+}
+
+.method {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.method input[type="radio"] {
+  margin-right: 12px;
+}
+
+.method .icon {
+  font-size: 22px;
+  margin-right: 12px;
+  color: #2c7be5;
+}
+
+.method strong {
+  font-size: 15px;
+  color: #222;
+}
+
+/* ================= DETAILS ================= */
+.details {
+  margin-top: 12px;
+}
+
+.details input,
+.details select,
+.details textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.details input:focus,
+.details select:focus,
+.details textarea:focus {
+  border-color: #2c7be5;
+  outline: none;
+}
+
+.details .row {
+  display: flex;
+  gap: 10px;
+}
+
+.details .row input {
+  flex: 1;
+}
+
+/* ================= PAYBAR ================= */
+.paybar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  padding: 15px 20px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.secure {
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+.secure i {
+  margin-right: 6px;
+  color: #2c7be5;
+}
+
+.pay-btn {
+  background: #2c7be5;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.pay-btn:hover {
+  background: #1a5bb8;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  .amount-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .paybar {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .details .row {
+    flex-direction: column;
+  }
+}

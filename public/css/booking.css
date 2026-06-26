@@ -1,73 +1,742 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
+/* ================================================================
+   BOOKING.CSS — Professional stylesheet for booking.html
+   Font: Cormorant Garamond (headings) + DM Mono (labels/data)
+          + Outfit (body copy)
+   Theme: Midnight Art Deco — deep obsidian + burnished gold
+   Works on top of Bootstrap 5.3 — overrides only what's needed
+   ================================================================ */
+
+/* ── GOOGLE FONTS ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+
+/* ── CSS CUSTOM PROPERTIES ────────────────────────────────────── */
+:root {
+  /* Core palette */
+  --obsidian:       #f8f7f4;
+  --onyx:           #f2f1ee;
+  --slate:          #ffffff;
+  --slate-2:        #faf9f7;
+  --slate-3:        #f3f2ef;
+  --border:         #e3e0d9;
+  --border-bright:  #d1ccc3;
+
+  --gold:           #b8923f;
+  --gold-2:         #d8bb73;
+  --gold-dim:       #9b7b35;
+  --gold-glow:      rgba(184,146,63,0.08);
+  --gold-glow-str:  rgba(184,146,63,0.18);
+
+  --text-primary:   #2a2a2a;
+  --text-secondary: #666666;
+  --text-muted:     #999999;
+
+  --success:        #5f8f68;
+  --success-bg:     rgba(95,143,104,0.08);
+  --danger:         #d46a6a;
+  --danger-bg:      rgba(212,106,106,0.08);
+  --warning:        #c7982d;
+  --warning-bg:     rgba(199,152,45,0.08);
+  --info:           #5a89b6;
+  --info-bg:        rgba(90,137,182,0.08);
+
+  /* Type */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-mono:    'DM Mono', monospace;
+  --font-body:    'Outfit', sans-serif;
+
+  /* Space */
+  --gap-xs:  6px;
+  --gap-sm:  12px;
+  --gap-md:  20px;
+  --gap-lg:  32px;
+  --gap-xl:  48px;
+
+  /* Radii */
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  20px;
+
+  /* Shadows */
+  --shadow-sm:   0 2px 12px rgba(0,0,0,.06);
+  --shadow-md:   0 6px 28px rgba(0,0,0,.08);
+  --shadow-lg:   0 12px 48px rgba(0,0,0,.10);
+  --shadow-gold: 0 4px 24px rgba(184,146,63,.12);
+
+  /* Transition */
+  --ease: cubic-bezier(0.25,0.46,0.45,0.94);
 }
-body{
-    font-family:'Poppins',sans-serif;
-    background:#f5f6f8;
+
+/* ── RESET & BASE ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--obsidian);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.65;
+  min-height: 100vh;
+  /* Art Deco diagonal grain */
+  background-image:
+    repeating-linear-gradient(
+      135deg,
+      transparent,
+      transparent 60px,
+      rgba(201,168,76,.018) 60px,
+      rgba(201,168,76,.018) 61px
+    ),
+    radial-gradient(ellipse 70% 40% at 50% 0%,
+      rgba(201,168,76,.07) 0%,
+      transparent 65%
+    );
 }
-.hero{
-    background:linear-gradient(rgba(0,0,0,.75),rgba(0,0,0,.75)),
-    url('https://images.unsplash.com/photo-1498654896293-37aacf113fd9');
-    background-size:cover;
-    background-position:center;
-    color:white;
-    padding:100px 0;
-    text-align:center;
-}
-.section-card{
-    background:white;
-    padding:35px;
-    border-radius:18px;
-    box-shadow:0 15px 40px rgba(0,0,0,.08);
-}
-.nav-pills .nav-link{
-    border-radius:30px;
-    margin:5px;
-    font-weight:500;
-}
-.nav-pills .nav-link.active{
-    background:#6f4e37;
-}
-.form-control,.form-select{
-    border-radius:12px;
-}
-.btn-theme{
-    background:#6f4e37;
-    color:white;
-    padding:12px 30px;
-    border-radius:30px;
-}
-.btn-theme:hover{
-    color:white; 
-    background:#573425;
-}
-.section-title{
-    font-weight:600;
-    margin-bottom:20px;
-    color:#6f4e37;
-}
+
+/* ── FLOATING HOME BUTTON ─────────────────────────────────────── */
 .floating-home {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 48px;
-  height: 48px;
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: #2563eb;
-  color: #fff;
+  border: 1.5px solid var(--gold);
+  background: var(--slate);
+  color: var(--gold);
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-  transition: all 0.25s ease;
-  z-index: 20;
+  box-shadow: var(--shadow-gold);
+  transition: all 0.22s var(--ease);
 }
 
 .floating-home:hover {
-  background: #1e40af;
-  transform: translateY(-3px);
+  background: var(--gold);
+  color: var(--obsidian);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 8px 32px rgba(201,168,76,.4);
+}
+
+.floating-home:active {
+  transform: scale(0.95);
+}
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+.hero {
+  background:
+    linear-gradient(180deg,
+      rgba(10,12,15,.0) 0%,
+      rgba(10,12,15,.7) 100%
+    ),
+    linear-gradient(135deg, #0d1117 0%, #1a2230 50%, #0a0c0f 100%);
+  border-bottom: 1px solid var(--border);
+  padding: var(--gap-xl) 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 80px,
+      rgba(201,168,76,.04) 80px,
+      rgba(201,168,76,.04) 81px
+    );
+  pointer-events: none;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  color: var(--obsidian);
+  letter-spacing: 0.02em;
+  margin-bottom: 10px;
+}
+
+/* Gold underline ornament */
+.hero h1::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 14px auto 0;
+}
+
+.hero .lead {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+/* ── CONTAINER OVERRIDE ───────────────────────────────────────── */
+.container {
+  max-width: 1080px;
+}
+
+/* ── NAV PILLS ────────────────────────────────────────────────── */
+.nav.nav-pills {
+  gap: var(--gap-xs);
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 6px;
+  background: var(--slate);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-item {
+  flex-shrink: 0;
+}
+
+.nav-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: var(--r-md);
+  padding: 9px 18px;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.2s var(--ease);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--gold);
+  background: var(--gold-glow);
+  border-color: var(--gold-dim);
+}
+
+/* Bootstrap active override */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background: var(--gold) !important;
+  color: var(--obsidian) !important;
+  border-color: var(--gold) !important;
+  font-weight: 600;
+  box-shadow: var(--shadow-gold);
+}
+
+/* ── TAB CONTENT ──────────────────────────────────────────────── */
+.tab-content {
+  margin-top: var(--gap-lg);
+}
+
+.tab-pane {
+  animation: tabIn 0.3s var(--ease) both;
+}
+
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION CARD ─────────────────────────────────────────────── */
+.section-card {
+  background: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--gap-lg);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Art Deco corner accents */
+.section-card::before,
+.section-card::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-color: var(--gold-dim);
+  border-style: solid;
+  opacity: 0.35;
+}
+
+.section-card::before {
+  top: 14px;
+  left: 14px;
+  border-width: 1px 0 0 1px;
+}
+
+.section-card::after {
+  bottom: 14px;
+  right: 14px;
+  border-width: 0 1px 1px 0;
+}
+
+/* ── SECTION TITLE ────────────────────────────────────────────── */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--gap-lg);
+  letter-spacing: 0.02em;
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+/* ── FORM LABELS ──────────────────────────────────────────────── */
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ── FORM CONTROLS ────────────────────────────────────────────── */
+.form-control,
+.form-select {
+  background: var(--slate-2) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 11px 14px;
+  transition: border-color 0.2s var(--ease),
+              box-shadow 0.2s var(--ease),
+              background 0.2s var(--ease);
+  outline: none;
+}
+
+.form-control::placeholder { color: var(--text-muted); }
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px var(--gold-glow) !important;
+  background: var(--slate-3) !important;
+}
+
+/* Select arrow */
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 12px !important;
+  padding-right: 38px !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-select option {
+  background: var(--slate-2);
+  color: var(--text-primary);
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ── VALIDATION STATES ────────────────────────────────────────── */
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: var(--success) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.form-control.is-valid:focus,
+.form-select.is-valid:focus {
+  box-shadow: 0 0 0 3px var(--success-bg) !important;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--danger) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  box-shadow: 0 0 0 3px var(--danger-bg) !important;
+}
+
+.invalid-feedback {
+  font-size: 11.5px;
+  color: var(--danger);
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+
+/* ── PRICE SUMMARY CARD ───────────────────────────────────────── */
+.card {
+  background: var(--slate-3) !important;
+  border: 1px solid var(--border-bright) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* bg-light override for the price card */
+.card.bg-light {
+  background: var(--slate-2) !important;
+}
+
+.card h6 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--gap-sm) !important;
+}
+
+.card p,
+.card div:not(.d-flex) {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+/* Base + Guests / Add-ons / GST spans */
+.basePrice,
+.addonPrice,
+.gstPrice {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Total price display */
+.card h5.fw-bold {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: var(--gap-sm);
+  padding-top: var(--gap-sm);
+  border-top: 1px dashed var(--border-bright);
+}
+
+.totalPrice {
+  /* Override Bootstrap text-success for dark theme */
+  color: var(--gold) !important;
+  font-family: var(--font-mono);
+}
+
+/* ── SUBMIT BUTTON ────────────────────────────────────────────── */
+.btn-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 40px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-gold);
+  transition: all 0.22s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+/* .btn-theme::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s var(--ease);
+  z-index: 0;
+} */
+
+/* .btn-theme:hover::before { transform: scaleX(1); } */
+
+.btn-theme:hover { color: var(--obsidian); font-weight: 700; background: var(--gold); box-shadow: 0 8px 32px var(--gold-glow-str); }
+
+.btn-theme span,
+.btn-theme i { position: relative; z-index: 1; }
+
+.btn-theme:active { transform: scale(0.97); }
+
+.btn-theme:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Bootstrap .btn overrides */
+.btn.btn-theme { border-radius: 999px; }
+
+/* ── TOAST ────────────────────────────────────────────────────── */
+#appToast {
+  border-radius: var(--r-md) !important;
+  border: 1px solid transparent !important;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  min-width: 240px;
+  box-shadow: var(--shadow-lg) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Map Bootstrap type classes to our palette */
+#appToast.text-bg-success {
+  background: var(--success-bg) !important;
+  border-color: var(--success) !important;
+  color: #6fdfaa !important;
+}
+
+#appToast.text-bg-danger {
+  background: var(--danger-bg) !important;
+  border-color: var(--danger) !important;
+  color: #f08080 !important;
+}
+
+#appToast.text-bg-warning {
+  background: var(--warning-bg) !important;
+  border-color: var(--warning) !important;
+  color: var(--gold-2) !important;
+}
+
+#appToast.text-bg-primary {
+  background: var(--info-bg) !important;
+  border-color: var(--info) !important;
+  color: #78baee !important;
+}
+
+.toast-body {
+  padding: 12px 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.btn-close.btn-close-white {
+  filter: invert(1) sepia(1) saturate(2) hue-rotate(0deg) brightness(1.5);
+  opacity: 0.7;
+}
+
+.btn-close.btn-close-white:hover { opacity: 1; }
+
+/* ── PERMISSION MODAL ─────────────────────────────────────────── */
+.modal {
+  --bs-modal-bg: var(--slate);
+  --bs-modal-border-color: var(--border);
+  --bs-modal-border-radius: var(--r-lg);
+  --bs-modal-color: var(--text-primary);
+}
+
+.modal-content {
+  background: var(--slate) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--text-primary);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding: var(--gap-md) var(--gap-lg);
+}
+
+/* Bootstrap bg-warning override for dark modal header */
+.modal-header.bg-warning {
+  background: var(--gold-glow) !important;
+  border-bottom: 1px solid var(--gold-dim) !important;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold) !important;
+  letter-spacing: 0.02em;
+}
+
+.modal-title i { color: var(--gold); margin-right: 8px; }
+
+.modal-body {
+  padding: var(--gap-lg);
+}
+
+.modal-body p {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: var(--gap-sm);
+}
+
+.modal-body small.text-muted {
+  font-size: 12.5px;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-mono);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border) !important;
+  padding: var(--gap-md) var(--gap-lg);
+  gap: var(--gap-sm);
+}
+
+/* Modal cancel button */
+.btn-outline-secondary {
+  background: transparent;
+  border: 1.5px solid var(--border-bright);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px 22px;
+  transition: all 0.2s var(--ease);
+}
+
+.btn-outline-secondary:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+}
+
+/* Modal confirm button */
+#confirmProceedBtn,
+.btn-success {
+  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+  color: var(--obsidian) !important;
+  border-radius: 999px !important;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 10px 26px;
+  box-shadow: var(--shadow-gold);
+  transition: all 0.22s var(--ease);
+}
+
+#confirmProceedBtn:hover,
+.btn-success:hover {
+  background: var(--gold-2) !important;
+  border-color: var(--gold-2) !important;
+  box-shadow: 0 6px 28px rgba(201,168,76,.4);
+  transform: translateY(-1px);
+}
+
+#confirmProceedBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#confirmProceedBtn:active,
+.btn-success:active { transform: scale(0.97); }
+
+/* Modal backdrop */
+.modal-backdrop {
+  background: rgba(5,7,10,.7);
+  backdrop-filter: blur(6px);
+}
+
+/* ── TOAST CONTAINER ──────────────────────────────────────────── */
+/* The inline style z-index:1100 is already on the wrapper;
+   we just clean up the Bootstrap default appearance */
+.position-fixed.top-0.end-0.p-3 {
+  padding: 20px !important;
+}
+
+/* ── BOOTSTRAP ROW/COL DARK OVERRIDES ─────────────────────────── */
+.row.g-3 { row-gap: 18px !important; }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero {
+    padding: var(--gap-lg) 0;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .section-card {
+    padding: var(--gap-md);
+  }
+
+  .nav.nav-pills {
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .btn-theme {
+    padding: 12px 28px;
+    width: 100%;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn-outline-secondary,
+  #confirmProceedBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav.nav-pills {
+    flex-direction: column;
+    border-radius: var(--r-md);
+  }
+
+  .nav-link { text-align: center; }
+
+  .floating-home {
+    bottom: 18px;
+    right: 18px;
+    width: 44px;
+    height: 44px;
+  }
 }

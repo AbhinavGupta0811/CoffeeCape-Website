@@ -1,0 +1,850 @@
+/* =========================================
+   GLOBAL
+========================================= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f9fafc;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+header {
+  background: #4f46e5;
+  color: #fff;
+  padding: 14px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.header-wrapper {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-wrapper h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ===============================
+   MODAL HEADER
+================================ */
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 22px;
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:#fff;
+  border-radius:12px 12px 0 0;
+}
+
+#modalTitle{
+  margin:0;
+  padding:20px 20px 0;
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+}
+
+/* =========================================
+   TABS
+========================================= */
+.activity-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tab-btn {
+  padding: 10px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: .25s ease;
+}
+
+.tab-btn.active {
+  background: #6a63f7;
+  border-color: #6a63f7;
+  color: #fff;
+}
+
+.tab-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.tab-btn:not(.active):hover{
+  background:#f1f5f9;
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+}
+
+/* =========================================
+   ORDER CARD
+========================================= */
+.order-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  transition: .25s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.order-id {
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+/* =========================================
+   STATUS BADGES
+========================================= */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-badge.pending{ background:#fef3c7; color:#92400e;}
+.status-badge.confirmed{ background:#dbeafe; color:#1e40af;}
+.status-badge.completed{ background:#dcfce7; color:#166534;}
+.status-badge.cancelled{ background:#fee2e2; color:#991b1b;}
+.status-badge.refund_requested{ background:#fef3c7; color:#92400e;}
+.status-badge.refunded{ background:#dcfce7; color:#166534;}
+.status-badge.refund_rejected{ background:#fee2e2; color:#991b1b;}
+
+.status{
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+}
+.pending { background: #fef3c7; color: #92400e; }
+.confirmed { background: #dbeafe; color: #1e40af; }
+.preparing { background: #ede9fe; color: #6d28d9; }
+.out_for_delivery { background: #cffafe; color: #155e75; }
+.delivered { background: #dcfce7; color: #166534; }
+.cancelled { background: #fee2e2; color: #991b1b; }
+.refund_requested{ background:#fef3c7; color:#92400e;}
+.refunded{ background:#d1fae5; color:#065f46;}
+.refund_rejected{ background:#fee2e2; color:#991b1b;}
+
+/* =========================================
+   META
+========================================= */
+.meta {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: .25s ease;
+  min-width: 140px;
+  text-align: center;
+}
+
+.btn.primary { background: #4f46e5; color: #fff; }
+.btn.primary:hover { background: #3730a3; }
+
+.btn.success { background: #10b981; color: #fff; }
+.btn.success:hover { background: #047857; }
+
+.btn.danger { background: #ef4444; color: #fff; }
+.btn.danger:hover { background: #b91c1c; }
+
+.btn.secondary {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.btn.secondary:hover { background: #e2e8f0; }
+
+.btn.secondary:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btn-secondary{
+  background:#f1f5f9;
+  width:150px;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  color:#334155;
+}
+
+.btn-secondary:hover{
+  background:#e2e8f0;
+}
+
+.btn-secondary:disabled{
+  background:#f1f5f9;
+  border-color:#e2e8f0;
+  color:#94a3b8;
+  cursor:not-allowed;
+}
+
+.btn.warning{
+  background:#f59e0b;
+  color:#fff;
+}
+
+.btn.warning:hover{
+  background:#d97706;
+}
+
+/* =========================================
+   TIMELINE
+========================================= */
+.timeline {
+  padding-left: 35px;
+  position: relative;
+  margin-top:25px;
+  padding-top:20px;
+  border-top:1px solid #e2e8f0;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.step {
+  position: relative;
+  margin-bottom: 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  left: -31px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.step.active { color: #2563eb; font-weight: 600; }
+.step.active::before { background: #2563eb; }
+
+.step.done { color: #16a34a; }
+.step.done::before { background: #16a34a; }
+
+.step.success { color: #15803d; font-weight: 600; }
+.step.success::before { background: #10b981; }
+
+.step.danger { color: #991b1b; font-weight: 600; }
+.step.danger::before { background: #ef4444; }
+
+/* ===============================
+   BOOKING SUMMARY
+================================ */
+.booking-summary{
+  margin-top:10px;
+  padding:12px;
+  background:#f9fafb;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  font-size:14px;
+}
+
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:4px 0;
+}
+
+.summary-row.paid{
+  color:#16a34a;
+  font-weight:600;
+}
+
+.summary-row.remaining-due{
+  color:#dc2626;
+  font-weight:600;
+}
+
+.summary-row.remaining-clear{
+  color:#16a34a;
+  font-weight:600;
+}
+
+/* =========================================
+   MODALS
+========================================= */
+#orderModal,
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-box,
+.confirm-box {
+  position: relative;
+  background: #fff;
+  width: 100%;
+  max-width: 650px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15);
+  animation: popIn .25s ease;
+}
+
+/* ===============================
+   MODAL BOX
+================================ */
+.modal-box{
+  width:95%;
+  max-width:850px;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.15);
+}
+
+.modal-body{
+  padding:20px;
+  max-height:70vh;
+  overflow-y:auto;
+}
+
+/* ===============================
+   CLOSE BUTTON
+================================ */
+.close{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.15);
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+  transition:.25s ease;
+}
+
+.close:hover{
+  background:#fff;
+  color:#ef4444;
+}
+
+/* ===============================
+   REFUND SECTION
+================================ */
+.refund-detail-box{
+  margin-top:14px;
+  padding:14px;
+
+  border-radius:10px;
+
+  font-size:14px;
+}
+
+.refund-success{
+  background:#ecfdf5;
+  border:1px solid #10b981;
+}
+
+.refund-processing{
+  background:#eff6ff;
+  border:1px solid #3b82f6;
+  color:#1e3a8a;
+}
+
+.refund-warning{
+  background:#fef3c7;
+  border:1px solid #f59e0b;
+  color:#92400e;
+}
+
+.refund-danger{
+  background:#fee2e2;
+  border:1px solid #ef4444;
+  color:#7f1d1d;
+  font-weight:600;
+}
+
+.refund-rejected{
+  background:#fee2e2;
+  border:1px solid #c7bcbc;
+  color:#991b1b;
+}
+
+.refund-title.success{
+  color:#065f46;
+}
+
+.refund-row{
+  display:flex;
+  justify-content:space-between;
+
+  margin-top:8px;
+}
+
+.amount-success{
+  color:#16a34a;
+  font-weight:600;
+}
+
+.amount-danger{
+  color:#dc2626;
+}
+
+.refund-message{
+  margin-top:6px;
+}
+
+.refund-note{
+  margin-top:6px;
+
+  font-size:12px;
+  color:#555;
+}
+
+/* ===============================
+   PRICE BREAKDOWN
+================================ */
+.price-breakdown{
+  margin:12px 0;
+  padding:12px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  font-size:14px;
+}
+
+.price-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.discount-row{
+  color:#dc2626;
+}
+
+.total-row{
+  font-weight:700;
+  font-size:15px;
+}
+
+.price-divider{
+  margin:8px 0;
+  border:none;
+  border-top:1px solid #e5e7eb;
+}
+
+/* ===============================
+   CANCEL ORDER
+================================ */
+
+.cancel-order-wrap{
+  margin-top:16px;
+  text-align:right;
+}
+
+.cancel-order-btn{
+  padding:10px 18px;
+  border-radius:999px;
+  font-weight:600;
+}
+
+/* ===============================
+   REFUND REQUEST CARD
+================================ */
+.refund-card{
+  margin-top:14px;
+  padding:14px;
+  background:#fafafa;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+}
+
+.refund-timer-text{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:10px;
+  font-size:13px;
+  color:#6b7280;
+}
+
+.refund-reason{
+  width:95%;
+  resize:none;
+  padding:10px;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  font-size:14px;
+  margin-bottom:12px;
+}
+
+.refund-reason:focus{
+  outline:none;
+  border-color:#4f46e5;
+  box-shadow:
+    0 0 0 3px rgba(79,70,229,.15);
+}
+
+.refund-request-btn{
+  width:100%;
+  padding:10px 0;
+  border-radius:999px;
+  font-weight:600;
+}
+
+/* ===============================
+   BOOKING DETAILS
+================================ */
+.booking-details{
+  padding:20px;
+  font-size:14px;
+}
+
+.booking-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.booking-title{
+  margin:0;
+  font-size:20px;
+}
+
+.booking-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.booking-divider{
+  margin:15px 0;
+}
+
+.booking-notes{
+  margin-top:5px;
+  color:#555;
+}
+
+/* ===============================
+   PAYMENT SUMMARY
+================================ */
+
+.booking-payment-box{
+  padding:12px;
+  background:#f9fafb;
+  border-radius:8px;
+}
+
+.booking-payment-row{
+  display:flex;
+  justify-content:space-between;
+}
+
+.booking-payment-row + .booking-payment-row{
+  margin-top:5px;
+}
+
+.booking-payment-row.paid{
+  color:#16a34a;
+}
+
+.booking-payment-row.remaining-due{
+  color:#dc2626;
+}
+
+.booking-payment-row.remaining-clear{
+  color:#16a34a;
+}
+
+/* ===============================
+   ACTIONS
+================================ */
+.booking-action-wrap{
+  margin-top:15px;
+  text-align:right;
+}
+
+.booking-paid-status{
+  margin-top:15px;
+  text-align:right;
+  color:#16a34a;
+  font-weight:600;
+}
+
+/* ===============================
+   REFUND INFO
+================================ */
+.booking-refund-box{
+  margin-top:15px;
+  padding:12px;
+  background:#ecfdf5;
+  color:#065f46;
+  border:1px solid #10b981;
+  border-radius:8px;
+  font-weight:600;
+}
+
+.booking-refund-amount{
+  margin-top:6px;
+}
+
+.booking-refund-note{
+  margin-top:5px;
+  font-size:12px;
+  color:#555;
+}
+
+/* =========================================
+   CONFIRM MODAL
+========================================= */
+.confirm-box {
+  text-align: center;
+  padding: 30px;
+}
+
+.confirm-icon {
+  font-size: 34px;
+  color: #f59e0b;
+  margin-bottom: 10px;
+}
+
+.confirm-box h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 8px 0;
+}
+
+.confirm-box p {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* =========================================
+   TOAST
+========================================= */
+.toast {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  display: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  color: #fff;
+  z-index: 10000;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  font-size: 14px;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:.25s ease;
+}
+
+.toast.show { display: block; opacity:1; visibility:visible; transform:translateY(0); }
+
+.toast.success { background: #10b981; }
+.toast.error { background: #ef4444; }
+.toast.warning { background: #f59e0b; color: #000; }
+.toast.info { background: #3b82f6; }
+
+/* =========================================
+   FLOATING HOME BUTTON
+========================================= */
+.floating-home {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4f46e5;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  transition: background .25s ease, transform .25s ease;
+}
+
+.floating-home:hover {
+  background: #3730a3;
+  transform: translateY(-3px);
+}
+
+/* =========================================
+   TABLE
+========================================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+th {
+  background: #f1f5f9;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody tr:hover{
+  background:#f8fafc;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+@media (max-width: 576px) {
+  .activity-tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tab-btn {
+    width: 90%;
+    justify-content: center;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .modal-box,
+  .confirm-box {
+    width: 95%;
+    margin: 40px auto;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+  .container {
+    padding: 0 25px;
+  }
+
+  .modal-box,
+  .confirm-box {
+    width: 85%;
+  }
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
