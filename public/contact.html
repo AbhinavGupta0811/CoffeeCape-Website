@@ -15,6 +15,7 @@
   font-family:Inter,sans-serif;
   user-select: none;
 }
+
 body{
   background:#f4f6f8;
   color:#333;
@@ -87,11 +88,10 @@ body{
   color:#777;
   transition:.3s;
 }
-.input-group textarea+label{top:20px;}
 .input-group input:focus+label,
-.input-group input:valid+label,
+.input-group input:not(:placeholder-shown)+label,
 .input-group textarea:focus+label,
-.input-group textarea:valid+label{
+.input-group textarea:not(:placeholder-shown)+label{
   top:-8px;
   font-size:12px;
   color:#0f2027;
@@ -243,7 +243,6 @@ button:hover{background:#203a43;}
   flex-direction: column;
   gap: 12px;
 }
-
 .toast {
   min-width: 260px;
   max-width: 340px;
@@ -257,18 +256,17 @@ button:hover{background:#203a43;}
   align-items: center;
   animation: slideIn 0.4s ease forwards;
 }
-
 .toast.success {background: linear-gradient(135deg, #16a34a, #15803d);}
 .toast.error {background: linear-gradient(135deg, #dc2626, #991b1b);}
 .toast.warning {background: linear-gradient(135deg, #f59e0b, #d97706);}
 .toast.info {background: linear-gradient(135deg, #2563eb, #1e40af);}
-
 .toast span {
   margin-left: 15px;
   cursor: pointer;
   font-weight: bold;
 }
 
+/* Floating Home */
 .floating-home{
   position:fixed;
   bottom:30px;
@@ -329,12 +327,12 @@ button:hover{background:#203a43;}
     <form id="contactForm">
 
       <div class="input-group">
-        <input type="text" name="name" required>
+        <input type="text" name="name" placeholder=" " required>
         <label>Full Name</label>
       </div>
 
       <div class="input-group">
-        <input type="text" name="email" required>
+        <input type="text" name="email" placeholder=" " required>
         <label>Email Address</label>
       </div>
 
