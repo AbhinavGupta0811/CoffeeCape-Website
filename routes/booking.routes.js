@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const verifyToken = require("../middleware/auth.middleware");
+const { extractCoreBooking, buildBookingExtras, formatBookingResponse } = require("../helpers/booking.helper");
+const { calculateBookingPrice } = require("../helpers/bookingPricing");
 const pool = require("../db");
 
 /* ======================================================
@@ -85,15 +87,44 @@ router.post("/create-pending", verifyToken, async (req, res) => {
     const rawData = req.body;
 
     const data = normalizeBookingData(rawData); // 🔥 CLEAN DATA
+    const core = extractCoreBooking(data);
 
-    if (!data || !data.eventType || !data.eventDate || !data.eventTime) {
+    const extras = buildBookingExtras(
+      core.event_type,
+      data
+    );
+
+    /* =====================================
+      BACKEND PRICE CALCULATION
+    ===================================== */
+    const pricing =
+      calculateBookingPrice(
+        core.event_type,
+        {
+          guestCount:
+            core.guest_count,
+
+          ...extras
+        }
+      );
+
+    if (pricing.total <= 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid booking price"
+      });
+    }
+
+    if ( !core.event_type || !core.event_date || !core.event_time) {
       return res.status(400).json({
         success: false,
         message: "Missing required booking fields"
       });
     }
 
-    const eventDateObj = new Date(data.eventDate);
+    const eventDateObj = new Date(core.event_date);
     const today = new Date();
     today.setHours(0,0,0,0);
 
@@ -104,7 +135,7 @@ router.post("/create-pending", verifyToken, async (req, res) => {
       });
     }
 
-    /* 🔥 SLOT CHECK (ONLY PAID BOOKINGS) */
+    /* SLOT CHECK (ONLY PAID BOOKINGS) */
     const [slotCheck] = await connection.execute(
       `SELECT COUNT(*) AS total
        FROM bookings
@@ -112,7 +143,7 @@ router.post("/create-pending", verifyToken, async (req, res) => {
        AND event_date = ?
        AND event_time = ?
        AND payment_status = 'completed'`,
-      [data.eventType, data.eventDate, data.eventTime]
+      [core.event_type, core.event_date, core.event_time]
     );
 
     if (slotCheck[0].total >= 5) {
@@ -125,35 +156,38 @@ router.post("/create-pending", verifyToken, async (req, res) => {
 
     /* 🔥 SAFE UNIQUE ID */
     const pendingId = "PBK-" + uuidv4().slice(0, 8).toUpperCase();
-
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await connection.execute(
       `INSERT INTO pending_bookings
-       (id, user_id, event_type, event_date, event_time,
+       (id, user_id, event_type, event_category, event_date, event_time, guest_count,
         full_name, email, phone, booking_data, total, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        pendingId,
-        userId,
-        data.eventType,
-        data.eventDate,
-        data.eventTime,
-        data.fullName || null,
-        data.email || null,
-        data.phone || null,
-        JSON.stringify(data),
-        Number(data.total) || 0,
-        expiresAt
+      pendingId,
+      userId,
+      core.event_type,
+      core.event_category,
+      core.event_date,
+      core.event_time,
+      core.guest_count,
+      core.full_name,
+      core.email,
+      core.phone,
+      JSON.stringify({
+        event: extras, pricing}),
+      pricing.total,
+      expiresAt
       ]
     );
 
     await connection.commit(); 
 
     return res.status(201).json({
-      success: true,
+      success:true,
       pendingId,
-      expiresAt
+      expiresAt,
+      total: pricing.total
     });
 
   } catch (err) {
@@ -225,13 +259,16 @@ router.get("/user/all", verifyToken, async (req, res) => {
       [userId]
     );
 
-    const bookings = rows.map(row => ({
-      ...row,
-      event_date: row.event_date
-        ? row.event_date.toISOString().split("T")[0]
-        : null,
-      booking_data: safeJSONParse(row.booking_data)
-    }));
+    const bookings = rows.map(row => {
+      const booking = formatBookingResponse(row);
+      booking.event_date = booking.event_date
+        ? new Date(booking.event_date)
+            .toISOString()
+            .split("T")[0]
+        : null;
+
+      return booking;
+    });
 
     return res.json({
       success: true,
@@ -278,10 +315,7 @@ router.get("/details/:id", verifyToken, async (req, res) => {
       });
     }
 
-    const booking = {
-      ...rows[0],
-      booking_data: safeJSONParse(rows[0].booking_data)
-    };
+    const booking= formatBookingResponse(rows[0]);
 
     return res.json({
       success: true,

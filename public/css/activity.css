@@ -66,9 +66,9 @@ header {
 
 .tab-btn {
   padding: 10px 18px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #6a63f7;
   border-radius: 8px;
-  background: #fff;
+  background: #6a63f7;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
@@ -79,9 +79,8 @@ header {
 }
 
 .tab-btn.active {
-  background: #6a63f7;
-  border-color: #6a63f7;
-  color: #fff;
+  background: #fff;
+  border-color: #e2e8f0;
 }
 
 .tab-btn:hover {

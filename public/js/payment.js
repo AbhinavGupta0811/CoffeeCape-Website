@@ -5,28 +5,115 @@
   const PAYMENT_API = "/api/payment/confirm";
   const ORDER_API = "/api/orders";
   const PENDING_BOOKING_API = "/api/booking/pending";
-
+  
   /* =====================================
-     DOM REFERENCES
+  DOM REFERENCES
   ====================================== */
   const payBtn = document.getElementById("payBtn");
   const backBtn = document.getElementById("backBtn");
-
+  
   const orderIdEl =
     document.getElementById("orderId") ||
     document.getElementById("referenceId");
 
   const payAmountEl = document.getElementById("payAmount");
   const payAmountBtn = document.getElementById("payAmountBtn");
-
+  
   const orderSection = document.getElementById("orderPaymentSection");
   const bookingSection = document.getElementById("bookingPaymentSection");
-
+  
   if (!payBtn || !orderIdEl || !payAmountEl) {
     console.error("Payment page required elements missing.");
     return;
   }
+  
+  /* =====================================
+    PROFESSIONAL TOAST SYSTEM
+  ===================================== */
+  function showToast(message, type = "info") {
+    let toast = document.getElementById("toast");
 
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toast";
+
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        min-width: 280px;
+        max-width: 380px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: inherit;
+        box-shadow: 0 10px 30px rgba(0,0,0,.25);
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all .35s ease;
+        z-index: 99999;
+        overflow: hidden;
+      `;
+
+      document.body.appendChild(toast);
+    }
+
+    const styles = {
+      success: {
+        bg: "#16a34a",
+        icon: "fa-circle-check"
+      },
+      error: {
+        bg: "#dc2626",
+        icon: "fa-circle-xmark"
+      },
+      warning: {
+        bg: "#f59e0b",
+        icon: "fa-triangle-exclamation"
+      },
+      info: {
+        bg: "#2563eb",
+        icon: "fa-circle-info"
+      }
+    };
+
+    const current = styles[type] || styles.info;
+
+    toast.style.background = current.bg;
+
+    toast.innerHTML = `
+      <div style=" width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.2);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+      ">
+        <i class="fa-solid ${current.icon}"></i>
+      </div>
+
+      <div style=" flex:1; line-height:1.4; word-break:break-word;">
+        ${message}
+      </div>
+    `;
+
+    // Show
+    toast.style.opacity = "1";
+    toast.style.transform = "translateX(0)";
+
+    clearTimeout(toast._timer);
+
+    // Hide
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(100%)";
+    }, 3000);
+  }
+  
   /* =====================================
      GET TYPE + ID
   ====================================== */
@@ -41,7 +128,40 @@
     return;
   }
 
-  orderIdEl.textContent = orderId;
+  function generateDisplayOrderId(id) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let random = "";
+
+    for (let i = 0; i < 6; i++) {
+      random += chars.charAt(
+        Math.floor(
+          Math.random() * chars.length
+        )
+      );
+    }
+
+    return `CCO-${random}-${id}`;
+  }
+  
+  let displayOrderId =
+    sessionStorage.getItem(
+      "displayOrderId"
+    );
+
+  if (!displayOrderId) {
+
+    displayOrderId =
+      generateDisplayOrderId(
+        orderId
+      );
+
+    sessionStorage.setItem(
+      "displayOrderId",
+      displayOrderId
+    );
+  }
+
+  orderIdEl.textContent = displayOrderId;
 
   /* =====================================
      SHOW CORRECT FORM
@@ -152,10 +272,10 @@
         ORDER PAYMENT LOGIC
       =================================== */
       else {
+        const order = data.order || data;
+        const total = Number(order.total) || 0;
 
-        const total = Number(data.total) || 0;
-
-        if (!total || total <= 0) {
+        if (total <= 0) {
           throw new Error("Invalid order amount");
         }
 
@@ -189,44 +309,6 @@
 
   loadOrderAmount();
 
-  /* =====================================
-     TOAST SYSTEM
-  ====================================== */
-  function showToast(message, type = "info") {
-    let toast = document.getElementById("toast");
-
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "toast";
-      toast.style.cssText = `
-        position:fixed;
-        bottom:100px;
-        right:24px;
-        padding:12px 18px;
-        border-radius:10px;
-        color:#fff;
-        font-size:14px;
-        opacity:0;
-        transition:.3s;
-        z-index:9999;
-      `;
-      document.body.appendChild(toast);
-    }
-
-    toast.style.background =
-      type === "success" ? "#1db954" :
-      type === "error" ? "#e63946" :
-      type === "warning" ? "#f4b400" :
-      "#317ad4";
-
-    toast.innerHTML = message;
-    toast.style.opacity = "1";
-
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => {
-      toast.style.opacity = "0";
-    }, 2500);
-  }
 
   /* =====================================
      VALIDATION

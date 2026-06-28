@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const adminMiddleware = require("../middleware/admin.middleware");
+const { sendBookingUpdate } = require("../services/booking.socket");
+const { exportBookingsCSV } = require("../services/exportController");
 const { sendMail, generateBookingConfirmedTemplate } = require("../mailer");
 
 /* ===================================================
@@ -13,7 +15,6 @@ const FINAL_STATES = ["completed", "cancelled"];
 /* ===================================================
    HELPERS
 =================================================== */
-
 function safeJSONParse(value) {
   try {
     if (!value) return {};
@@ -143,6 +144,15 @@ router.get("/", adminMiddleware, async (req, res) => {
 });
 
 /* ===================================================
+   Export the Bookings
+=================================================== */
+router.get(
+  "/export",
+  adminMiddleware,
+  exportBookingsCSV
+);
+
+/* ===================================================
    GET SINGLE BOOKING
 =================================================== */
 router.get("/:id", adminMiddleware, async (req, res) => {
@@ -203,7 +213,7 @@ router.put("/:id/status", adminMiddleware, async (req, res) => {
     }
 
     const [[booking]] = await db.query(
-      "SELECT booking_id, user_id, status FROM bookings WHERE booking_id=?",
+      "SELECT booking_id, user_id, status, payment_status, paid_amount FROM bookings WHERE booking_id=?",
       [bookingId]
     );
 
@@ -234,15 +244,36 @@ router.put("/:id/status", adminMiddleware, async (req, res) => {
     );
 
     if (io) {
-      io.to(`user_${booking.user_id}`).emit("bookingStatusUpdated", {
+      sendBookingUpdate(io,{
         bookingId,
-        status
+        userId:
+          booking.user_id,
+        status,
+        payment_status:
+          booking.payment_status,
+        paid_amount:
+          booking.paid_amount || 0
       });
 
-      io.to("admin_room").emit("bookingUpdated", {
-        bookingId,
-        status
-      });
+      /* Legacy */
+
+      io.to(`user_${booking.user_id}`)
+        .emit(
+          "bookingStatusUpdated",
+          {
+            bookingId,
+            status
+          }
+        );
+
+      io.to("admin_room")
+        .emit(
+          "bookingUpdated",
+          {
+            bookingId,
+            status
+          }
+        );
     }
 
     return res.json({
@@ -270,7 +301,7 @@ router.put("/:id/complete", adminMiddleware, async (req, res) => {
     const bookingId = req.params.id;
 
     const [[booking]] = await db.query(
-      "SELECT booking_id, user_id, status FROM bookings WHERE booking_id=?",
+      "SELECT booking_id, user_id, status, payment_status, paid_amount FROM bookings WHERE booking_id=?",
       [bookingId]
     );
 
@@ -297,11 +328,29 @@ router.put("/:id/complete", adminMiddleware, async (req, res) => {
     );
 
     if (io) {
-      io.to(`user_${booking.user_id}`).emit("bookingCompleted", {
+      sendBookingUpdate(io,{
         bookingId,
-        status: "completed",
-        payment_status: "completed"
+        userId:
+          booking.user_id,
+        status:
+          "completed",
+        payment_status:
+          "completed",
+        paid_amount:
+          booking.paid_amount || 0
       });
+
+      /* Legacy */
+      io.to(`user_${booking.user_id}`)
+        .emit(
+          "bookingCompleted",
+          {
+            bookingId,
+            status:"completed",
+            payment_status:
+            "completed"
+          }
+        );
     }
 
     return res.json({
@@ -342,7 +391,7 @@ router.put("/:id/cancel", adminMiddleware, async (req, res) => {
     /* 🔒 LOCK BOOKING ROW */
     const [[booking]] = await connection.query(
       `SELECT booking_id, user_id, status,
-              payment_status, paid_amount
+       payment_status, paid_amount
        FROM bookings
        WHERE booking_id = ?
        FOR UPDATE`,
@@ -390,19 +439,45 @@ router.put("/:id/cancel", adminMiddleware, async (req, res) => {
 
     await connection.commit();
 
-    /* 🔔 SOCKET EVENTS */
     if (io) {
-      io.to(`user_${booking.user_id}`).emit("bookingCancelled", {
+      sendBookingUpdate(io,{
         bookingId,
-        status: "cancelled",
-        payment_status: newPaymentStatus
+        userId:
+          booking.user_id,
+        status:
+          "cancelled",
+        payment_status:
+          newPaymentStatus,
+        cancelled_by:
+          "admin",
+        paid_amount:
+          booking.paid_amount
       });
 
-      io.to("admin_room").emit("bookingUpdated", {
-        bookingId,
-        status: "cancelled",
-        payment_status: newPaymentStatus
-      });
+      /* Legacy */
+      io.to(`user_${booking.user_id}`)
+        .emit(
+          "bookingCancelled",
+          {
+            bookingId,
+            status:
+            "cancelled",
+            payment_status:
+            newPaymentStatus
+          }
+        );
+
+      io.to("admin_room")
+        .emit(
+          "bookingUpdated",
+          {
+            bookingId,
+            status:
+            "cancelled",
+            payment_status:
+            newPaymentStatus
+          }
+        );
     }
 
     return res.json({
@@ -450,9 +525,10 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
       });
     }
 
-    /* ✅ FIXED QUERY (EMAIL + NAME INCLUDED) */
+    /* FIXED QUERY (EMAIL + NAME INCLUDED) */
     const [[booking]] = await db.query(
-      `SELECT booking_id, user_id, status, email, full_name, event_date, event_time
+      `SELECT booking_id, user_id, status, email, full_name, event_date, event_time, 
+       payment_status, paid_amount
        FROM bookings
        WHERE booking_id=?`,
       [bookingId]
@@ -485,7 +561,7 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
     );
 
     /* ===============================
-       📧 SEND CONFIRMATION MAIL
+       SEND CONFIRMATION MAIL
     =============================== */
     if (booking.email) {
 
@@ -511,19 +587,38 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
     }
 
     /* ===============================
-       🔔 SOCKET EVENTS
+      SOCKET EVENTS
     =============================== */
     if (io) {
-      io.to(`user_${booking.user_id}`).emit("bookingConfirmed", {
+
+      /* New unified event */
+      sendBookingUpdate(io, {
         bookingId,
+        userId: booking.user_id,
         status: "confirmed",
-        assigned_address: assigned_address.trim()
+        payment_status: booking.payment_status,
+        assigned_address:
+          assigned_address.trim(),
+        cancelled_by: null,
+        paid_amount:
+          booking.paid_amount || 0
       });
 
-      io.to("admin_room").emit("bookingUpdated", {
-        bookingId,
-        status: "confirmed"
-      });
+      /* Legacy compatibility */
+      io.to(`user_${booking.user_id}`)
+        .emit("bookingConfirmed", {
+          bookingId,
+          status: "confirmed",
+          assigned_address:
+            assigned_address.trim()
+        });
+
+      io.to("admin_room")
+        .emit("bookingUpdated", {
+          bookingId,
+          status: "confirmed"
+        });
+
     }
 
     return res.json({

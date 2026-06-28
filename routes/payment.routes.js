@@ -280,6 +280,7 @@ router.post("/confirm", auth, async (req, res) => {
 
         const itemsValues = cart.map(item => [
           internalId,
+          item.product_id || null,
           item.name,
           item.price,
           item.qty
@@ -288,7 +289,13 @@ router.post("/confirm", auth, async (req, res) => {
         await connection.query(
           `
           INSERT INTO order_items
-          (order_id, name, price, qty)
+          (
+            order_id,
+            product_id,
+            name,
+            price,
+            qty
+          )
           VALUES ?
           `,
           [itemsValues]
@@ -551,8 +558,10 @@ router.post("/confirm", auth, async (req, res) => {
           booking_id,
           user_id,
           event_type,
+          event_category,
           event_date,
           event_time,
+          guest_count,
           full_name,
           email,
           phone,
@@ -563,20 +572,20 @@ router.post("/confirm", auth, async (req, res) => {
           payment_status,
           payment_method
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
           bookingId,
           pending.user_id,
 
           pending.event_type,
+          pending.event_category,
           pending.event_date,
           pending.event_time,
-
+          pending.guest_count,
           pending.full_name,
           pending.email,
           pending.phone,
-
           bookingData,
 
           total,

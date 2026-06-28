@@ -5,10 +5,37 @@ const toast = document.getElementById("toast");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function showToast(msg, type="info") {
-  toast.innerHTML = msg;
+/* ================= TOAST ================= */
+function showToast(message, type = "info") {
+  const icons = {
+    success: "fa-solid fa-circle-check",
+    error: "fa-solid fa-circle-xmark",
+    warning: "fa-solid fa-triangle-exclamation",
+    info: "fa-solid fa-circle-info",
+    loading: "fa-solid fa-spinner fa-spin"
+  };
+
+  const icon = icons[type] || icons.info;
+
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i class="${icon}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+
   toast.className = `toast show ${type}`;
-  setTimeout(() => toast.classList.remove("show"), 3000);
+
+  clearTimeout(
+    toast.hideTimer
+  );
+
+  toast.hideTimer =
+    setTimeout(() => {
+      toast.classList.remove(
+        "show"
+    );
+  }, 3000);
 }
 
 form.addEventListener("submit", async e => {
@@ -17,11 +44,11 @@ form.addEventListener("submit", async e => {
   const email = emailInput.value.trim();
 
   if (!email) {
-    return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Email is required..`, "warning");
+    return showToast("Email is required..", "warning");
   }
 
   if (!emailRegex.test(email)) {
-    return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Invalid email format..`, "warning");
+    return showToast("Invalid email format..", "warning");
   }
 
   sendBtn.disabled = true;
@@ -31,7 +58,7 @@ form.addEventListener("submit", async e => {
     const res = await fetch("/api/password/forgot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // 🔥 Important if using sessions
+      credentials: "include", // Important if using sessions
       body: JSON.stringify({ email })
     });
 
@@ -44,7 +71,7 @@ form.addEventListener("submit", async e => {
 
     if (res.status === 401) {
       showToast(
-        `<i class="fa-solid fa-lock" style="margin-right:6px;"></i> Unauthorized request.`,
+        "Unauthorized request.",
         "error"
       );
       return;
@@ -52,7 +79,7 @@ form.addEventListener("submit", async e => {
 
     if (res.status === 403) {
       showToast(
-        `<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Access denied.`,
+        "Access denied.",
         "error"
       );
       return;
@@ -60,7 +87,7 @@ form.addEventListener("submit", async e => {
 
     if (res.status === 404) {
       showToast(
-        `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Email not registered.`,
+        "Email not registered.",
         "warning"
       );
       return;
@@ -68,7 +95,7 @@ form.addEventListener("submit", async e => {
 
     if (res.status === 429) {
       showToast(
-        `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Too many attempts. Try again later.`,
+        "Too many attempts. Try again later.",
         "warning"
       );
       return;
@@ -81,7 +108,7 @@ form.addEventListener("submit", async e => {
 
     if (!res.ok || !data.success) {
       showToast(
-        data.message || `<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Failed to send OTP.`,
+        data.message || "Failed to send OTP.",
         "error"
       );
       return;
@@ -90,7 +117,7 @@ form.addEventListener("submit", async e => {
     sessionStorage.setItem("resetEmail", email);
 
     showToast(
-      `<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i> OTP sent to your email.`,
+      "OTP sent to your email.",
       "success"
     );
 
@@ -108,7 +135,7 @@ form.addEventListener("submit", async e => {
     }
 
     showToast(
-      `<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Server error.`,
+      "Server error.",
       "error"
     );
   }

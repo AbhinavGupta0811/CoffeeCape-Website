@@ -27,7 +27,9 @@
       }
 
       if (!res.ok) {
-        throw new Error("Request failed");
+        const errorText = await res.text();
+        console.error("API Error:", res.status, errorText);
+        throw new Error(`Request failed: ${res.status}`);
       }
 
       userLoggedIn = true;
@@ -143,92 +145,204 @@
   /* ======================
     PRODUCT CARD
   ====================== */
-  function createProductCard(product) {
-
-    const finalPrice =
-      product.offer_price || product.price;
-
+  function createProductCard(product){
+    console.log("Editing product:", product);
     const outOfStock =
-      product.availability === "out_of_stock";
+        product.availability === "out_of_stock";
 
     return `
+        <div class="card ${product.subcategory || ""}">
 
-      <div class="card ${product.subcategory || ""}">
+            <div class="card-image-wrapper">
 
-        <img
-          src="${
-            product.image?.startsWith("/")
-              ? product.image
-              : `/uploads/products/${product.image}`
-          }"
-          alt="${escapeHtml(product.name)}"
-          onerror="this.src='/assets/default-food.png'"
-        />
+                ${
+                    product.badge
+                    ? `
+                        <span class="product-badge">
+                            ${escapeHtml(product.badge)}
+                        </span>
+                    `
+                    : ""
+                }
 
-        <div class="card-content">
+                <img
+                    src="${
+                        product.image?.startsWith("/")
+                            ? product.image
+                            : `/uploads/products/${product.image}`
+                    }"
+                    alt="${escapeHtml(product.name)}"
+                    onerror="this.src='/assets/default-food.png'"
+                />
 
-          <h2>
-            ${escapeHtml(product.name)}
-          </h2>
+            </div>
 
-          <div class="price">
+            <div class="card-content">
 
-            ${
-              product.offer_price
-              ? `
-                <span style="
-                  color:#c97b63;
-                  font-weight:700;
-                ">
-                  ₹${product.offer_price}
-                </span>
+                <div class="product-header">
 
-                <span style="
-                  text-decoration:line-through;
-                  color:#888;
-                  margin-left:8px;
-                ">
-                  ₹${product.price}
-                </span>
-              `
-              : `₹${product.price}`
-            }
+                    <h2>
+                        ${escapeHtml(product.name)}
+                    </h2>
 
-          </div>
+                    <span class="
+                        stock-status
+                        ${outOfStock ? "out" : "in"}
+                    ">
+                        ${
+                            outOfStock
+                                ? "Out Of Stock"
+                                : "Available"
+                        }
+                    </span>
 
-          <p>
-            ${escapeHtml(product.description || "")}
-          </p>
+                </div>
 
-          <button
-            class="order-btn"
+                <div class="product-meta">
 
-            data-id="${product.id}"
+                    ${
+                        product.category
+                        ? `
+                            <span>
+                                <i class="fa-solid fa-layer-group"></i>
+                                ${escapeHtml(product.category)}
+                            </span>
+                        `
+                        : ""
+                    }
 
-            data-qty="1"
+                    ${
+                        product.subcategory
+                        ? `
+                            <span>
+                                <i class="fa-solid fa-tag"></i>
+                                ${escapeHtml(product.subcategory)}
+                            </span>
+                        `
+                        : ""
+                    }
 
-            ${outOfStock ? "disabled" : ""}
-          >
+                    ${
+                        product.prep_time
+                        ? `
+                            <span>
+                                <i class="fa-solid fa-clock"></i>
+                                ${product.prep_time} Min
+                            </span>
+                        `
+                        : ""
+                    }
 
-            ${
-              outOfStock
-              ? "Out of Stock"
-              : "Add to Cart"
-            }
+                    ${
+                        product.rating
+                        ? `
+                            <span>
+                                <i class="fa-solid fa-star"></i>
+                                ${product.rating}
+                            </span>
+                        `
+                        : ""
+                    }
 
-          </button>
+                </div>
+
+                ${
+                    product.description
+                    ? `
+                        <p class="product-description">
+                            ${escapeHtml(product.description)}
+                        </p>
+                    `
+                    : ""
+                }
+
+                <div class="product-extra-info">
+
+                    ${
+                        product.calories
+                        ? `
+                            <div>
+                                <strong>Calories:</strong>
+                                ${product.calories}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        product.stock_quantity !== undefined
+                        ? `
+                            <div>
+                                <strong>Stock:</strong>
+                                ${product.stock_quantity}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    ${
+                        product.sku
+                        ? `
+                            <div>
+                                <strong>SKU:</strong>
+                                ${escapeHtml(product.sku)}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                </div>
+
+                <div class="product-price">
+
+                    ${
+                        product.offer_price
+                        ? `
+                            <span class="offer-price">
+                                ₹${product.offer_price}
+                            </span>
+
+                            <span class="original-price">
+                                ₹${product.price}
+                            </span>
+                        `
+                        : `
+                            <span class="offer-price">
+                                ₹${product.price}
+                            </span>
+                        `
+                    }
+
+                </div>
+
+                <button
+                    class="order-btn"
+                    data-product-id="${product.product_id}"
+                    data-qty="1"
+                    ${outOfStock ? "disabled" : ""}
+                >
+
+                    <i class="fa-solid fa-cart-shopping"></i>
+
+                    ${
+                        outOfStock
+                            ? " Out Of Stock"
+                            : " Add To Cart"
+                    }
+
+                </button>
+
+            </div>
 
         </div>
-
-      </div>
     `;
-  }
+}
 
   /* ======================
      ADD TO CART
   ====================== */
   async function addToCart(item) {
-
+    console.log(item);
     // 🔒 If not logged in → show warning
     if (!userLoggedIn) {
       showToast(
@@ -243,6 +357,7 @@
     }
 
     // ✅ If logged in → add to backend
+    
     const res = await apiRequest(`${API_BASE}/add`, "POST", item);
 
     if (res) {
@@ -264,7 +379,7 @@
     if (!btn) return;
 
     addToCart({
-      product_id: Number(btn.dataset.id),
+      product_id: btn.dataset.productId,
       qty: Number(btn.dataset.qty || 1)
     });
   });

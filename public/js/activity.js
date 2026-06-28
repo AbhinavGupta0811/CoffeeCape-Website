@@ -27,6 +27,23 @@ const NO_REORDER_STATUSES = ["cancelled", "refunded", "refund_rejected"];
 const SIX_HOURS = 6 * 60 * 60 * 1000;
 const PLATFORM_FEE_PERCENT = 10; // platform fee
 
+/* =====================================
+   BOOKING REALTIME REFRESH
+===================================== */
+let bookingReloadTimer = null;
+
+function refreshBookingsRealtime() {
+  clearTimeout(bookingReloadTimer);
+  bookingReloadTimer = setTimeout(() => {
+    if (bookingsTab &&
+        bookingsTab.classList.contains("active")) {
+
+      loadBookings();
+
+    }
+  }, 250);
+}
+
 /************************************************************
  * SOCKET.IO CONNECTION
  ************************************************************/
@@ -35,7 +52,14 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-  console.log("✅ Socket connected:", socket.id);
+  console.log(
+    "✅ Socket connected:",
+    socket.id
+  );
+
+  if ( bookingsTab && bookingsTab.classList.contains("active")) {
+    loadBookings();
+  }
 });
 
 socket.on("disconnect", () => {
@@ -60,11 +84,81 @@ socket.on("refund-requested", (data) => {
   loadOrders();
 });
 
-/* 🔥 Booking Events */
-socket.on("newBooking", () => loadBookings());
-socket.on("bookingCreated", () => loadBookings());
-socket.on("bookingCancelled", () => loadBookings());
-socket.on("bookingPaid", () => loadBookings());
+/* =====================================
+   BOOKING REALTIME
+===================================== */
+socket.on("bookingUpdated", data => {
+    console.log(
+      "📅 Booking Updated:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+/* Legacy Support */
+socket.on("newBooking", data => {
+    console.log(
+      "📅 New Booking:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingCreated", data => {
+    console.log(
+      "📅 Booking Created:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingConfirmed", data => {
+    console.log(
+      "📅 Booking Confirmed:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingCompleted", data => {
+    console.log(
+      "📅 Booking Completed:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingCancelled", data => {
+    console.log(
+      "📅 Booking Cancelled:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingStatusUpdated", data => {
+    console.log(
+      "📅 Booking Status:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
+
+socket.on("bookingPaid", data => {
+    console.log(
+      "📅 Booking Paid:",
+      data
+    );
+    refreshBookingsRealtime();
+  }
+);
 
 /************************************************************
  * ELEMENTS
@@ -85,6 +179,7 @@ let refundTimer = null;
 document.addEventListener("DOMContentLoaded", () => {
   loadOrders();
 });
+
 function showToast(message, type = "info") {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -147,6 +242,159 @@ function showConfirmModal(message, title = "Confirm Action") {
   });
 }
 
+function getBookingExtraFields(eventType, extras = {}) {
+  switch (eventType) {
+    case "dinner":
+      return [
+        {
+          label: "Dining Type",
+          value: extras.diningType
+        },
+        {
+          label: "Seating Preference",
+          value: extras.seatingPreference
+        }
+      ];
+
+    case "karaoke":
+      return [
+        {
+          label: "Team Name",
+          value: extras.teamName
+        },
+        {
+          label: "Song Category",
+          value: extras.songCategory
+        }
+      ];
+
+    case "openmic":
+      return [
+        {
+          label: "Performance Type",
+          value: extras.performanceType
+        },
+        {
+          label: "Duration",
+          value: extras.duration
+        },
+        {
+          label: "Portfolio",
+          value: extras.portfolioLink
+        }
+      ];
+
+    case "tasting":
+      return [
+        {
+          label: "Package",
+          value: extras.packageType
+        },
+        {
+          label: "Diet Preference",
+          value: extras.dietPreference
+        }
+      ];
+
+    case "get":
+      return [
+        {
+          label: "Group Name",
+          value: extras.groupName
+        },
+        {
+          label: "DJ Required",
+          value: extras.djRequired
+        },
+        {
+          label: "Games Arrangement",
+          value: extras.gamesArrangement
+        }
+      ];
+
+    case "private":
+      return [
+        {
+          label: "Category",
+          value: extras.eventCategory
+        },
+        {
+          label: "DJ Required",
+          value: extras.djRequired
+        },
+        {
+          label: "Custom Cake",
+          value: extras.customCakeRequired
+        },
+        {
+          label: "Catering",
+          value: extras.cateringType
+        }
+      ];
+
+    default:
+      return [];
+  }
+}
+
+function renderBookingExtraFields( eventType, extras = {}) {
+  const fields =
+    getBookingExtraFields(
+      eventType,
+      extras
+    );
+
+  if (!fields.length) {
+    return "";
+  }
+
+  return fields
+    .filter(
+      f =>
+        f.value !== undefined &&
+        f.value !== null &&
+        f.value !== ""
+    )
+    .map(
+      f => `
+        <div>
+          <strong>${f.label}:</strong>
+        </div>
+
+        <div>
+          ${labelize(
+            String(f.value)
+          )}
+        </div>
+      `
+    )
+    .join("");
+}
+
+async function startBookingPayment(bookingId, amount){
+  const confirmPay =
+    await showConfirmModal(
+      `Proceed to pay ₹${amount.toFixed(2)} for this booking?`,
+      "Booking Payment"
+    );
+
+  if(!confirmPay){
+    return;
+  }
+
+  showToast(
+    `<i class="fa-solid fa-calendar-check"></i>
+    Preparing secure payment...
+    Please wait.`,
+    "info"
+  );
+
+  setTimeout(()=>{
+    window.location.href =
+      `payment.html?type=booking&id=${bookingId}`;
+  },800);
+}
+
 /************************************************************
  * SAFE FETCH WRAPPER
  ************************************************************/
@@ -165,7 +413,6 @@ async function safeFetch(url, options = {}) {
     }
 
     /* ===== STATUS HANDLING ===== */
-
     if (res.status === 401) {
       window.location.href = "error.html?type=unauthorized";
       return null;
@@ -271,7 +518,6 @@ function renderOrder(order) {
     <div class="total">₹${total.toFixed(2)}</div>
 
     <div class="actions">
-
       <button class="btn primary"
         data-action="view"
         data-id="${order.order_id}">
@@ -280,8 +526,8 @@ function renderOrder(order) {
 
       ${
         NO_REORDER_STATUSES.includes(order.status)
-          ? `<button class="btn secondary" disabled>Reorder Disabled</button>`
-          : `<button class="btn secondary"
+          ? `<button class="btn-secondary" disabled>Reorder Disabled</button>`
+          : `<button class="btn-secondary"
                data-action="reorder"
                data-id="${order.order_id}">
                Reorder
@@ -305,6 +551,9 @@ function renderOrder(order) {
   ordersContainer.appendChild(div);
 }
 
+/************************************************************
+ * RENDER Booking CARD
+ ************************************************************/
 function renderBooking(booking) {
   if (!booking) return;
 
@@ -328,7 +577,6 @@ function renderBooking(booking) {
   /* =========================
      CANCEL LOGIC (User Mode)
   ========================= */
-
   const createdAt = booking.created_at
     ? new Date(booking.created_at).getTime()
     : null;
@@ -366,19 +614,18 @@ function renderBooking(booking) {
       Payment: ${labelize(paymentStatus)}
     </div>
 
-    <div style="margin-top:10px;padding:10px;background:#f9fafb;border-radius:8px;font-size:14px;">
+    <div class="booking-summary">
       <div style="display:flex;justify-content:space-between;">
         <span>Total</span>
         <span>₹${total.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;color:#16a34a;">
+      <div class="summary-row paid">
         <span>Paid</span>
         <span>₹${paid.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;
-                  color:${remaining > 0 ? "#dc2626" : "#16a34a"};">
+      <div class="summary-row ${remaining > 0 ? "remaining-due" : "remaining-clear"}">
         <span>Remaining</span>
         <span>₹${remaining.toFixed(2)}</span>
       </div>
@@ -395,7 +642,7 @@ function renderBooking(booking) {
       ${
         showPayButton
           ? `<button class="btn success"
-              onclick="window.location.href='payment.html?type=booking&id=${booking.booking_id}'">
+              onclick="startBookingPayment('${booking.booking_id}', ${remaining.toFixed(2)})"> 
               Pay Remaining ₹${remaining.toFixed(2)}
             </button>`
           : ""
@@ -444,30 +691,63 @@ ordersContainer.addEventListener("click", async (e) => {
     );
 
     if (!confirmPay) return;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
 
-    const result = await safeFetch("/api/payment/confirm", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        type: "order",
-        id,
-        method: "online"
-      })
-    });
+    btn.innerHTML = `
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Processing...
+    `;
+
+    showToast(
+      `<i class="fa-solid fa-credit-card"></i>
+      Payment is being processed.
+      Please wait...`,
+      "info"
+    );
+
+    const result = await safeFetch(
+      "/api/payment/confirm",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+          "application/json"
+        },
+        body: JSON.stringify({
+          type: "order",
+          id,
+          method: "online"
+        })
+      }
+    );
 
     if (!result) {
-      showToast("Payment already completed", "warning");
-      btn.disabled = true;
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      showToast(
+        `<i class="fa-solid fa-triangle-exclamation"></i>
+        Payment could not be completed.`,
+        "warning"
+      );
       return;
     }
 
-    showToast("Payment successful", "success");
+    btn.innerHTML = `
+      <i class="fa-solid fa-circle-check"></i>
+      Paid
+    `;
 
-    loadOrders();
+    showToast(
+      `<i class="fa-solid fa-circle-check"></i>
+      Payment completed successfully.`,
+      "success"
+    );
+
+    setTimeout(() => {
+      loadOrders();
+    }, 800);
   }
-
 });
 
 /* Refund & Cancellation UI */
@@ -485,24 +765,19 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
       /* Refund Completed */
       if (order.payment_status === "refunded") {
         return `
-          <div class="refund-detail-box" style="
-            margin-top:14px;
-            padding:14px;
-            background:#ecfdf5;
-            border:1px solid #10b981;
-            border-radius:10px;
-            font-size:14px;
-          ">
-            <strong style="color:#065f46;">💰 Refund Completed</strong>
+          <div class="refund-detail-box refund-success">
+            <strong class="refund-title success">
+              💰 Refund Completed
+            </strong>
 
-            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+            <div class="refund-row">
               <span>Refunded Amount</span>
-              <span style="color:#16a34a;font-weight:600;">
+              <span class="amount-success">
                 ₹${refundableAmount.toFixed(2)}
               </span>
             </div>
 
-            <div style="font-size:12px;margin-top:6px;color:#555;">
+            <div class="refund-note">
               Order was cancelled by admin. Refund credited successfully.
             </div>
           </div>
@@ -511,22 +786,14 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
 
       /* Refund Processing */
       return `
-        <div class="refund-detail-box" style="
-          margin-top:14px;
-          padding:14px;
-          background:#eff6ff;
-          border:1px solid #3b82f6;
-          border-radius:10px;
-          font-size:14px;
-          color:#1e3a8a;
-        ">
+        <div class="refund-detail-box refund-processing">
           <strong>Order Cancelled by Admin</strong>
 
-          <p style="margin-top:6px;">
+          <p class="refund-message">
             Your payment will be refunded to your original payment method.
           </p>
 
-          <div style="font-size:12px;margin-top:6px;">
+          <div class="refund-note">
             Refund usually takes 24–48 working hours.
           </div>
         </div>
@@ -535,15 +802,7 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
 
     /* COD Order */
     return `
-      <div class="refund-detail-box" style="
-        margin-top:14px;
-        padding:14px;
-        background:#fee2e2;
-        border:1px solid #ef4444;
-        border-radius:10px;
-        color:#7f1d1d;
-        font-weight:600;
-      ">
+      <div class="refund-detail-box refund-danger">
         ❌ Order cancelled by admin.
       </div>
     `;
@@ -552,17 +811,10 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
   /* 2. User Cancelled COD Order */
   if (order.status === "cancelled" && isCOD) {
     return `
-      <div class="refund-detail-box" style="
-        margin-top:14px;
-        padding:14px;
-        background:#fef3c7;
-        border:1px solid #f59e0b;
-        border-radius:10px;
-        font-size:14px;
-        color:#92400e;
-      ">
+      <div class="refund-detail-box refund-warning">
         <strong>Order Cancelled</strong>
-        <p style="margin-top:6px;">
+
+        <p class="refund-message">
           Your order has been cancelled successfully.
         </p>
       </div>
@@ -572,17 +824,10 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
   /* 3. Refund Pending */
   if (order.status === "cancelled" && order.payment_status !== "refunded") {
     return `
-      <div class="refund-detail-box" style="
-        margin-top:14px;
-        padding:14px;
-        background:#eff6ff;
-        border:1px solid #3b82f6;
-        border-radius:10px;
-        font-size:14px;
-        color:#1e3a8a;
-      ">
+      <div class="refund-detail-box refund-processing">
         <strong>Order Cancelled</strong>
-        <p style="margin-top:6px;">
+
+        <p class="refund-message">
           Refund is being processed to your original payment method.
         </p>
       </div>
@@ -592,34 +837,27 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
   /* 4. Refund Completed */
   if (order.payment_status === "refunded" && !isCOD) {
     return `
-      <div class="refund-detail-box" style="
-        margin-top:14px;
-        padding:14px;
-        background:#ecfdf5;
-        border:1px solid #10b981;
-        border-radius:10px;
-        font-size:14px;
-      ">
+      <div class="refund-detail-box refund-success">
+        <strong class="refund-title success">
+          💰 Refund Completed
+        </strong>
 
-        <strong style="color:#065f46;">💰 Refund Completed</strong>
-
-        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+        <div class="refund-row">
           <span>Refunded Amount</span>
-          <span style="color:#16a34a;font-weight:600;">
+          <span class="amount-success">
             ₹${refundableAmount.toFixed(2)}
           </span>
         </div>
 
-        <div style="display:flex;justify-content:space-between;color:#dc2626;margin-top:4px;">
+        <div class="refund-row amount-danger">
           <span>Non-Refundable Charges</span>
           <span>₹${nonRefundable.toFixed(2)}</span>
         </div>
 
-        <div style="font-size:12px;margin-top:6px;color:#555;">
+        <div class="refund-note">
           Platform, packing, delivery & GST fees are non-refundable.<br>
           Amount credited within 24–48 working hours.
         </div>
-
       </div>
     `;
   }
@@ -627,17 +865,12 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
   /* 5. Refund Rejected */
   if (order.status === "refund_rejected") {
     return `
-      <div class="refund-detail-box" style="
-        margin-top:14px;
-        padding:14px;
-        border:1px solid #c7bcbc;
-        background:#fee2e2;
-        border-radius:10px;
-        font-size:14px;
-        color:#991b1b;
-      ">
-        <strong>Refund Request Rejected</strong>
-        <p style="margin-top:6px;">
+      <div class="refund-detail-box refund-rejected">
+        <strong>
+          Refund Request Rejected
+        </strong>
+
+        <p class="refund-message">
           ${order.refund_reject_reason || "No reason provided"}
         </p>
       </div>
@@ -677,14 +910,19 @@ async function viewOrder(orderId) {
   const refundableAmount = Math.max(0, total - nonRefundable);
 
   modalContent.innerHTML = `
-    <p><strong>Ordered By:</strong> ${order.name ? labelize(order.name) : "N/A"}</p>
-    <p><strong>Address :</strong> ${order.address ? labelize(order.address) : "N/A"}</p>
+    <p><strong>Ordered By:</strong> ${order.name ? labelize(order.name) : "Not Provided.."}</p>
+    <p><strong>Address:</strong> ${order.address ? labelize(order.address) : "Not Provided.."}</p>
     <p><strong>Status:</strong> ${labelize(order.status)}</p>
     <p><strong>Payment Status:</strong> ${labelize(order.payment_status)}</p>
-    <p><strong>Order Notes:</strong> ${order.notes ? labelize(order.notes) : "N/A"}</p>
-    
+    <p><strong>Order Notes:</strong> ${order.notes ? labelize(order.notes) : "No Demand.."}</p>
+
     <table>
-      <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
+      </tr>
+
       ${(order.items || []).map(i => `
         <tr>
           <td>${i.name}</td>
@@ -694,41 +932,34 @@ async function viewOrder(orderId) {
       `).join("")}
     </table>
 
-    <div class="price-breakdown" style="
-      margin:12px 0;
-      padding:12px;
-      background:#f9fafb;
-      border-radius:10px;
-      border:1px solid #e5e7eb;
-      font-size:14px;
-    ">
+    <div class="price-breakdown">
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>Subtotal</span>
         <span>₹${Number(order.subtotal).toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>GST</span>
         <span>₹${gst.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>Platform Fee (Non refundable)</span>
         <span>₹${platformFee.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>Packing & Handling Fee (Non refundable)</span>
         <span>₹${packingFee.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>Delivery Fee</span>
         <span>₹${deliveryFee.toFixed(2)}</span>
       </div>
 
-      <div style="display:flex;justify-content:space-between;">
+      <div class="price-row">
         <span>Tip</span>
         <span>₹${Number(order.tip).toFixed(2)}</span>
       </div>
@@ -736,7 +967,7 @@ async function viewOrder(orderId) {
       ${
         Number(order.discount) > 0
           ? `
-            <div style="display:flex;justify-content:space-between;color:#dc2626;">
+            <div class="price-row discount-row">
               <span>Discount</span>
               <span>-₹${Number(order.discount).toFixed(2)}</span>
             </div>
@@ -744,38 +975,35 @@ async function viewOrder(orderId) {
           : ""
       }
 
-      <hr style="margin:8px 0;">
+      <hr class="price-divider">
 
-      <div style="display:flex;justify-content:space-between;font-weight:700;">
+      <div class="price-row total-row">
         <span>Total</span>
         <span>₹${total.toFixed(2)}</span>
       </div>
 
     </div>
-
+    
     ${
       ["pending","confirmed","preparing"].includes(order.status)
-      ? `
-        <div style="margin-top:16px;text-align:right;">
-          <button 
-            class="btn danger"
-            data-action="cancel"
-            data-id="${order.order_id}"
-            style="padding:10px 18px;border-radius:999px;font-weight:600;"
-          >
-            Cancel Order
-          </button>
-        </div>
-      `
-      : ""
+        ? `
+          <div class="cancel-order-wrap">
+            <button class="btn danger cancel-order-btn"
+              data-action="cancel"
+              data-id="${order.order_id}"
+            >
+              Cancel Order
+            </button>
+          </div>
+        `
+        : ""
     }
 
     ${renderRefundSection(order, refundableAmount, nonRefundable)}
-
   `;
 
   renderTimeline(order.status);
-  modal.style.display = "block";
+  modal.style.display = "flex";
 
   /* ===============================
      REFUND TIMER
@@ -793,35 +1021,16 @@ async function viewOrder(orderId) {
     if (!refundBox) return;
 
     refundBox.innerHTML = `
-      <div class="refund-card" style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;">
-
-        <div id="refundTimerText" style="
-          font-size:13px;
-          color:#6b7280;
-          margin-bottom:10px;
-          display:flex;
-          align-items:center;
-          gap:6px;
-        ">
+      <div class="refund-card">
+        <div id="refundTimerText" class="refund-timer-text">
           ⏳ Refund expires in <strong></strong>
         </div>
 
-        <textarea
-          id="refundReason"
-          placeholder="Reason (minimum 10 characters)"
-          rows="3"
-          style="width:95%;resize:none;padding:10px;border-radius:8px;border:1px solid #d1d5db;font-size:14px;margin-bottom:12px;"
-        ></textarea>
+        <textarea id="refundReason" class="refund-reason" placeholder="Reason (minimum 10 characters)" rows="3"></textarea>
 
-        <button
-          class="btn warning"
-          data-action="refund"
-          data-id="${order.order_id}"
-          style="width:100%;border-radius:999px;font-weight:600;padding:10px 0;"
-        >
+        <button class="btn warning refund-request-btn" data-action="refund" data-id="${order.order_id}">
           Request Refund
         </button>
-
       </div>
     `;
 
@@ -846,6 +1055,9 @@ async function viewOrder(orderId) {
   }
 }
 
+/*================================================
+  VIEW BOOKING DETAILS
+================================================*/
 async function viewBooking(bookingId) {
 
   if (!bookingId) {
@@ -861,12 +1073,6 @@ async function viewBooking(bookingId) {
 
   const booking = data.booking;
   const extras = booking.booking_data || {};
-
-  // Support nested old data safely
-  const nestedExtras =
-    extras.booking_data && typeof extras.booking_data === "object"
-      ? extras.booking_data
-      : {};
 
   const total = Number(booking.total) || 0;
   const paid = Number(booking.paid_amount) || 0;
@@ -895,18 +1101,20 @@ async function viewBooking(bookingId) {
     ? new Date(booking.event_date).toLocaleDateString("en-IN")
     : "-";
 
-  const notes =
-    extras.notes ||
-    nestedExtras.notes ||
-    extras.specialRequest ||
-    nestedExtras.specialRequest ||
+  const notes=
+    extras.notes||
+    extras.specialRequest||
+    extras.songRequest||
+    extras.description||
     "No special notes provided";
 
   modalContent.innerHTML = `
-    <div style="padding:20px;font-size:14px;">
+    <div class="booking-details">
+      <div class="booking-header">
+        <h5 class="booking-title">
+          Booking Status
+        </h5>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-        <h5 style="margin:0;font-size:20px">Booking Status</h5>
         <span class="status-badge ${booking.status}">
           ${
             booking.status === "cancelled"
@@ -916,11 +1124,12 @@ async function viewBooking(bookingId) {
               : labelize(booking.status)
           }
         </span>
+
       </div>
 
       <hr>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="booking-grid">
 
         <div><strong>Booking ID:</strong></div>
         <div>${booking.booking_id}</div>
@@ -928,11 +1137,23 @@ async function viewBooking(bookingId) {
         <div><strong>Event Type:</strong></div>
         <div>${labelize(booking.event_type)}</div>
 
+        ${
+          booking.event_category
+            ? `
+              <div><strong>Event Category:</strong></div>
+              <div>${labelize(booking.event_category)}</div>
+            `
+            : ""
+        }
+
         <div><strong>Event Date:</strong></div>
         <div>${eventDate}</div>
 
         <div><strong>Event Time:</strong></div>
         <div>${booking.event_time || "-"}</div>
+
+        <div><strong>Guests:</strong></div>
+        <div>${booking.guest_count||"-"}</div>
 
         <div><strong>Full Name:</strong></div>
         <div>${booking.full_name || "-"}</div>
@@ -949,33 +1170,36 @@ async function viewBooking(bookingId) {
         <div><strong>Payment Status:</strong></div>
         <div>${labelize(booking.payment_status)}</div>
 
+        ${renderBookingExtraFields(
+          booking.event_type,
+          extras
+        )}
       </div>
 
-      <hr style="margin:15px 0;">
+      <hr class="booking-divider">
 
       <div>
         <strong>Special Notes:</strong>
-        <div style="margin-top:5px;color:#555;">
+        <div class="booking-notes">
           ${notes}
         </div>
       </div>
 
-      <hr style="margin:15px 0;">
+      <hr class="booking-divider">
 
-      <div style="background:#f9fafb;padding:12px;border-radius:8px;">
-        <div style="display:flex;justify-content:space-between;">
+      <div class="booking-payment-box">
+
+        <div class="booking-payment-row">
           <span><strong>Total Amount</strong></span>
           <span>₹${total.toFixed(2)}</span>
         </div>
 
-        <div style="display:flex;justify-content:space-between;color:#16a34a;margin-top:5px;">
+        <div class="booking-payment-row paid">
           <span><strong>Paid</strong></span>
           <span>₹${paid.toFixed(2)}</span>
         </div>
 
-        <div style="display:flex;justify-content:space-between;
-                    color:${remaining > 0 ? "#dc2626" : "#16a34a"};
-                    margin-top:5px;">
+        <div class="booking-payment-row ${remaining > 0 ? "remaining-due" : "remaining-clear"}">
           <span><strong>Remaining</strong></span>
           <span>₹${remaining.toFixed(2)}</span>
         </div>
@@ -983,47 +1207,50 @@ async function viewBooking(bookingId) {
 
       ${
         showPayButton
-          ? `<div style="margin-top:15px;text-align:right;">
-              <button class="btn primary"
-                onclick="window.location.href='payment.html?type=booking&id=${booking.booking_id}'">
+          ? `
+            <div class="booking-action-wrap">
+
+              <button
+                class="btn primary"
+                onclick="window.location.href='payment.html?type=booking&id=${booking.booking_id}'"
+              >
                 Pay Remaining ₹${remaining.toFixed(2)}
               </button>
-            </div>`
+
+            </div>
+          `
           : isCancelled && isRefunded
               ? `
-                <div style="
-                  margin-top:15px;
-                  padding:12px;
-                  background:#ecfdf5;
-                  color:#065f46;
-                  border:1px solid #10b981;
-                  border-radius:8px;
-                  font-weight:600;
-                ">
+                <div class="booking-refund-box">
+
                   ${
                     cancelledBy === "admin"
                       ? "🛠 Cancelled by Admin"
                       : "❌ Cancelled by You"
                   }
 
-                  <div style="margin-top:6px;">
+                  <div class="booking-refund-amount">
                     💰 Refund Amount: ₹${refundableAmount.toFixed(2)}
                   </div>
 
-                  <div style="font-size:12px;margin-top:5px;color:#555;">
+                  <div class="booking-refund-note">
                     Platform fee ₹${platformFee.toFixed(2)} (10% non-refundable).<br>
-                    You will receive the refunded amount in your account within 24 to 48 hours in working days.
+                    You will receive the refunded amount in your account within 24 to 48 working hours.
                   </div>
+
                 </div>
               `
-            : `<div style="margin-top:15px;text-align:right;color:#16a34a;font-weight:600;">
-                ${isFullyPaid ? "Fully Paid" : ""}
-              </div>`
+              : `
+                <div class="booking-paid-status">
+                  ${isFullyPaid ? "Fully Paid" : ""}
+                </div>
+              `
       }
+
     </div>
   `;
 
-  modal.style.display = "block";
+  modal.style.display = "flex";
 }
 
 /************************************************************
@@ -1082,6 +1309,7 @@ modalContent.addEventListener("click", async e => {
   }
 });
 
+/*=== CANCEL BOOKING (User Mode) ===*/
 async function cancelBooking(bookingId) {
 
   const confirmCancel = await showConfirmModal(

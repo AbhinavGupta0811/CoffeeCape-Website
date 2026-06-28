@@ -14,44 +14,193 @@ const SIX_HOURS = 6 * 60 * 60 * 1000;
    POST /api/orders
 ===================================== */
 router.post("/", auth, async (req, res) => {
+  let {name, phone, address, tip = 0, notes = "", couponCode = "", idempotencyKey} = req.body;
 
-  let { name, phone, address, tip = 0, notes = "", couponCode = "" } = req.body;
+  /* =========================
+     INPUT SANITIZATION
+  ========================= */
+  name = String(name || "").trim();
+  phone = String(phone || "").trim();
+  address = String(address || "").trim();
+  notes = String(notes || "").trim();
+  couponCode = String(couponCode || "")
+    .trim()
+    .toUpperCase();
 
+  /* =========================
+     BASIC VALIDATION
+  ========================= */
   if (!name || !phone || !address) {
-    return res.status(400).json({ message: "All fields required" });
+    return res.status(400).json({
+      message: "All fields required"
+    });
   }
 
-  const connection = await db.getConnection();
+  if (!/^[A-Za-z\s]{3,100}$/.test(name)) {
+    return res.status(400).json({
+      message: "Invalid name"
+    });
+  }
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    return res.status(400).json({
+      message: "Invalid phone number"
+    });
+  }
+
+  if (
+    address.length < 10 ||
+    address.length > 300
+  ) {
+    return res.status(400).json({
+      message: "Invalid address"
+    });
+  }
+
+  if (notes.length > 1000) {
+    return res.status(400).json({
+      message: "Notes too long"
+    });
+  }
+
+  if (
+    !idempotencyKey ||
+    typeof idempotencyKey !== "string" ||
+    idempotencyKey.length > 100
+  ) {
+    return res.status(400).json({
+      message: "Invalid idempotency key"
+    });
+  }
+
+  /* =========================
+     TIP VALIDATION
+  ========================= */
+  tip = Number(tip);
+
+  if (
+    Number.isNaN(tip) ||
+    tip < 0 ||
+    tip > 1000
+  ) {
+    return res.status(400).json({
+      message: "Invalid tip amount"
+    });
+  }
+
+  tip = Number(tip.toFixed(2));
+
+  const connection =
+    await db.getConnection();
 
   try {
+
     await connection.beginTransaction();
-    const userId = req.session.user.id;
+
+    const userId =
+      req.session.user.id;
+
+    /* =========================
+       IDEMPOTENCY CHECK
+    ========================= */
+    const [[existingOrder]] =
+      await connection.query(
+        `
+        SELECT id
+        FROM pending_orders
+        WHERE user_id=?
+        AND idempotency_key=?
+        AND expires_at > NOW()
+        LIMIT 1
+        `,
+        [userId, idempotencyKey]
+      );
+
+    if (existingOrder) {
+
+      await connection.rollback();
+
+      return res.json({
+        success: true,
+        pendingOrderId:
+          existingOrder.id,
+        duplicate: true
+      });
+    }
+
+    /* =========================
+       EXISTING PENDING ORDER
+    ========================= */
+    const [[activePending]] =
+      await connection.query(
+        `
+        SELECT id
+        FROM pending_orders
+        WHERE user_id=?
+        AND expires_at > NOW()
+        LIMIT 1
+        `,
+        [userId]
+      );
+
+    if (activePending) {
+
+      await connection.rollback();
+
+      return res.json({
+        success: true,
+        pendingOrderId:
+          activePending.id,
+        existing: true
+      });
+    }
 
     /* =========================
        FETCH CART
     ========================= */
-    const [cart] = await connection.query(
-      "SELECT name, price, qty FROM cart WHERE user_id=? FOR UPDATE",
-      [userId]
-    );
+    const [cart] =
+      await connection.query(
+        `
+        SELECT
+          product_id,
+          name,
+          price,
+          qty
+        FROM cart
+        WHERE user_id=?
+        FOR UPDATE
+        `,
+        [userId]
+      );
 
     if (!cart.length) {
+
       await connection.rollback();
-      return res.status(400).json({ message: "Cart is empty" });
+
+      return res.status(400).json({
+        message: "Cart is empty"
+      });
     }
 
     /* =========================
-       CALCULATE SUBTOTAL
+       SUBTOTAL
     ========================= */
     let subtotal = 0;
+
     for (const item of cart) {
-      subtotal += Number(item.price) * Number(item.qty);
+
+      subtotal +=
+        Number(item.price) *
+        Number(item.qty);
     }
 
-    subtotal = Number(subtotal.toFixed(2));
+    subtotal = Number(
+      subtotal.toFixed(2)
+    );
 
     const GST_RATE = 0.05;
-    const DELIVERY_FEE = subtotal >= 2999 ? 0 : 40;
+    const DELIVERY_FEE =
+      subtotal >= 2999 ? 0 : 40;
     const PLATFORM_FEE = 10;
     const PACKING_FEE = 10;
 
@@ -61,138 +210,283 @@ router.post("/", auth, async (req, res) => {
        COUPON VALIDATION
     ========================= */
     if (couponCode) {
-      const [coupons] = await connection.query(
-        "SELECT * FROM coupons WHERE code=? AND is_active=TRUE",
-        [couponCode]
-      );
+
+      const [coupons] =
+        await connection.query(
+          `
+          SELECT *
+          FROM coupons
+          WHERE code=?
+          AND is_active=TRUE
+          FOR UPDATE
+          `,
+          [couponCode]
+        );
 
       if (!coupons.length) {
-        await connection.rollback();
-        return res.status(400).json({ message: "Invalid coupon" });
-      }
 
-      const coupon = coupons[0];
-
-      // Expiry check
-      if (coupon.expires_at && new Date() > new Date(coupon.expires_at)) {
         await connection.rollback();
-        return res.status(400).json({ message: "Coupon expired" });
-      }
 
-      // Usage limit check
-      if (coupon.used_count >= coupon.usage_limit) {
-        await connection.rollback();
-        return res.status(400).json({ message: "Coupon limit reached" });
-      }
-
-      // Min order check
-      if (subtotal < coupon.min_order) {
-        await connection.rollback();
         return res.status(400).json({
-          message: `Minimum order ₹${coupon.min_order} required`
+          message: "Invalid coupon"
         });
       }
 
-      // Per user usage
-      const [usage] = await connection.query(
-        "SELECT COUNT(*) as count FROM coupon_usage WHERE user_id=? AND coupon_id=?",
-        [userId, coupon.id]
-      );
+      const coupon =
+        coupons[0];
 
-      if (usage[0].count >= coupon.per_user_limit) {
+      if (
+        coupon.expires_at &&
+        new Date() >
+          new Date(
+            coupon.expires_at
+          )
+      ) {
+
         await connection.rollback();
-        return res.status(400).json({ message: "Coupon already used" });
+
+        return res.status(400).json({
+          message: "Coupon expired"
+        });
       }
 
-      /* =========================
-         APPLY DISCOUNT
-      ========================= */
-      if (coupon.type === "flat") {
-        discount = coupon.value;
+      if (
+        coupon.used_count >=
+        coupon.usage_limit
+      ) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          message:
+            "Coupon limit reached"
+        });
       }
 
-      if (coupon.type === "percent") {
-        discount = subtotal * (coupon.value / 100);
-        if (coupon.max_discount > 0) {
-          discount = Math.min(discount, coupon.max_discount);
+      if (
+        subtotal <
+        coupon.min_order
+      ) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          message:
+            `Minimum order ₹${coupon.min_order} required`
+        });
+      }
+
+      const [usage] =
+        await connection.query(
+          `
+          SELECT COUNT(*) AS count
+          FROM coupon_usage
+          WHERE user_id=?
+          AND coupon_id=?
+          `,
+          [
+            userId,
+            coupon.id
+          ]
+        );
+
+      if (
+        usage[0].count >=
+        coupon.per_user_limit
+      ) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          message:
+            "Coupon already used"
+        });
+      }
+
+      if (
+        coupon.type === "flat"
+      ) {
+        discount =
+          coupon.value;
+      }
+
+      if (
+        coupon.type === "percent"
+      ) {
+
+        discount =
+          subtotal *
+          (
+            coupon.value /
+            100
+          );
+
+        if (
+          coupon.max_discount > 0
+        ) {
+          discount =
+            Math.min(
+              discount,
+              coupon.max_discount
+            );
         }
       }
 
-      if (coupon.type === "delivery") {
-        discount = DELIVERY_FEE;
+      if (
+        coupon.type ===
+        "delivery"
+      ) {
+        discount =
+          DELIVERY_FEE;
       }
 
-      discount = Number(discount.toFixed(2));
-
-      // Save usage
-      await connection.query(
-        "INSERT INTO coupon_usage (user_id, coupon_id) VALUES (?, ?)",
-        [userId, coupon.id]
+      discount = Number(
+        discount.toFixed(2)
       );
 
+      discount = Math.min(
+        discount,
+        subtotal
+      );
+
+      try {
+
+        await connection.query(
+          `
+          INSERT INTO coupon_usage
+          (
+            user_id,
+            coupon_id
+          )
+          VALUES (?, ?)
+          `,
+          [
+            userId,
+            coupon.id
+          ]
+        );
+
+      } catch {
+        await connection.rollback();
+        return res.status(400).json({
+          message:
+            "Coupon already used"
+        });
+      }
+
       await connection.query(
-        "UPDATE coupons SET used_count = used_count + 1 WHERE id=?",
+        `
+        UPDATE coupons
+        SET used_count =
+          used_count + 1
+        WHERE id=?
+        `,
         [coupon.id]
       );
     }
 
     /* =========================
-       FINAL TOTAL
+       TOTALS
     ========================= */
-    const gst = Number((subtotal * GST_RATE).toFixed(2));
-
-    const finalTotal = Number(
+    const gst = Number(
       (
-        subtotal +
-        gst +
-        DELIVERY_FEE +
-        PLATFORM_FEE +
-        PACKING_FEE +
-        Number(tip) -
-        discount
+        subtotal *
+        GST_RATE
       ).toFixed(2)
     );
+
+    const calculatedTotal =
+      subtotal +
+      gst +
+      DELIVERY_FEE +
+      PLATFORM_FEE +
+      PACKING_FEE +
+      tip -
+      discount;
+
+    const finalTotal =
+      Number(
+        Math.max(
+          0,
+          calculatedTotal
+        ).toFixed(2)
+      );
 
     /* =========================
        SAVE ORDER
     ========================= */
-    const [result] = await connection.query(
-      `
-      INSERT INTO pending_orders
-      (user_id, cart_data, user_details, pricing, notes, expires_at)
-      VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
-      `,
-      [
-        userId,
-        JSON.stringify(cart),
-        JSON.stringify({ name, phone, address }),
-        JSON.stringify({
-          subtotal,
-          gst,
-          delivery_fee: DELIVERY_FEE,
-          platform_fee: PLATFORM_FEE,
-          packing_fee: PACKING_FEE,
-          tip,
-          discount,
-          total: finalTotal
-        }),
-        notes
-      ]
-    );
+    const pricing = {
+      subtotal,
+      gst,
+      delivery_fee:
+        DELIVERY_FEE,
+      platform_fee:
+        PLATFORM_FEE,
+      packing_fee:
+        PACKING_FEE,
+      tip,
+      discount,
+      total: finalTotal
+    };
+
+    const [result] =
+      await connection.query(
+        `
+        INSERT INTO pending_orders
+        (
+          user_id,
+          idempotency_key,
+          cart_data,
+          user_details,
+          pricing,
+          notes,
+          expires_at
+        )
+        VALUES
+        (?,?,?,?,?,?, DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+        )
+        `,
+        [
+          userId,
+          idempotencyKey,
+          JSON.stringify(cart),
+          JSON.stringify({
+            name,
+            phone,
+            address
+          }),
+          JSON.stringify(
+            pricing
+          ),
+          notes
+        ]
+      );
 
     await connection.commit();
 
-    res.json({
+    return res.json({
       success: true,
-      pendingOrderId: result.insertId,
+      pendingOrderId:
+        result.insertId,
       total: finalTotal
     });
 
   } catch (err) {
+
     await connection.rollback();
-    console.error("Order Error:", err);
-    res.status(500).json({ message: "Failed to initiate order" });
+
+    console.error(
+      "Order Error:",
+      err
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to initiate order"
+    });
+
   } finally {
+
     connection.release();
   }
 });
@@ -202,51 +496,193 @@ router.post("/", auth, async (req, res) => {
    GET /api/orders/pending/:id
 ===================================== */
 router.get("/pending/:id", auth, async (req, res) => {
+
   try {
 
-    const [[pending]] = await db.query(
-      "SELECT * FROM pending_orders WHERE id=? AND user_id=?",
-      [req.params.id, req.user.id]
-    );
+    /* =========================
+       VALIDATE ORDER ID
+    ========================= */
+    const orderId = Number(req.params.id);
 
-    if (!pending) {
-      return res.status(404).json({ message: "Pending order not found" });
+    if (
+      !Number.isInteger(orderId) ||
+      orderId <= 0
+    ) {
+      return res.status(400).json({
+        message: "Invalid order id"
+      });
     }
 
     /* =========================
-       CHECK EXPIRY
+       FETCH ORDER
+       Ownership + Expiry Check
     ========================= */
-    if (new Date() > new Date(pending.expires_at)) {
-      return res.status(400).json({ message: "Order expired" });
+    const [[pending]] =
+      await db.query(
+        `
+        SELECT
+          id,
+          cart_data,
+          user_details,
+          pricing,
+          notes,
+          expires_at
+        FROM pending_orders
+        WHERE id=?
+        AND user_id=?
+        AND expires_at > NOW()
+        LIMIT 1
+        `,
+        [
+          orderId,
+          req.user.id
+        ]
+      );
+
+    if (!pending) {
+      return res.status(404).json({
+        message: "Order not found"
+      });
     }
 
     /* =========================
        SAFE JSON PARSE
     ========================= */
     let pricing;
+    let cartData;
+    let userDetails;
 
     try {
+
       pricing =
         typeof pending.pricing === "string"
           ? JSON.parse(pending.pricing)
           : pending.pricing;
+
+      cartData =
+        typeof pending.cart_data === "string"
+          ? JSON.parse(pending.cart_data)
+          : pending.cart_data;
+
+      userDetails =
+        typeof pending.user_details === "string"
+          ? JSON.parse(pending.user_details)
+          : pending.user_details;
+
     } catch (err) {
-      console.error("JSON Parse Error:", err);
-      return res.status(500).json({ message: "Invalid pricing data" });
+
+      console.error(
+        "Pending Order JSON Error:",
+        err
+      );
+
+      return res.status(500).json({
+        message:
+          "Corrupted order data"
+      });
     }
 
-    if (!pricing || !pricing.total) {
-      return res.status(500).json({ message: "Pricing data missing" });
+    /* =========================
+       VERIFY PRICING
+    ========================= */
+    if (
+      !pricing ||
+      typeof pricing !== "object"
+    ) {
+      return res.status(500).json({
+        message:
+          "Pricing data missing"
+      });
     }
 
-    res.json({
+    const total =
+      Number(pricing.total);
+
+    if (
+      Number.isNaN(total) ||
+      total < 0
+    ) {
+      return res.status(500).json({
+        message:
+          "Invalid pricing data"
+      });
+    }
+
+    /* =========================
+       RESPONSE
+       (No internal fields)
+    ========================= */
+    return res.json({
       success: true,
-      total: Number(pricing.total)
+      order: {
+        id: pending.id,
+        total,
+
+        pricing: {
+          subtotal:
+            Number(
+              pricing.subtotal || 0
+            ),
+          gst:
+            Number(
+              pricing.gst || 0
+            ),
+          delivery_fee:
+            Number(
+              pricing.delivery_fee || 0
+            ),
+          platform_fee:
+            Number(
+              pricing.platform_fee || 0
+            ),
+          packing_fee:
+            Number(
+              pricing.packing_fee || 0
+            ),
+          tip:
+            Number(
+              pricing.tip || 0
+            ),
+          discount:
+            Number(
+              pricing.discount || 0
+            ),
+          total
+        },
+
+        cart: Array.isArray(
+          cartData
+        )
+          ? cartData
+          : [],
+
+        customer: {
+          name:
+            userDetails?.name || "",
+          phone:
+            userDetails?.phone || "",
+          address:
+            userDetails?.address || ""
+        },
+
+        notes:
+          pending.notes || "",
+
+        expiresAt:
+          pending.expires_at
+      }
     });
 
   } catch (err) {
-    console.error("Pending Order Fetch Error:", err);
-    res.status(500).json({ message: "Failed to fetch pending order" });
+
+    console.error(
+      "Pending Order Fetch Error:",
+      err
+    );
+    return res.status(500).json({
+      message:
+        "Failed to fetch pending order"
+    });
   }
 });
 
@@ -338,8 +774,12 @@ router.get("/:id", auth, async (req, res) => {
        FETCH ORDER ITEMS(IMPORTANT: order_items.order_id should store numeric orders.id)
     ========================= */
     const [items] = await db.query(
-      "SELECT name, qty, price FROM order_items WHERE order_id=?",
-      [order.id]  // use numeric internal ID
+      `
+      SELECT product_id, name, qty, price
+      FROM order_items
+      WHERE order_id=?
+      `,
+      [order.id]
     );
 
     /* =========================
@@ -429,58 +869,232 @@ router.post("/:id/cancel", auth, async (req, res) => {
    POST /api/orders/:id/refund
 ===================================== */
 router.post("/:id/refund", auth, async (req, res) => {
-  const { reason } = req.body;
+  const orderId = String(req.params.id).trim();
 
-  if (!reason || reason.trim().length < 10) {
-    return res.status(400).json({ message: "Invalid refund reason" });
+  if (!orderId) {
+    return res.status(400).json({
+      message: "Invalid order id"
+    });
   }
 
+  let { reason } = req.body;
+
+  reason = String(reason || "").trim();
+
+  /* =========================
+     REFUND REASON VALIDATION
+  ========================= */
+  if (
+    reason.length < 10 ||
+    reason.length > 1000
+  ) {
+    return res.status(400).json({
+      message:
+        "Refund reason must be between 10 and 1000 characters"
+    });
+  }
+
+  const connection =
+    await db.getConnection();
+
   try {
-    const [[order]] = await db.query(
-      `
-      SELECT status, delivered_at
-      FROM orders
-      WHERE order_id=? AND user_id=?
-      `,
-      [req.params.id, req.session.user.id]
-    );
 
-    if (!order || order.status !== "delivered") {
-      return res.status(400).json({ message: "Refund not allowed" });
-    }
+    await connection.beginTransaction();
 
-    const deliveredTime = new Date(order.delivered_at).getTime();
-    const now = Date.now();
+    /* =========================
+       LOCK ORDER ROW
+    ========================= */
+    const [[order]] =
+      await connection.query(
+        `
+        SELECT
+          order_id,
+          status,
+          delivered_at,
+          refund_requested_at
+        FROM orders
+        WHERE order_id=?
+        AND user_id=?
+        FOR UPDATE
+        `,
+        [
+          orderId,
+          req.session.user.id
+        ]
+      );
 
-    if (now - deliveredTime > SIX_HOURS) {
-      return res.status(403).json({
-        message: "Refund window expired (6 hours)"
+    if (!order) {
+
+      await connection.rollback();
+
+      return res.status(404).json({
+        message: "Order not found"
       });
     }
 
-    await db.query(
+    /* =========================
+       DUPLICATE REFUND CHECK
+    ========================= */
+    if (
+      order.status ===
+      "refund_requested"
+    ) {
+
+      await connection.rollback();
+
+      return res.status(400).json({
+        message:
+          "Refund already requested"
+      });
+    }
+
+    if (
+      order.status ===
+      "refunded"
+    ) {
+
+      await connection.rollback();
+
+      return res.status(400).json({
+        message:
+          "Order already refunded"
+      });
+    }
+
+    /* =========================
+       STATUS VALIDATION
+    ========================= */
+    if (
+      order.status !==
+      "delivered"
+    ) {
+
+      await connection.rollback();
+
+      return res.status(400).json({
+        message:
+          "Refund not allowed"
+      });
+    }
+
+    /* =========================
+       DELIVERY TIME CHECK
+    ========================= */
+    if (!order.delivered_at) {
+
+      await connection.rollback();
+
+      return res.status(400).json({
+        message:
+          "Delivery information missing"
+      });
+    }
+
+    const deliveredTime =
+      new Date(
+        order.delivered_at
+      ).getTime();
+
+    const now = Date.now();
+
+    if (
+      Number.isNaN(
+        deliveredTime
+      )
+    ) {
+
+      await connection.rollback();
+
+      return res.status(500).json({
+        message:
+          "Invalid delivery timestamp"
+      });
+    }
+
+    if (
+      now - deliveredTime >
+      SIX_HOURS
+    ) {
+
+      await connection.rollback();
+
+      return res.status(403).json({
+        message:
+          "Refund window expired (6 hours)"
+      });
+    }
+
+    /* =========================
+       UPDATE ORDER
+    ========================= */
+    await connection.query(
       `
       UPDATE orders
-      SET status='refund_requested',
-          refund_reason=?,
-          refund_requested_at=NOW()
+      SET
+        status='refund_requested',
+        refund_reason=?,
+        refund_requested_at=NOW()
       WHERE order_id=?
       `,
-      [reason.trim(), req.params.id]
+      [
+        reason,
+        orderId
+      ]
     );
 
-    /* 🔥 Notify Admin */
-    const io = req.app.get("io");
+    await connection.commit();
 
-    io.emit("refund-requested", {
-      order_id: req.params.id
+    /* =========================
+       ADMIN NOTIFICATION
+       AFTER COMMIT
+    ========================= */
+    try {
+
+      const io =
+        req.app.get("io");
+
+      if (io) {
+
+        io.emit(
+          "refund-requested",
+          {
+            order_id:
+              orderId,
+            user_id:
+              req.session.user.id,
+            requested_at:
+              new Date()
+          }
+        );
+      }
+
+    } catch (notifyErr) {
+
+      console.error(
+        "Refund notification error:",
+        notifyErr
+      );
+    }
+
+    return res.json({
+      success: true,
+      message:
+        "Refund request submitted successfully"
     });
 
-    res.json({ success: true });
-
   } catch (err) {
-    console.error("Refund error:", err);
-    res.status(500).json({ message: "Refund failed" });
+    await connection.rollback();
+    console.error(
+      "Refund Error:",
+      err
+    );
+
+    return res.status(500).json({
+      message:
+        "Refund request failed"
+    });
+  } finally {
+    connection.release();
   }
 });
 
@@ -489,28 +1103,208 @@ router.post("/:id/refund", auth, async (req, res) => {
    POST /api/orders/reorder
 ===================================== */
 router.post("/reorder", auth, async (req, res) => {
+
   const { items } = req.body;
 
-  if (!Array.isArray(items) || !items.length) {
-    return res.status(400).json({ message: "Invalid items" });
+  if (
+    !Array.isArray(items) ||
+    items.length === 0 ||
+    items.length > 100
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid items"
+    });
   }
 
+  const connection = await db.getConnection();
+
   try {
+
+    await connection.beginTransaction();
+
+    const userId = req.session.user.id;
+
     for (const item of items) {
-      await db.query(
-        `
-        INSERT INTO cart (user_id, name, price, qty)
-        VALUES (?,?,?,?)
-        `,
-        [req.session.user.id, item.name, item.price, item.qty]
-      );
+
+      const productId = Number(item.product_id);
+      const qty = Number(item.qty);
+
+      /* =========================
+         VALIDATION
+      ========================= */
+      if (
+        !Number.isInteger(productId) ||
+        productId < 1
+      ) {
+        continue;
+      }
+
+      if (
+        !Number.isInteger(qty) ||
+        qty < 1 ||
+        qty > 20
+      ) {
+        continue;
+      }
+
+      /* =========================
+         FETCH PRODUCT
+      ========================= */
+      const [[product]] =
+        await connection.query(
+          `
+          SELECT
+            id,
+            name,
+            price,
+            offer_price,
+            stock_qty,
+            availability,
+            is_active
+          FROM products
+          WHERE id=?
+          LIMIT 1
+          `,
+          [productId]
+        );
+
+      /* =========================
+         PRODUCT VALIDATION
+      ========================= */
+      if (
+        !product ||
+        !product.is_active ||
+        product.availability !== "in_stock"
+      ) {
+        continue;
+      }
+
+      const finalPrice =
+        product.offer_price ||
+        product.price;
+
+      const allowedQty =
+        Math.min(
+          qty,
+          product.stock_qty,
+          20
+        );
+
+      if (allowedQty < 1) {
+        continue;
+      }
+
+      /* =========================
+         EXISTING CART ITEM
+      ========================= */
+      const [[existing]] =
+        await connection.query(
+          `
+          SELECT
+            id,
+            qty
+          FROM cart
+          WHERE user_id=?
+          AND product_id=?
+          LIMIT 1
+          `,
+          [
+            userId,
+            productId
+          ]
+        );
+
+      /* =========================
+         UPDATE EXISTING
+      ========================= */
+      if (existing) {
+
+        const newQty =
+          Math.min(
+            existing.qty + allowedQty,
+            product.stock_qty,
+            20
+          );
+
+        await connection.query(
+          `
+          UPDATE cart
+          SET
+            qty=?,
+            price=?,
+            name=?
+          WHERE id=?
+          `,
+          [
+            newQty,
+            finalPrice,
+            product.name,
+            existing.id
+          ]
+        );
+
+      }
+
+      /* =========================
+         INSERT NEW
+      ========================= */
+      else {
+
+        await connection.query(
+          `
+          INSERT INTO cart
+          (
+            user_id,
+            product_id,
+            name,
+            price,
+            qty
+          )
+          VALUES
+          (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+          )
+          `,
+          [
+            userId,
+            product.id,
+            product.name,
+            finalPrice,
+            allowedQty
+          ]
+        );
+      }
     }
 
-    res.json({ success: true });
+    await connection.commit();
+
+    return res.status(200).json({
+      success: true,
+      message: "Items added to cart"
+    });
 
   } catch (err) {
-    console.error("Reorder error:", err);
-    res.status(500).json({ message: "Reorder failed" });
+
+    await connection.rollback();
+
+    console.error(
+      "Reorder Error:",
+      err
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Reorder failed"
+    });
+
+  } finally {
+
+    connection.release();
   }
 });
 

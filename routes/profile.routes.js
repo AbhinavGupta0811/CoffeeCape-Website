@@ -34,7 +34,34 @@ router.get("/", auth, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    let profileImage = "assets/user-default.png";
+
+    if(user.profile_image){
+
+      if(
+        user.profile_image.startsWith("http")
+      ){
+
+        profileImage =
+        user.profile_image;
+
+      }else if(
+        user.profile_image.startsWith("/uploads/")
+      ){
+
+        profileImage =
+        user.profile_image;
+
+      }else{
+
+        profileImage =
+        `/uploads/profile/${user.profile_image}`;
+      }
+    }
+
+    user.profile_image = profileImage;
     res.json(user);
+
   } catch (err) {
     console.error("GET PROFILE ERROR:", err);
     res.status(500).json({ message: "Server error" });
@@ -106,11 +133,7 @@ router.put("/", auth, async (req, res) => {
 });
 
 /* UPLOAD PROFILE IMAGE */
-router.post(
-  "/upload-image",
-  auth,
-  imageUpload.single("profile_image"),
-  async (req, res) => {
+router.post("/upload-image", auth, imageUpload.single("profile_image"), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image uploaded" });

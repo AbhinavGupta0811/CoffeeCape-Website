@@ -14,7 +14,6 @@ router.use(adminMiddleware);
    GET ALL PRODUCTS
 ===================================== */
 router.get("/", async (req, res) => {
-
   try {
 
     const [products] =
@@ -62,7 +61,6 @@ router.get("/", async (req, res) => {
    GET PRODUCTS BY CATEGORY
 ===================================== */
 router.get("/", async (req, res) => {
-
   try {
 
     const { category } =
@@ -235,24 +233,41 @@ router.post(
           ]
         );
 
+      /* =========================
+        GENERATE PRODUCT ID
+      ========================= */
+      const product_id =
+        `CCP${String(result.insertId).padStart(5, "0")}`;
+
+      /* =========================
+        UPDATE PRODUCT ID
+      ========================= */
+      await db.query(
+        `
+        UPDATE products
+        SET product_id = ?
+        WHERE id = ?
+        `,
+        [
+          product_id,
+          result.insertId
+        ]
+      );
+
       const io = req.app.get("io");
       io.emit(
         "productAdded",
         {
-          productId:
-            result.insertId
+          id: result.insertId,
+          product_id
         }
       );
 
       res.status(201).json({
-
         success: true,
-
-        message:
-          "Product added successfully",
-
-        productId:
-          result.insertId
+        message: "Product added successfully",
+        id: result.insertId,
+        product_id
       });
 
     } catch (err) {

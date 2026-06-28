@@ -186,37 +186,49 @@
                         <img src="assets/Dinner-night.png" alt="Dinner Night">
                         <h3>Dinner Nights</h3>
                         <p>Enjoy fine dining with live acoustic music every Friday evening.</p>
-                        <a href="booking.html?event=dinner" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="dinner">
+                            Book Now
+                        </a>
                     </li>
                     <li class="activity-card">
                         <img src="assets/get-together.png" alt="Get Together">
                         <h3>Friendly Get-Togethers</h3>
                         <p>Bring your crew and hang out over your favorite brews.</p>
-                        <a href="booking.html?event=get" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="get">
+                            Book Now
+                        </a>
                     </li>
                     <li class="activity-card">
                         <img src="assets/karaoke.jpg" alt="Karaoke Night">
                         <h3>Karaoke Nights</h3>
                         <p>Sing your heart out and cheer for friends every Saturday night!</p>
-                        <a href="booking.html?event=karaoke" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="karaoke">
+                            Book Now
+                        </a>
                     </li>
                     <li class="activity-card">
                         <img src="assets/open-mic-night.png" alt="Open Mic">
                         <h3>Open Mic Nights</h3>
                         <p>Poetry, comedy, or stories — the mic is yours every Thursday.</p>
-                        <a href="booking.html?event=openmic" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="openmic">
+                            Book Now
+                        </a>
                     </li>
                     <li class="activity-card">  
                         <img src="assets/tasting-event.png" alt="Tasting Event">
                         <h3>Tasting Event</h3>
                         <p>Sample a curated selection of brews, desserts, and seasonal flavors.</p>
-                        <a href="booking.html?event=tasting" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="tasting">
+                            Book Now
+                        </a>
                     </li>
                     <li class="activity-card">
                         <img src="assets/birthday-party.png" alt="Birthday Party">
                         <h3>Private Celebrations</h3>
                         <p>Book our space for your birthdays or small private parties.</p>
-                        <a href="booking.html?event=private" class="activity-button">Book Now</a>
+                        <a href="#" class="activity-button book-now-btn" data-event="private">
+                            Book Now
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -443,6 +455,104 @@
             </div>
         </footer>
     </main>
+
+    <!-- PARTICIPATE / AUDIENCE BOOKING CHOICE MODAL -->
+    <div id="bookingChoiceModal" class="booking-choice-modal-overlay" aria-hidden="true">
+        <div class="booking-choice-modal" role="dialog" aria-modal="true" aria-labelledby="bookingChoiceTitle">
+
+            <!-- Close Button -->
+            <button type="button" id="bookingChoiceClose" class="booking-choice-close" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Header -->
+            <div class="booking-choice-header">
+                <div class="booking-event-icon" id="bookingEventIcon">
+                    🎤
+                </div>
+
+                <h2 id="bookingChoiceTitle" class="booking-choice-title">
+                    Karaoke Night
+                </h2>
+
+                <p id="bookingChoiceDescription" class="booking-choice-description">
+                    Select how you'd like to enjoy this event.
+                </p>
+            </div>
+
+            <!-- Body -->
+            <div id="bookingChoiceBody" class="booking-choice-body">
+                <!-- ===============================
+                    PARTICIPATE CARD
+                ================================ -->
+                <div class="booking-option-card" id="participantCard">
+                    <div class="booking-option-badge">
+                        <i class="fa-solid fa-microphone"></i>
+                    </div>
+                    <h3>Participate</h3>
+                    <p>
+                        Join the activity as an active participant
+                        and enjoy the complete experience.
+                    </p>
+
+                    <ul class="booking-option-list">
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Interactive Experience
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Event Participation
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Full Access
+                        </li>
+                    </ul>
+
+                    <button type="button" id="participantBookingBtn" class="booking-option-btn participant-btn">
+                        Continue as Participant
+                    </button>
+                </div>
+
+                <!-- ===============================
+                    AUDIENCE CARD
+                ================================ -->
+                <div class="booking-option-card" id="audienceCard">
+                    <div class="booking-option-badge audience">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h3>Audience</h3>
+                    <p>
+                        Reserve your seat and enjoy the event
+                        comfortably as an audience member.
+                    </p>
+                    <ul class="booking-option-list">
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Comfortable Seating
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Live Entertainment
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Family Friendly
+                        </li>
+                    </ul>
+
+                    <button type="button" id="audienceBookingBtn" class="booking-option-btn audience-btn">
+                        Continue as Audience
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scroll-to-Top Button -->
     <!-- <button id="scrollTopBtn" class="scroll-top">

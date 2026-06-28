@@ -104,7 +104,7 @@ pool.on("enqueue", () => {
    Prevents "Connection closed" errors on in-flight queries.
 ===================================================== */
 async function gracefulShutdown(signal) {
-  console.log(`\n⚠️  ${signal} received — closing DB pool...`);
+  console.log(`\⚠️  ${signal} received — closing DB pool...`);
   try {
     await pool.end();
     console.log("✅ DB pool closed cleanly");

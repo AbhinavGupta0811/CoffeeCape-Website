@@ -96,7 +96,14 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
       body: JSON.stringify({ email, password })
     });
 
-    const result = await res.json();
+    let result;
+
+    try {
+      result = await res.json();
+    } catch {
+      btn.disabled = false;
+      return showToast("Invalid email or password", "error");
+    }
 
     if (res.status === 401) {
       btn.disabled = false;
@@ -122,7 +129,11 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
       return showToast(result.message || "Login failed", "error");
     }
 
-    loginConfirmedRedirect(2, result.user.role);
+    console.log("FULL LOGIN RESPONSE:", result);
+    console.log("USER OBJECT:", result.user);
+    console.log("USER ROLE:", result.user?.role);
+
+    loginConfirmedRedirect(result.user.role);
 
   } catch {
     showToast("Network error occurred", "error");
@@ -369,21 +380,35 @@ document.getElementById("resendOtp")?.addEventListener("click", async () => {
 /************************************************************
  * LOGIN REDIRECT
  ************************************************************/
-function loginConfirmedRedirect(seconds = 2, role = "user") {
-  let timeLeft = seconds;
+function loginConfirmedRedirect(role = "user") {
 
-  const interval = setInterval(() => {
-    showToast(`Redirecting in ${timeLeft}s...`, "success", 1000);
-    timeLeft--;
+  console.log("Role received:", role);
+  console.log("Role type:", typeof role);
 
-    if (timeLeft < 0) {
-      clearInterval(interval);
+  if (String(role).trim().toLowerCase() === "admin") {
 
-      if (role === "admin") {
-        window.location.href = "/admin/dashboard.html";
-      } else {
-        window.location.href = "/Index.html";
-      }
-    }
-  }, 1000);
+    showToast(
+      "Login successful! Redirecting to admin dashboard...",
+      "success",
+      1500
+    );
+
+    setTimeout(() => {
+      window.location.href = "/admin/dashboard.html";
+    }, 1500);
+
+  } else {
+
+    showToast(
+      "Login successful! Redirecting...",
+      "success",
+      1500
+    );
+
+    setTimeout(() => {
+      window.location.href = "/Index.html";
+    }, 1500);
+
+  }
+
 }

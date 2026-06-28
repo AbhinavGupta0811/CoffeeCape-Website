@@ -166,8 +166,7 @@ document.querySelectorAll(".toggle-password").forEach(icon => {
 /* ==========================================
    PASSWORD VALIDATION
 ========================================== */
-const strongPassword =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 /* ==========================================
    RESET PASSWORD

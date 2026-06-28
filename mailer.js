@@ -46,7 +46,6 @@ if (process.env.NODE_ENV !== "production") {
 /* =====================================================
    SECURITY HELPERS
 ===================================================== */
-
 /**
  * escapeHTML — prevents XSS in all HTML email templates.
  * Must be applied to every user-supplied string before
@@ -383,31 +382,31 @@ function generateBillTemplate(order) {
   `;
 
   const text = `
-CoffeeCape Payment Receipt
-==========================
-Order ID:        ${order.order_id}
-Customer Name:   ${order.name}
-Phone:           ${order.phone}
-Address:         ${order.address}
-Date:            ${new Date(order.created_at).toLocaleString()}
+    CoffeeCape Payment Receipt
+    ==========================
+    Order ID:        ${order.order_id}
+    Customer Name:   ${order.name}
+    Phone:           ${order.phone}
+    Address:         ${order.address}
+    Date:            ${new Date(order.created_at).toLocaleString()}
 
-Items:
-${itemsText}
+    Items:
+    ${itemsText}
 
-Price Breakdown:
-  Subtotal:     ₹${Number(order.subtotal).toFixed(2)}
-  GST:          ₹${Number(order.gst).toFixed(2)}
-  Delivery Fee: ₹${Number(order.delivery_fee).toFixed(2)}
-  Platform Fee: ₹${Number(order.platform_fee).toFixed(2)}
-  Packing Fee:  ₹${Number(order.packing_fee).toFixed(2)}
-  Tip:          ₹${Number(order.tip).toFixed(2)}
-  Discount:     ₹${Number(order.discount).toFixed(2)}
-  Grand Total:  ₹${Number(order.total).toFixed(2)}
+    Price Breakdown:
+      Subtotal:     ₹${Number(order.subtotal).toFixed(2)}
+      GST:          ₹${Number(order.gst).toFixed(2)}
+      Delivery Fee: ₹${Number(order.delivery_fee).toFixed(2)}
+      Platform Fee: ₹${Number(order.platform_fee).toFixed(2)}
+      Packing Fee:  ₹${Number(order.packing_fee).toFixed(2)}
+      Tip:          ₹${Number(order.tip).toFixed(2)}
+      Discount:     ₹${Number(order.discount).toFixed(2)}
+      Grand Total:  ₹${Number(order.total).toFixed(2)}
 
-Payment Method: ${order.payment_method}
-Payment Status: Paid
+    Payment Method: ${order.payment_method}
+    Payment Status: Paid
 
-Thank you for ordering with CoffeeCape!
+    Thank you for ordering with CoffeeCape!
   `.trim();
 
   return { html, text };
@@ -471,28 +470,28 @@ function generateBookingBillTemplate(booking) {
   `;
 
   const text = `
-CoffeeCape Booking Receipt
-==========================
-Booking ID:    ${booking.booking_id}
-Customer:      ${booking.full_name}
-Phone:         ${booking.phone}
-Email:         ${booking.email}
+    CoffeeCape Booking Receipt
+    ==========================
+    Booking ID:    ${booking.booking_id}
+    Customer:      ${booking.full_name}
+    Phone:         ${booking.phone}
+    Email:         ${booking.email}
 
-Event Date:    ${new Date(booking.event_date).toDateString()}
-Time Slot:     ${booking.event_time}
-Event Type:    ${booking.event_type}
-Guests:        ${booking.guestCount}
-Special Request: ${booking.specialRequest || "None"}
+    Event Date:    ${new Date(booking.event_date).toDateString()}
+    Time Slot:     ${booking.event_time}
+    Event Type:    ${booking.event_type}
+    Guests:        ${booking.guestCount}
+    Special Request: ${booking.specialRequest || "None"}
 
-Total Amount:     ₹${Number(booking.total).toFixed(2)}
-Amount Paid:      ₹${Number(booking.paid_amount).toFixed(2)}
-Remaining Amount: ₹${(Number(booking.total) - Number(booking.paid_amount)).toFixed(2)}
+    Total Amount:     ₹${Number(booking.total).toFixed(2)}
+    Amount Paid:      ₹${Number(booking.paid_amount).toFixed(2)}
+    Remaining Amount: ₹${(Number(booking.total) - Number(booking.paid_amount)).toFixed(2)}
 
-Payment Method: ${booking.payment_method}
-Payment Status: ${booking.payment_status}
-Booking Status: ${booking.status}
+    Payment Method: ${booking.payment_method}
+    Payment Status: ${booking.payment_status}
+    Booking Status: ${booking.status}
 
-Your booking is confirmed. We look forward to hosting you!
+    Your booking is confirmed. We look forward to hosting you!
   `.trim();
 
   return { html, text };
@@ -610,20 +609,20 @@ function generateBookingConfirmedTemplate(booking) {
   `;
 
   const text = `
-Booking Confirmed — CoffeeCape
-===============================
-Hi ${booking.full_name || "Guest"},
+    Booking Confirmed — CoffeeCape
+    ===============================
+    Hi ${booking.full_name || "Guest"},
 
-Your booking has been confirmed!
+    Your booking has been confirmed!
 
-Booking ID:       ${booking.booking_id}
-Event Date:       ${new Date(booking.event_date).toDateString()}
-Time:             ${booking.event_time}
-Assigned Address: ${booking.assigned_address}
+    Booking ID:       ${booking.booking_id}
+    Event Date:       ${new Date(booking.event_date).toDateString()}
+    Time:             ${booking.event_time}
+    Assigned Address: ${booking.assigned_address}
 
-Please arrive on time. We look forward to hosting you!
+    Please arrive on time. We look forward to hosting you!
 
-© ${new Date().getFullYear()} CoffeeCape
+    © ${new Date().getFullYear()} CoffeeCape
   `.trim();
 
   return { html, text };

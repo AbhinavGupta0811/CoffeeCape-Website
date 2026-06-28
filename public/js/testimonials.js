@@ -63,7 +63,7 @@ async function safeFetch(url, options = {}) {
       data = await res.json();
     } catch {}
 
-    /* 🔐 AUTH REQUIRED */
+    /* AUTH REQUIRED */
     if (res.status === 401) {
       showToast("Please login to submit a review.", "warning");
       setTimeout(() => {
@@ -97,7 +97,10 @@ async function safeFetch(url, options = {}) {
       return null;
     }
 
-    alert("Server error");
+    showToast(
+      "Server error. Please try again later.",
+      "error"
+    );
     return null;
   }
 }
@@ -108,13 +111,6 @@ async function loadReviews() {
   if (!data) return;
   reviewsCache = data;
   renderReviews(reviewsCache);
-}
-
-function renderReviews(reviews) {
-  testimonialsEl.innerHTML = "";
-  emptyState.style.display = reviews.length ? "none" : "block";
-
-  reviews.forEach(r => testimonialsEl.appendChild(createCard(r)));
 }
 
 /* ===================== RENDER ===================== */
@@ -131,7 +127,15 @@ function createCard(r) {
   el.className = "review";
   el.dataset.id = r.id;
 
-  const avatar = r.avatar || "assets/user-default.png";
+  let avatar = r.avatar || "assets/user-default.png";
+
+  if (
+    avatar &&
+    !avatar.startsWith("/") &&
+    !avatar.startsWith("assets/")
+  ){
+    avatar = "/" + avatar;
+  }
 
   el.innerHTML = `
     <div class="review-header">
@@ -156,45 +160,104 @@ async function submitReview(e) {
   e.preventDefault();
 
   if (!selectedRating) {
-    showToast("Please select a rating", "warning");
+    showToast(
+      "Please select a rating",
+      "warning"
+    );
     return;
   }
 
   if (!reviewInput.value.trim()) {
-    showToast("Please enter your review", "warning");
+    showToast(
+      "Please enter your review",
+      "warning"
+    );
     return;
   }
 
-  // 🔒 Disable button to prevent double submit
-  const submitBtn = form.querySelector("button[type='submit']");
+  const submitBtn =
+    form.querySelector(
+      "button[type='submit']"
+    );
+
+  const originalText = submitBtn.innerHTML;
   submitBtn.disabled = true;
+  submitBtn.innerHTML = `
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    Submitting...
+  `;
 
-  const review = await safeFetch(API_BASE, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      rating: selectedRating,
-      comment: reviewInput.value.trim()
-    })
-  });
+  showToast(
+    "☕ Sharing your CoffeeCape experience...",
+    "info"
+  );
 
-  // Re-enable button
-  submitBtn.disabled = false;
+  const review =
+    await safeFetch(
+      API_BASE,
+      {
+        method: "POST",
 
-  if (!review) return;
+        headers: {
+          "Content-Type":
+          "application/json"
+        },
 
-  // ✅ Update UI first
-  reviewsCache.unshift(review);
-  renderReviews(reviewsCache);
+        body: JSON.stringify({
+          rating:
+          selectedRating,
+          comment:
+          reviewInput
+          .value
+          .trim()
+        })
+      }
+    );
 
-  // ✅ Reset form
+  if (!review) {
+
+    submitBtn.disabled =
+      false;
+
+    submitBtn.innerHTML =
+      originalText;
+
+    return;
+  }
+
+  submitBtn.innerHTML = `
+    <i class="fa-solid fa-circle-check"></i>
+    Submitted
+  `;
+
+  reviewsCache.unshift(
+    review
+  );
+
+  renderReviews(
+    reviewsCache
+  );
+
   form.reset();
-  selectedRating = 0;
-  document.querySelectorAll(".star-input span")
-    .forEach(star => star.classList.remove("active"));
 
-  // ✅ THEN show success message
-  showToast("Review submitted successfully!", "success");
+  selectedRating = 0;
+
+  document.querySelectorAll(".star-input span").forEach(
+    star =>
+      star.classList.remove(
+        "active"
+      )
+  );
+
+  showToast(
+    "❤️ Thank you! Your review has been submitted successfully.",
+    "success"
+  );
+
+  setTimeout(() => {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+  }, 1000);
 }
 
 /* ===================== STARS ===================== */

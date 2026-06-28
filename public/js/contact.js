@@ -6,22 +6,55 @@ const API = {
 };
 
 /* =========================
+   LIMITS
+========================= */
+const LIMITS = {
+  SUBJECT_MIN: 3,
+  SUBJECT_MAX: 100,
+  MESSAGE_MIN: 10,
+  MESSAGE_MAX: 2000
+};
+
+/* =========================
    TOAST NOTIFICATION
 ========================= */
 function showToast(message, type = "info") {
-  const container = document.getElementById("toast-container");
+  const container =
+    document.getElementById(
+      "toast-container"
+    );
+
   if (!container) return;
 
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <div>${message}</div>
-    <span>&times;</span>
-  `;
+  const toast =
+    document.createElement("div");
 
-  container.appendChild(toast);
+  toast.className =
+    `toast ${type}`;
 
-  toast.querySelector("span").onclick = () => toast.remove();
+  const msg =
+    document.createElement("div");
+
+  msg.textContent =
+    message;
+
+  const close =
+    document.createElement("span");
+
+  close.textContent =
+    "×";
+
+  close.onclick =
+    () => toast.remove();
+
+  toast.append(
+    msg,
+    close
+  );
+
+  container.appendChild(
+    toast
+  );
 
   setTimeout(() => {
     toast.remove();
@@ -29,165 +62,347 @@ function showToast(message, type = "info") {
 }
 
 /* =========================
+   HELPERS
+========================= */
+function clean(value) {
+  return String(
+    value || ""
+  ).trim();
+}
+
+function validate(subject, message) {
+
+  if (!subject ) {
+    return "Subject is required";
+  }
+
+  if (
+    subject.length <
+      LIMITS.SUBJECT_MIN ||
+    subject.length >
+      LIMITS.SUBJECT_MAX
+  ) {
+    return "Subject must be 3–100 characters";
+  }
+
+  if (
+    message.length <
+      LIMITS.MESSAGE_MIN
+  ) {
+    return "Message must be at least 10 characters";
+  }
+
+  if (
+    message.length >
+      LIMITS.MESSAGE_MAX
+  ) {
+    return "Message cannot exceed 2000 characters";
+  }
+
+  return null;
+}
+
+/* =========================
    CONTACT FORM SCRIPT
 ========================= */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const form = document.getElementById("contactForm");
 
-  // ✅ TARGET SPECIFIC FORM
-  const form = document.getElementById("contactForm");
+    if (!form) return;
+    const submitBtn = form.querySelector("button");
+    const nameInput = form.querySelector("input[name='name']");
+    const emailInput = form.querySelector("input[name='email']");
+    const subjectInput = form.querySelector("input[name='subject']");
+    const messageInput = form.querySelector("textarea[name='message']");
 
-  // 🔐 SAFETY GUARD (prevents your error)
-  if (!form) return;
-
-  const submitBtn = form.querySelector("button");
-
-  /* =========================
-     AUTO-FILL FROM REDIRECT
-  ========================= */
-  const params = new URLSearchParams(window.location.search);
-
-  if (params.get("name")) {
-    form.querySelector("input[name='name']").value = params.get("name");
-  }
-
-  if (params.get("email")) {
-    form.querySelector("input[name='email']").value = params.get("email");
-  }
-
-  if (params.get("message")) {
-    form.querySelector("textarea[name='message']").value = params.get("message");
-  }
-
-  // Optional: clean URL after autofill
-  if ([...params.keys()].length) {
-    history.replaceState({}, document.title, window.location.pathname);
-  }
-
-  /* -------------------------
-     FORM SUBMIT
-  ------------------------- */
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    /* -------------------------
-       GET FORM VALUES (SAFE)
-    ------------------------- */
-    const name = form.querySelector("input[name='name']").value.trim();
-    const email = form.querySelector("input[name='email']").value.trim();
-    const subject =
-      form.querySelector("input[name='subject']")?.value.trim() || "";
-    const message = form.querySelector("textarea[name='message']").value.trim();
-
-    /* -------------------------
-       FRONTEND VALIDATION
-    ------------------------- */
-    if (!name || !email || !message) {
-      showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> All required fields are required`, "warning");
-      return;
-    }
-
-    if (message.length < 10) {
-      showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Message must be at least 10 characters long`, "warning");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Please enter a valid email address`, "warning");
-      return;
-    }
-
-    /* -------------------------
-       BUTTON LOADING STATE
-    ------------------------- */
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-
+    /* =========================
+      LOAD LOGGED-IN USER
+    ========================= */
     try {
-      const response = await fetch(API.CONTACT_SUBMIT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", 
-        body: JSON.stringify({
-          name,
-          email,
-          subject,
-          message
-        })
-      });
-
-      let result = {};
-      try {
-        result = await response.json();
-      } catch {
-        result = {};
-      }
-
-      if (response.status === 401) {
-        showToast(
-          `<i class="fa-solid fa-lock" style="margin-right:6px;"></i> Please login to send a message.`,
-          "warning"
-        );
-        setTimeout(() => {
-          window.location.href = "Auth.html";
-        }, 1500);
-        return;
-      }
-
-      if (response.status === 403) {
-        showToast(
-          `<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Access denied.`,
-          "error"
-        );
-        return;
-      }
-
-      if (response.status === 404) {
-        window.location.href = "error.html?type=notfound";
-        return;
-      }
-
-      if (response.status === 409) {
-        showToast(
-          `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i> Duplicate submission detected.`,
-          "warning"
-        );
-        return;
-      }
-
-      if (response.status === 500) {
-        window.location.href = "error.html?type=server";
-        return;
-      }
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Failed to send message");
-      }
-
-      showToast(
-        `<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i> Message sent successfully. Our team will contact you soon.`,
-        "success"
+      const res = await fetch(
+        "/api/auth/me",
+        {
+          credentials: "include"
+        }
       );
 
-      form.reset();
-    } catch (error) {
-      console.error("Contact API Error:", error);
+      let data = {};
+
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      /* NOT LOGGED IN */
+      if (res.status === 401) {
+        showToast(
+          "Please login first",
+          "warning"
+        );
+
+        setTimeout(() => {
+          location.href =
+            "Auth.html";
+        }, 1500);
+
+        return;
+      }
+
+      /* SERVER ERROR */
+      if (res.status === 500) {
+        location.href = "error.html?type=server";
+        return;
+      }
+
+      /* VALID USER */
+      if ( res.ok && data.success && data.user) {
+        if (nameInput) {
+          const fullName = [data.user.first_name, data.user.last_name].filter(Boolean).join(" ");
+          nameInput.value = fullName || "";
+          nameInput.readOnly = true;
+        }
+        if (emailInput) {
+          emailInput.value = data.user.email || "";
+          emailInput.readOnly = true;
+        }
+      }
+    } catch (err) {
+      console.error(
+        "User fetch failed:",
+        err
+      );
 
       if (!navigator.onLine) {
-        window.location.href = "error.html?type=network";
-        return;
+        location.href = "error.html?type=network";
       }
-      
-      showToast(
-        `<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Failed to send message. Please try again later.`,
-        "error"
-      );
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit";
     }
-  });
-});
-floatingHomeBtn.onclick = () => {
-  location.href = "index.html";
-};
+
+    /* MESSAGE LIMIT */
+    if (messageInput) {
+      messageInput.maxLength =
+        LIMITS.MESSAGE_MAX;
+    }
+
+    /* AUTO FILL */
+    const params =
+      new URLSearchParams(
+        location.search
+      );
+
+    if (params.get("message")){
+      messageInput.value = clean( params.get("message"));
+    }
+
+    if (
+      [...params.keys()]
+        .length
+    ) {
+
+      history.replaceState(
+        {},
+        document.title,
+        location.pathname
+      );
+
+    }
+
+    /* -------------------------
+       FORM SUBMIT
+    ------------------------- */
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (submitBtn.disabled) return;
+
+        const subject =
+          clean(
+            subjectInput?.value
+          );
+
+        const message =
+          clean(
+            messageInput?.value
+          );
+
+        const error =
+          validate(
+            subject,
+            message
+          );
+
+        if (error) {
+          showToast(
+            error,
+            "warning"
+          );
+          return;
+        }
+
+        submitBtn.disabled = true;
+
+        const oldText =
+          submitBtn.textContent;
+
+        submitBtn.textContent =
+          "Sending...";
+
+        try {
+
+          const controller =
+            new AbortController();
+
+          const timeout =
+            setTimeout(
+              () =>
+                controller.abort(),
+              15000
+            );
+
+          const response =
+            await fetch(
+              API.CONTACT_SUBMIT,
+              {
+                method:
+                  "POST",
+
+                headers:
+                {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                credentials:
+                  "include",
+
+                signal:
+                  controller.signal,
+
+                body:
+                  JSON.stringify(
+                    {
+                      subject,
+                      message
+                    }
+                  )
+              }
+            );
+
+          clearTimeout(timeout);
+
+          let result = {};
+
+          try {
+            result = await response.json();
+          } catch {}
+
+          /* LOGIN */
+          if (response.status === 401) {
+            showToast(
+              "Please login first",
+              "warning"
+            );
+
+            setTimeout(
+              () => {
+                location.href =
+                  "Auth.html";
+              },
+              1500
+            );
+            return;
+          }
+
+          /* VALIDATION */
+          if (result.errors) {
+            showToast(
+              result.errors.join(
+                ", "
+              ),
+              "warning"
+            );
+            return;
+          }
+
+          /* DUPLICATE */
+          if (response.status === 409) {
+            showToast(
+              "Duplicate message detected",
+              "warning"
+            );
+            return;
+          }
+
+          /* RATE LIMIT */
+          if (response.status === 429) {
+            showToast(
+              result.message ||
+                "Too many requests",
+              "warning"
+            );
+            return;
+          }
+
+          /* SERVER */
+          if (response.status === 500) {
+            location.href =
+              "error.html?type=server";
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error(
+              result.message
+            );
+          }
+
+          showToast(
+            "Message sent successfully. Our team will contact you soon.",
+            "success"
+          );
+
+          const savedName = nameInput.value;
+          const savedEmail = emailInput.value;
+
+          form.reset();
+
+          nameInput.value = savedName;
+          emailInput.value = savedEmail;
+
+          nameInput.readOnly = true;
+          emailInput.readOnly = true;
+
+        } catch (error) {
+          console.error(
+            "Contact API Error:",
+            error
+          );
+
+          if (!navigator.onLine) {
+            location.href =
+              "error.html?type=network";
+            return;
+          }
+
+          showToast(
+            "Failed to send message. Please try again later.",
+            "error"
+          );
+
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = oldText;
+        }
+      }
+    );
+  }
+);
+
+/* =========================
+   HOME BUTTON
+========================= */
+if (typeof floatingHomeBtn !== "undefined") {
+  floatingHomeBtn.onclick = () => {
+    location.href = "index.html";
+  };
+}

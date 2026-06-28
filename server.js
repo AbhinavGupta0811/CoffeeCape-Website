@@ -14,6 +14,7 @@ const db = require("./db");
 ================================ */
 const authRoutes = require("./routes/auth.routes");
 const bookingRoutes = require("./routes/booking.routes");
+const audienceRoutes = require("./routes/audience.routes");
 const cartRoutes = require("./routes/cart.routes");
 const profileRoutes = require("./routes/profile.routes");
 const passwordRoutes = require("./routes/password.routes");
@@ -112,6 +113,7 @@ app.use(
 ================================ */
 app.use("/api/auth", authRoutes);
 app.use("/api/booking", bookingRoutes);
+app.use("/api/audience", audienceRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/password", passwordRoutes);

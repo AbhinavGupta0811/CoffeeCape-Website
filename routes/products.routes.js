@@ -14,6 +14,7 @@ router.get("/", async (req, res) => {
       `
       SELECT
         id,
+        product_id,
         category,
         subcategory,
         name,
@@ -24,6 +25,7 @@ router.get("/", async (req, res) => {
         stock_qty,
         availability,
         badge,
+        prep_time,
         rating,
         is_featured
       FROM products
@@ -81,6 +83,7 @@ router.get("/category/:category", async (req, res) => {
       `
       SELECT
         id,
+        product_id,
         category,
         subcategory,
         name,
@@ -91,6 +94,7 @@ router.get("/category/:category", async (req, res) => {
         stock_qty,
         availability,
         badge,
+        prep_time,
         rating,
         is_featured
       FROM products
@@ -122,18 +126,42 @@ router.get("/category/:category", async (req, res) => {
 /* =====================================
    GET SINGLE PRODUCT
 ===================================== */
-router.get("/:id", async (req, res) => {
+router.get("/:product_id", async (req, res) => {
 
   try {
+    const { product_id } = req.params;
+
+    if (
+      !/^[A-Z]{3}[0-9]{5}$/.test(product_id)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product id"
+      });
+    }
 
     const [products] = await db.query(
       `
-      SELECT * FROM products
-      WHERE id = ?
+      SELECT id,
+        product_id,
+        category,
+        subcategory,
+        name,
+        description,
+        price,
+        offer_price,
+        image,
+        availability,
+        badge,
+        prep_time,
+        rating,
+        is_featured
+      FROM products
+      WHERE product_id = ?
       AND is_active = TRUE
       LIMIT 1
       `,
-      [req.params.id]
+      [req.params.product_id]
     );
 
     if (!products.length) {

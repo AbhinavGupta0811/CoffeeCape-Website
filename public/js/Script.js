@@ -1,5 +1,5 @@
 /************************************************************
- * AUTH HELPERS (SERVER COMPATIBLE)
+ * AUTH HELPERS
  ************************************************************/
 async function getSessionUser() {
   try {
@@ -259,40 +259,57 @@ if (typeof Swiper !== "undefined") {
 })();
 
 /************************************************************
- * CONTACT FORM (MAIN LANDING PAGE ONLY)
- ************************************************************/
+ * CONTACT FORM (MAIN LANDING PAGE)
+************************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  const landingForm = document.getElementById("landingContactForm");
+  const landingForm =
+    document.getElementById(
+      "landingContactForm"
+    );
 
   if (!landingForm) return;
 
-  landingForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+  landingForm.addEventListener(
+    "submit",
+    (e) => {
+      e.preventDefault();
 
-    const name = landingForm.name.value.trim();
-    const email = landingForm.email.value.trim();
-    const message = landingForm.message.value.trim();
+      const message =
+        landingForm.message.value.trim();
 
-    // Basic validation
-    if (!name || !email || !message) {
-      showToast("Please fill in all fields", "warning");
-      return;
+      if (!message) {
+        showToast(
+          "Please enter your message",
+          "warning"
+        );
+        return;
+      }
+
+      if (message.length < 10) {
+        showToast(
+          "Message should be at least 10 characters",
+          "warning"
+        );
+        return;
+      }
+
+      if (message.length > 2000) {
+        showToast(
+          "Message is too long",
+          "warning"
+        );
+        return;
+      }
+
+      const params =
+        new URLSearchParams({
+          message
+        });
+
+      window.location.href =
+        `contact.html?${params.toString()}`;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showToast("Please enter a valid email address", "warning");
-      return;
-    }
-
-    const params = new URLSearchParams({
-      name,
-      email,
-      message
-    });
-
-    window.location.href = `contact.html?${params.toString()}`;
-  });
+  );
 });
 
 /************************************************************
@@ -373,22 +390,162 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =====================================================
      SCROLL TO TOP
-  ===================================================== */
-  const scrollTopBtn = document.getElementById("scrollTopBtn");
+===================================================== */
+const scrollTopBtn = document.getElementById("scrollTopBtn");
 
-  if (scrollTopBtn) {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        scrollTopBtn.classList.add("show");
-      } else {
-        scrollTopBtn.classList.remove("show");
+if (scrollTopBtn) {
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      scrollTopBtn.classList.add("show");
+    } else {
+      scrollTopBtn.classList.remove("show");
+    }
+  });
+
+  scrollTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+}
+
+/* ==========================================================
+   BOOKING CHOICE MODAL
+========================================================== */
+(() => {
+    const modal = document.getElementById("bookingChoiceModal");
+    if (!modal) return;
+    const closeBtn = document.getElementById("bookingChoiceClose");
+    const title = document.getElementById("bookingChoiceTitle");
+    const description = document.getElementById("bookingChoiceDescription");
+    const icon = document.getElementById("bookingEventIcon");
+
+    const body = document.getElementById("bookingChoiceBody");
+    const participantBtn = document.getElementById("participantBookingBtn");
+    const audienceBtn = document.getElementById("audienceBookingBtn");
+    let selectedEvent = "";
+
+    /* =====================================================
+       EVENT CONFIGURATION
+    ===================================================== */
+    const EVENTS = {
+      karaoke: {
+        title: "Karaoke Night",
+        icon: "🎤",
+        description: "Sing your favorite songs or simply enjoy the performances.",
+        audience: true
+      },
+
+      openmic: {
+        title: "Open Mic Night",
+        icon: "🎙️",
+        description: "Take the stage or enjoy talented performers from the audience.",
+        audience: true
+      },
+
+      tasting: {
+        title: "Coffee Tasting Event",
+        icon: "☕",
+        description: "Experience premium coffee tasting with our expert baristas.",
+        audience: true
+      },
+
+      dinner: {
+        title: "Dinner Night",
+        icon: "🍽️",
+        description: "Reserve your table and enjoy an unforgettable dining experience.",
+        audience: false
+      },
+
+      get: {
+        title: "Friendly Get-Together",
+        icon: "🤝",
+        description: "Spend quality time with friends in a relaxing coffee atmosphere.",
+        audience: false
+      },
+
+      private: {
+        title: "Private Celebration",
+        icon: "🎂",
+        description: "Celebrate birthdays, anniversaries and special occasions with us.",
+        audience: false
+      }
+    };
+
+    /* =====================================================
+       OPEN MODAL
+    ===================================================== */
+    document.querySelectorAll(".book-now-btn").forEach(button => {
+        button.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          selectedEvent = button.dataset.event;
+          const event = EVENTS[selectedEvent];
+
+          if (!event) {
+            console.error(
+              "[BOOKING MODAL] Invalid event:",
+              selectedEvent
+            );
+            window.location.href = "error.html?type=invalid-event";
+            return;
+          }
+
+          title.textContent = event.title;
+          description.textContent = event.description;
+          icon.textContent = event.icon;
+          if (event.audience) {
+            body.classList.remove("participant-only");
+          } else {
+            body.classList.add("participant-only");
+          }
+
+          modal.classList.add("active");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        });
+    });
+
+    /* =====================================================
+       CLOSE MODAL
+    ===================================================== */
+    function closeModal() {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    closeBtn.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
       }
     });
 
-    scrollTopBtn.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        modal.classList.contains("active")
+      ) {
+        closeModal();
+      }
     });
-}
+
+    /* =====================================================
+       PARTICIPANT
+    ===================================================== */
+    participantBtn.addEventListener("click", () => {
+      window.location.href =
+        `booking.html?event=${selectedEvent}`;
+    });
+
+    /* =====================================================
+       AUDIENCE
+    ===================================================== */
+    audienceBtn.addEventListener("click", () => {
+      window.location.href =
+        `audience-booking.html?event=${selectedEvent}`;
+    });
+})();
