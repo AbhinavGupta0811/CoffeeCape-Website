@@ -693,6 +693,96 @@ async function sendReviewThankYouMail(to, name, rating) {
 }
 
 /* =====================================================
+   AUDIENCE PAYMENT ACKNOWLEDGEMENT TEMPLATE
+===================================================== */
+function generateAudiencePaymentTemplate(booking) {
+  const html = `
+    <div style="
+      font-family:Arial;
+      max-width:650px;
+      margin:auto;
+      padding:25px;
+      border:1px solid #eee;
+      border-radius:10px;
+    ">
+
+      <h2 style="color:#16a34a;text-align:center;">
+        🎉 Audience Booking Confirmed
+      </h2>
+
+      <p>Hi <strong>${escapeHTML(booking.full_name)}</strong>,</p>
+
+      <p>
+        Your audience booking has been successfully confirmed.
+      </p>
+
+      <hr>
+
+      <p><strong>Booking ID:</strong> ${escapeHTML(booking.audience_booking_id)}</p>
+      <p><strong>Event:</strong> ${escapeHTML(booking.event_type)}</p>
+      <p><strong>Category:</strong> ${escapeHTML(booking.event_category)}</p>
+      <p><strong>Date:</strong> ${new Date(booking.event_date).toDateString()}</p>
+      <p><strong>Time:</strong> ${escapeHTML(booking.event_time)}</p>
+      <p><strong>Audience:</strong> ${booking.audience_count}</p>
+
+      <hr>
+
+      <h3 style="color:#16a34a">
+        Payment Details
+      </h3>
+
+      <p><strong>Ticket Price:</strong> ₹${Number(booking.ticket_price).toFixed(2)}</p>
+      <p><strong>Total Paid:</strong> ₹${Number(booking.total).toFixed(2)}</p>
+      <p><strong>Payment Status:</strong> Paid ✅</p>
+
+      <hr>
+
+      <p style="color:#666">
+        Please carry this email or your booking ID while attending the event.
+      </p>
+
+      <p>
+        Thank you for choosing CoffeeCape.
+      </p>
+
+    </div>
+  `;
+
+  const text = `
+    Audience Booking Confirmed
+    Booking ID: ${booking.audience_booking_id}
+    Event: ${booking.event_type}
+    Category: ${booking.event_category}
+    Date: ${new Date(booking.event_date).toDateString()}
+    Time: ${booking.event_time}
+    Audience: ${booking.audience_count}
+    Ticket Price: ₹${booking.ticket_price}
+    Total Paid: ₹${booking.total}
+    Payment Status: Paid
+    Thank you for choosing CoffeeCape.
+  `;
+
+  return { html, text };
+}
+
+
+/* =====================================================
+   SEND AUDIENCE PAYMENT ACKNOWLEDGEMENT
+===================================================== */
+async function sendAudiencePaymentMail(email, booking){
+  const template = generateAudiencePaymentTemplate(booking);
+  return safeSendMail({
+    to: email,
+
+    subject: `🎟 Audience Booking Confirmed - ${sanitizeMailHeader(
+      booking.audience_booking_id
+    )}`,
+    html: template.html,
+    text: template.text
+  });
+}
+
+/* =====================================================
    EXPORTS
 ===================================================== */
 module.exports = {
@@ -705,7 +795,7 @@ module.exports = {
   sendBookingPaymentBill,
   generateBookingConfirmedTemplate,
   sendReviewThankYouMail,
-
+  sendAudiencePaymentMail,
   // Exported for use in other modules that build custom templates
   escapeHTML,
   sanitizeMailHeader

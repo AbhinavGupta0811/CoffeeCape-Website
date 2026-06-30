@@ -538,6 +538,73 @@ function renderRow(b) {
 }
 
 /* =====================================================
+   RENDER NESTED BOOKING DATA
+===================================================== */
+function renderBookingFields(data, padding = 0) {
+  let html = "";
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === null || value === undefined || value === "") {
+      return;
+    }
+
+    /* OBJECT */
+    if (typeof value === "object" && !Array.isArray(value)) {
+      html += `
+        <div style=" grid-column:1/-1; margin-top:14px; padding-left:${padding}px; font-weight:700; font-size:16px; color:#6F4E37;">
+          ${formatLabel(key)}
+        </div>
+      `;
+
+      html += renderBookingFields(
+        value,
+        padding + 20
+      );
+
+      return;
+    }
+
+    /* ARRAY */
+    if (Array.isArray(value)) {
+      html += `
+        <div style="padding-left:${padding}px;">
+          <strong>${formatLabel(key)}:</strong>
+        </div>
+        <div>
+          ${escapeHtml(value.join(", "))}
+        </div>
+      `;
+      return;
+    }
+
+    /* BOOLEAN */
+    if (typeof value === "boolean") {
+      html += `
+        <div style="padding-left:${padding}px;">
+          <strong>${formatLabel(key)}:</strong>
+        </div>
+        <div>
+          ${value ? "Yes" : "No"}
+        </div>
+      `;
+      return;
+    }
+
+    /* NORMAL VALUE */
+    html += `
+      <div style="padding-left:${padding}px;">
+        <strong>${formatLabel(key)}:</strong>
+      </div>
+
+      <div>
+        ${escapeHtml(String(value))}
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+/* =====================================================
    VIEW BOOKING
 ===================================================== */
 async function viewBooking(id) {
@@ -624,17 +691,36 @@ async function viewBooking(id) {
 
     let extraFieldsHTML = "";
 
-    Object.keys(bookingData).forEach(key => {
-
+    Object.entries(bookingData).forEach(([key, value]) => {
       if (excludedKeys.includes(key)) return;
+      if (value === null || value === undefined || value === "") return;
+      if (typeof value === "object" && !Array.isArray(value)) {
+        extraFieldsHTML += renderBookingFields({
+          [key]: value
+        });
 
-      const value = bookingData[key];
+        return;
+      }
 
-      if (value == null || value === "") return;
+      if (Array.isArray(value)) {
+        extraFieldsHTML += `
+          <div>
+            <strong>${formatLabel(key)}:</strong>
+          </div>
+          <div>
+            ${escapeHtml(value.join(", "))}
+          </div>
+        `;
+        return;
+      }
 
       extraFieldsHTML += `
-        <div><strong>${formatLabel(key)}:</strong></div>
-        <div>${escapeHtml(String(value))}</div>
+        <div>
+          <strong>${formatLabel(key)}:</strong>
+        </div>
+        <div>
+          ${escapeHtml(String(value))}
+        </div>
       `;
     });
 
@@ -740,37 +826,149 @@ async function viewBooking(id) {
    ACTION HANDLERS
 ===================================================== */
 async function acceptBooking(id, button) {
-  const address = prompt("Enter booking place address:");
-
-  if (!address || address.trim().length < 5) {
-    showToast("Valid address required", "error");
-    return;
-  }
-
-  button.disabled = true;
-  button.innerText = "Accepting...";
-
+  let booking = null;
   try {
-    const res = await fetch(`${API}/${id}/accept`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ assigned_address: address.trim() })
+    const res = await fetch(`${API}/${id}`, {
+      credentials: "include"
     });
 
     const data = await res.json();
 
+    if (!res.ok || !data.success) {
+      showToast(
+        data.message || "Failed to load booking",
+        "error"
+      );
+      return;
+    }
+
+    booking = data.booking;
+  } catch {
+    showToast(
+      "Network error", "error"
+    );
+
+    return;
+  }
+
+  /* ===============================
+     ADDRESS
+  =============================== */
+  const address = prompt(
+    "Enter booking place address:"
+  );
+
+  if (!address || address.trim().length < 5) {
+    showToast(
+      "Valid address required", "error"
+    );
+
+    return;
+  }
+
+  /* ===============================
+     AUDIENCE EVENTS
+  =============================== */
+  const audienceEvents = [
+    "openmic",
+    "karaoke",
+    "tasting"
+  ];
+
+  const isAudienceEvent =
+    audienceEvents.includes(
+      String(
+        booking.event_type
+      ).toLowerCase()
+    );
+
+  /* ===============================
+     DEFAULT VALUES
+  =============================== */
+  let audience_booking_enabled = false;
+  let audience_ticket_price = 0;
+  let audience_capacity = 0;
+
+  /* ===============================
+     EXTRA QUESTIONS
+  =============================== */
+  if (isAudienceEvent) {
+    audience_booking_enabled = confirm(
+      "Enable Audience Booking?"
+    );
+
+    if (audience_booking_enabled) {
+      const price = prompt(
+        "Audience Ticket Price", "149"
+      );
+
+      if (price === null || isNaN(price) || Number(price) < 0) {
+        showToast(
+          "Invalid ticket price", "error"
+        );
+        return;
+      }
+
+      audience_ticket_price = Number(price);
+
+      const capacity = prompt(
+        "Audience Capacity", "80"
+      );
+
+      if (capacity === null || isNaN(capacity) || Number(capacity) < 1) {
+        showToast(
+          "Invalid capacity", "error"
+        );
+
+        return;
+      }
+      audience_capacity = Number(capacity);
+    }
+  }
+
+  /* ===============================
+     API CALL
+  =============================== */
+  button.disabled = true;
+  button.innerText = "Accepting...";
+
+  try {
+    const res = await fetch(
+      `${API}/${id}/accept`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type":
+          "application/json"
+        },
+        body: JSON.stringify({
+          assigned_address: address.trim(),
+          audience_booking_enabled,
+          audience_ticket_price,
+          audience_capacity
+        })
+      }
+    );
+
+    const data = await res.json();
+
     if (!res.ok) {
-      showToast(data.message || "Failed", "error");
+      showToast(
+        data.message || "Failed", "error"
+      );
       button.disabled = false;
       button.innerText = "Accept";
       return;
     }
 
-    showToast("Booking confirmed", "success");
-
+    showToast(
+      "Booking confirmed", "success"
+    );
   } catch {
-    showToast("Network error", "error");
+    showToast(
+      "Network error", "error"
+    );
     button.disabled = false;
     button.innerText = "Accept";
   }

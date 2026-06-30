@@ -5,6 +5,8 @@
   const PAYMENT_API = "/api/payment/confirm";
   const ORDER_API = "/api/orders";
   const PENDING_BOOKING_API = "/api/booking/pending";
+  const PENDING_AUDIENCE_API = "/api/audience/pending";
+  const AUDIENCE_PAYMENT_API = "/api/audience/payment";
   
   /* =====================================
   DOM REFERENCES
@@ -118,7 +120,18 @@
      GET TYPE + ID
   ====================================== */
   const params = new URLSearchParams(window.location.search);
-  const type = params.get("type") || "order";
+  const type = (params.get("type") || "order").trim().toLowerCase();
+  const VALID_PAYMENT_TYPES = new Set([
+    "order",
+    "booking",
+    "audience"
+  ]);
+
+  if (!VALID_PAYMENT_TYPES.has(type)) {
+    throw new Error(
+      `Unsupported payment type: ${type}`
+    );
+  }
   const orderId = params.get("id") || params.get("orderId");
 
   if (!orderId) {
@@ -166,12 +179,22 @@
   /* =====================================
      SHOW CORRECT FORM
   ====================================== */
-  if (type === "booking") {
-    orderSection && (orderSection.style.display = "none");
-    bookingSection && (bookingSection.style.display = "block");
-  } else {
-    bookingSection && (bookingSection.style.display = "none");
-    orderSection && (orderSection.style.display = "block");
+  if (type === "booking" || type === "audience") {
+    if (orderSection) {
+      orderSection.style.display = "none";
+    }
+    if (bookingSection) {
+      bookingSection.style.display = "block";
+    }
+
+  }
+  else {
+    if (bookingSection) {
+        bookingSection.style.display = "none";
+    }
+    if (orderSection) {
+        orderSection.style.display = "block";
+    }
   }
 
   /* =====================================
@@ -183,17 +206,19 @@
 
     try {
       let endpoint;
-      
-      if (type === "booking") {
-
+    
+      if (type === "audience") {
+        endpoint = `${PENDING_AUDIENCE_API}/${orderId}`;
+      } else if(type === "booking") {
         if (orderId.startsWith("PBK-")) {
           endpoint = `${PENDING_BOOKING_API}/${orderId}`;
-        } else if (orderId.startsWith("EVT-")) {
-          endpoint = `/api/booking/details/${orderId}`;
-        } else {
-          throw new Error("Invalid booking reference");
         }
-
+        else if (orderId.startsWith("EVT-")) {
+          endpoint = `/api/booking/details/${orderId}`;
+        }
+        else {
+          throw new Error( "Invalid booking reference");
+        }
       } else {
         endpoint = `${ORDER_API}/pending/${orderId}`;
       }
@@ -224,29 +249,63 @@
       /* ===================================
         BOOKING PAYMENT LOGIC (FIXED)
       =================================== */
-      if (type === "booking") {
+      if (type === "booking" || type === "audience") {
         let booking;
 
         /* 🔥 STEP 1: Detect source */
         if (data.pending) {
+
           booking = data.pending;
 
-          const total = Number(booking.total) || 0;
+          /* ==========================
+            TOTAL AMOUNT
+          ========================== */
+          const total =
+            Number(
+              booking.total ??
+              booking.pricing?.total
+            ) || 0;
 
-          if (!total || total <= 0) {
-            throw new Error("Invalid booking amount");
+          if (total <= 0) {
+            throw new Error(
+              "Invalid booking amount"
+            );
           }
 
-          // ⏳ expiry check
-          const expiry = new Date(booking.expires_at);
-          if (new Date() > expiry) {
-            showToast("Booking session expired", "error");
+          /* ==========================
+            EXPIRY
+          ========================== */
+          const expiry =
+            new Date(
+              booking.expiresAt ??
+              booking.expires_at
+            );
+
+          if (
+            !Number.isNaN(expiry.getTime()) &&
+            new Date() > expiry
+          ) {
+
+            showToast(
+              "Booking session expired",
+              "error"
+            );
             payBtn.disabled = true;
             return;
           }
 
-          // 🔥 FIRST PAYMENT → 50%
-          amount = Number((total * 0.5).toFixed(2));
+          /* ==========================
+            PAYMENT CALCULATION
+          ========================== */
+          if (type === "audience") {
+            amount = total;
+          }
+          else {
+            amount =
+              Number(
+                (total * 0.5).toFixed(2)
+              );
+          }
 
         } else {
 
@@ -316,26 +375,35 @@
   const upiRegex = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/;
 
   function getSelectedMethod() {
+    if (type === "booking" || type === "audience") {
+      return document.querySelector(
+        "input[name='bookingMethod']:checked"
+      )?.value;
+    }
     return document.querySelector(
-      type === "booking"
-        ? "input[name='bookingMethod']:checked"
-        : "input[name='orderMethod']:checked"
+      "input[name='orderMethod']:checked"
     )?.value;
   }
 
   function getUpiInput() {
+    if (type === "booking" || type === "audience") {
+      return document.querySelector(
+        "#bookingPaymentSection input[name='upiId']"
+      );
+    }
     return document.querySelector(
-      type === "booking"
-        ? "#bookingPaymentSection input[name='upiId']"
-        : "#orderPaymentSection input[name='upiId']"
+      "#orderPaymentSection input[name='upiId']"
     );
   }
 
   function getCardInput() {
+    if (type === "booking" || type === "audience") {
+      return document.querySelector(
+        "#bookingPaymentSection input[name='cardNumber']"
+      );
+    }
     return document.querySelector(
-      type === "booking"
-        ? "#bookingPaymentSection input[name='cardNumber']"
-        : "#orderPaymentSection input[name='cardNumber']"
+      "#orderPaymentSection input[name='cardNumber']"
     );
   }
 
@@ -390,19 +458,35 @@
   ====================================== */
   async function confirmPayment(method) {
     try {
+      /* API CALL */
+      const apiEndpoint =
+        type === "audience"
+            ? AUDIENCE_PAYMENT_API
+            : PAYMENT_API;
 
-      /* =========================
-        API CALL
-      ========================= */
-      const res = await fetch(PAYMENT_API, {
+      const res = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          id: orderId,   // pendingOrderId
-          type,
-          method
-        })
+        body: JSON.stringify(
+          type === "audience"
+          ? {
+              pendingId: orderId,
+              paymentMethod: method,
+              paymentId: `AUDPAY-${Date.now()}`,
+              amount: parseFloat(
+                payAmountEl.textContent.replace(
+                  /[^\d.]/g,
+                  ""
+                )
+              )
+            }
+          : {
+              id: orderId,
+              type,
+              method
+            }
+        )
       });
 
       let data = {};
@@ -442,7 +526,21 @@
       }
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Payment failed");
+        if (type === "audience") {
+          showToast(
+            data.message || "Audience payment failed.",
+            "error"
+          );
+        } else {
+          showToast(
+            data.message || "Payment failed.",
+            "error"
+          );
+        }
+
+        resetButton();
+        payBtn.disabled = false;
+        return;
       }
 
       /* =========================
@@ -450,16 +548,30 @@
       ========================= */
       showToast("Payment successful", "success");
 
-      const finalOrderId = data.id;   
+      let finalReference;
+      if (type === "audience") {
+        finalReference = data.booking?.audienceBookingId || data.booking?.bookingId || data.bookingId || data.id;
+      }
+      else if (type === "booking") {
+        finalReference = data.bookingId || data.id;
+      }
+      else {
+        finalReference = data.orderId || data.id;
+      }  
 
       setTimeout(() => {
-
-        if (type === "booking") {
-          window.location.href = `booking-success.html?bookingId=${finalOrderId}`;
-        } else {
-          window.location.href = `success.html?orderId=${finalOrderId}`;
+        if (type === "audience") {
+          window.location.href =
+            `my-activity.html?booking=${encodeURIComponent(finalReference)}`;
         }
-
+        else if (type === "booking") {
+          window.location.href =
+            `booking-success.html?bookingId=${encodeURIComponent(finalReference)}`;
+        }
+        else {
+          window.location.href = 
+            `success.html?orderId=${encodeURIComponent(finalReference)}`;
+        }
       }, 1200);
 
     } catch (err) {
@@ -514,8 +626,15 @@
      BACK BUTTON
   ====================================== */
   backBtn?.addEventListener("click", () => {
-    window.location.href =
-      type === "booking" ? "booking.html" : "checkout.html";
+    if (type === "audience") {
+      window.location.href = "audience-booking.html";
+    }
+    else if (type === "booking") {
+      window.location.href = "booking.html";
+    }
+    else {
+      window.location.href = "checkout.html";
+    }
   });
 
   /* =====================================

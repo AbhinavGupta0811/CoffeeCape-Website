@@ -509,7 +509,12 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
 
     const io = req.app.get("io");
     const bookingId = req.params.id;
-    const { assigned_address } = req.body;
+    const {
+      assigned_address,
+      audience_booking_enabled = false,
+      audience_ticket_price = 0,
+      audience_capacity = 0
+    } = req.body;
 
     if (!bookingId) {
       return res.status(400).json({
@@ -517,7 +522,6 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
         message: "Booking ID required"
       });
     }
-
     if (!assigned_address || assigned_address.trim().length < 5) {
       return res.status(400).json({
         success: false,
@@ -527,10 +531,10 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
 
     /* FIXED QUERY (EMAIL + NAME INCLUDED) */
     const [[booking]] = await db.query(
-      `SELECT booking_id, user_id, status, email, full_name, event_date, event_time, 
-       payment_status, paid_amount
-       FROM bookings
-       WHERE booking_id=?`,
+      `SELECT booking_id, user_id, status, email, full_name, 
+      event_type, event_date, event_time, payment_status, 
+      paid_amount FROM bookings
+      WHERE booking_id=?`,
       [bookingId]
     );
 
@@ -548,6 +552,49 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
       });
     }
 
+    if (booking.payment_status !== "partial") {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Booking cannot be accepted until the advance payment has been received."
+      });
+    }
+
+    /*----------- AUDIENCE EVENTS ------------------*/
+    const audienceEvents = new Set([
+      "openmic",
+      "karaoke",
+      "tasting"
+    ]);
+
+    const eventType = String(booking.event_type || "").trim().toLowerCase();
+    const isAudienceEvent = audienceEvents.has(eventType);
+
+    console.log({
+      bookingId,
+      eventType,
+      isAudienceEvent
+    });
+
+    /*-------------- VALIDATION --------------------*/
+    if (isAudienceEvent && audience_booking_enabled) {
+      const ticketPrice = Number(audience_ticket_price);
+      const capacity = Number(audience_capacity);
+      if (!Number.isFinite(ticketPrice) || ticketPrice < 0 || ticketPrice > 100000) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid audience ticket price."
+        });
+      }
+
+      if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10000) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid audience capacity."
+        });
+      }
+    }
+
     /* ===============================
        UPDATE BOOKING
     =============================== */
@@ -559,6 +606,45 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
        WHERE booking_id=?`,
       [assigned_address.trim(), bookingId]
     );
+
+    console.log({
+      bookingId,
+      eventType,
+      audience_booking_enabled,
+      audience_ticket_price,
+      audience_capacity
+    });
+
+    /*-------------- EVENT SETTINGS -------------------*/
+    if (isAudienceEvent) {
+      console.log("Creating event_settings...");
+      await db.query(
+          `INSERT INTO event_settings (
+            booking_id,
+            audience_booking_enabled,
+            audience_ticket_price,
+            audience_capacity,
+            audience_booked
+          )
+          VALUES (?,?,?,?,0)
+          ON DUPLICATE KEY UPDATE
+            audience_booking_enabled=
+            VALUES(audience_booking_enabled),
+
+            audience_ticket_price=
+            VALUES(audience_ticket_price),
+            
+            audience_capacity=
+            VALUES(audience_capacity)`,
+          [
+            booking.booking_id,
+            audience_booking_enabled ? 1 : 0,
+            Number(audience_ticket_price),
+            Number(audience_capacity)
+          ]
+      );
+      console.log("event_settings saved");
+    }
 
     /* ===============================
        SEND CONFIRMATION MAIL
@@ -625,7 +711,14 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
       success: true,
       bookingId,
       status: "confirmed",
-      assigned_address: assigned_address.trim()
+      assigned_address: assigned_address.trim(),
+      audience: isAudienceEvent
+        ? {
+            enabled: Boolean(audience_booking_enabled),
+            ticketPrice: Number(audience_ticket_price),
+            capacity: Number(audience_capacity)
+        }
+        : null
     });
 
   } catch (err) {
