@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Audience Tickets | CoffeeCape</title>
+    <link rel="icon" type="image/png" href="assets/logo-image.png">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/my-audience-tickets.css">
+</head>
+
+<body>
+    <main class="tickets-page">
+        <!-- HEADER -->
+        <section class="tickets-header">
+            <div class="header-left">
+                <button id="backBtn" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <div>
+                    <h1 class="page-title">
+                        My Audience Tickets
+                    </h1>
+
+                    <p class="page-subtitle">
+                        View and manage all your audience bookings.
+                    </p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <span class="header-badge">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span id="totalTicketCount">
+                        0 Tickets
+                    </span>
+                </span>
+            </div>
+        </section>
+
+        <!--------------------- OVERVIEW ------------------------------>
+        <section class="ticket-overview">
+            <article class="overview-card upcoming">
+                <div class="overview-icon">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+
+                <div>
+                    <h3 id="upcomingCount">
+                        0
+                    </h3>
+                    <p>
+                        Upcoming
+                    </p>
+                </div>
+            </article>
+
+            <article class="overview-card completed">
+                <div class="overview-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <h3 id="completedCount">
+                        0
+                    </h3>
+                    <p>
+                        Completed
+                    </p>
+                </div>
+            </article>
+
+            <article class="overview-card cancelled">
+                <div class="overview-icon">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+
+                <div>
+                    <h3 id="cancelledCount">
+                        0
+                    </h3>
+
+                    <p>
+                        Cancelled
+                    </p>
+                </div>
+            </article>
+
+            <article class="overview-card total">
+                <div class="overview-icon">
+                    <i class="fa-solid fa-ticket"></i>
+                </div>
+
+                <div>
+                    <h3 id="allTicketCount">
+                        0
+                    </h3>
+
+                    <p>
+                        Total Tickets
+                    </p>
+                </div>
+            </article>
+        </section>
+
+        <!--------------------- TOOLBAR ------------------------------>
+        <section class="tickets-toolbar">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="ticketSearch" placeholder="Search by Booking ID, Event Name...">
+            </div>
+
+            <!-- Filter -->
+            <div class="ticket-filters" id="ticketFilters">
+                <button class="filter-btn active" data-filter="all">
+                    All
+                </button>
+
+                <button class="filter-btn" data-filter="upcoming">
+                    Upcoming
+                </button>
+
+                <button class="filter-btn" data-filter="completed">
+                    Completed
+                </button>
+
+                <button class="filter-btn" data-filter="cancelled">
+                    Cancelled
+                </button>
+            </div>
+
+            <!-- Sort -->
+            <div class="sort-box">
+                <label for="sortTickets">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                </label>
+
+                <select id="sortTickets">
+                    <option value="newest">
+                        Newest First
+                    </option>
+
+                    <option value="oldest">
+                        Oldest First
+                    </option>
+
+                    <option value="eventAsc">
+                        Event Date ↑
+                    </option>
+
+                    <option value="eventDesc">
+                        Event Date ↓
+                    </option>
+                </select>
+            </div>
+        </section>
+
+        <!--------------------- TICKET LIST ------------------------------>
+        <section id="ticketContainer" class="ticket-grid">
+        </section>
+
+        <!--------------------- LOADING SKELETON ------------------------->
+        <section id="ticketSkeleton" class="ticket-skeleton hidden">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </section>
+
+        <!-------------------- EMPTY STATE ------------------------------>
+        <section id="emptyState" class="empty-state hidden">
+            <div class="empty-icon">
+                <i class="fa-solid fa-ticket"></i>
+            </div>
+
+            <h2>
+                No Audience Tickets Found
+            </h2>
+
+            <p>
+                You haven't booked any audience tickets yet.
+            </p>
+
+            <button id="bookEventBtn" class="primary-btn">
+                Book Event
+            </button>
+        </section>
+
+        <!----------------- PAGINATION ------------------->
+        <section id="paginationContainer" class="pagination-container">
+            <button id="previousPage" class="page-btn">
+                <i class="fa-solid fa-angle-left"></i>
+                Previous
+            </button>
+
+            <div id="paginationNumbers" class="pagination-numbers">
+            </div>
+
+            <button id="nextPage" class="page-btn">
+                Next
+                <i class="fa-solid fa-angle-right"></i>
+            </button>
+        </section>
+    </main>
+
+    <!--------------- VIEW TICKET MODAL ---------------------->
+    <div id="ticketModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content ticket-modal">
+            <button id="closeTicketModal" class="modal-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div id="ticketDetails">
+                <!-- Ticket Rendered by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!--------------- CANCEL BOOKING MODAL --------------------->
+    <div id="cancelModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content cancel-modal">
+            <div class="cancel-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+
+            <h2>
+                Cancel Booking?
+            </h2>
+
+            <p>
+                This action cannot be undone.
+                Your refund eligibility will be checked automatically.
+            </p>
+
+            <div class="cancel-actions">
+                <button id="cancelNoBtn" class="secondary-btn">
+                    Keep Booking
+                </button>
+
+                <button id="cancelYesBtn" class="danger-btn">
+                    Cancel Booking
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!------------------ TOAST -------------------->
+    <div id="toast" class="toast">
+        <div id="toastIcon" class="toast-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div id="toastMessage" class="toast-message">
+            Success
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script src="js/my-audience-tickets.js"></script>
+</body>
+</html>

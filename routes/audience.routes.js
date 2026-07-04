@@ -12,7 +12,8 @@ const {
   calculateExpiry,
   checkDuplicateAudienceBooking,
   getAudienceEvent,
-  formatAudienceResponse
+  formatAudienceResponse,
+  validateAudienceBookingId
 } = require("../helpers/audience.helper");
 const pool = require("../db");
 
@@ -1019,7 +1020,8 @@ router.get("/my", verifyToken, async (req, res) => {
     const connection = await pool.getConnection();
     try {
       const userId = req.user?.id;
-
+      console.log("req.session.user =", req.session.user);
+      console.log("req.user =", req.user);
       const page =
         Math.max(
           Number(
@@ -1039,10 +1041,7 @@ router.get("/my", verifyToken, async (req, res) => {
           50
         );
 
-      const offset =
-        (
-          page - 1
-        ) * limit;
+      const offset = (page - 1) * limit;
 
       const status =
         req.query.status
@@ -1052,70 +1051,92 @@ router.get("/my", verifyToken, async (req, res) => {
       let where =
         `
         WHERE
-        user_id=?
+        ab.user_id=?
         `;
 
-      const params =
-        [userId];
+      const params = [userId];
 
       if (status) {
-        where +=
-          `
-          AND status=?
-          `;
-        params.push(
-          status
-        );
+        where += `
+        AND ab.status = ?
+        `;
+        params.push(status);
       }
 
       /* ==========================
          TOTAL COUNT
       ========================== */
-      const [countRows] =
-        await connection.execute(
-          `
-          SELECT
-            COUNT(*) AS total
-          FROM
-            audience_bookings
-          ${where}
-          `,
-          params
-        );
+      const [countRows] = await connection.execute(
+      `
+      SELECT
+          COUNT(*) AS total
+      FROM audience_bookings
+      WHERE
+          user_id = ?
+          ${status ? "AND status = ?" : ""}
+      `,
+      params
+      );
 
-      const total =
-        countRows[0]
-          .total;
+      const total = countRows[0].total;
+      
+      console.log("userId:", userId, typeof userId);
+      console.log("page:", page, typeof page);
+      console.log("limit:", limit, typeof limit);
+      console.log("offset:", offset, typeof offset);
 
+      console.log([
+        ...params,
+        limit,
+        offset
+      ]);
       /* ==========================
          GET BOOKINGS
       ========================== */
-      const [rows] =
-        await connection.execute(
-          `
-          SELECT *
-          FROM
-            audience_bookings
-          ${where}
-          ORDER BY
-            created_at DESC
-          LIMIT ?
-          OFFSET ?
-          `,
-          [
-            ...params,
-            limit,
-            offset
-          ]
-        );
+      const [rows] = await connection.query(
+      `
+      SELECT
+        ab.audience_booking_id,
+        ab.booking_id,
+        ab.user_id,
+        ab.event_type,
+        ab.event_category,
+        ab.event_date,
+        ab.event_time,
+        ab.audience_count,
+        ab.full_name,
+        ab.email,
+        ab.phone,
+        ab.ticket_price,
+        ab.total,
+        ab.payment_status,
+        ab.status,
+        ab.created_at,
+        ab.updated_at,
+        b.assigned_address,
+        b.status AS event_status,
+        es.audience_capacity,
+        es.audience_booked
+      FROM audience_bookings AS ab
 
-      const bookings =
-        rows.map(
-          booking =>
-            formatAudienceResponse(
-              booking
-            )
-        );
+      INNER JOIN bookings AS b
+          ON ab.booking_id = b.booking_id
+
+      INNER JOIN event_settings AS es
+          ON ab.booking_id = es.booking_id
+
+      ${where}
+
+      ORDER BY
+          ab.created_at DESC
+
+      LIMIT ${Number(limit)}
+      OFFSET ${Number(offset)}
+      `,
+      params
+      );
+
+      const bookings = rows.map(booking => formatAudienceResponse(booking));
 
       return res.status(200).json({
           success: true,
@@ -1146,74 +1167,735 @@ router.get("/my", verifyToken, async (req, res) => {
 );
 
 /* ======================================================
-   SINGLE AUDIENCE BOOKING
+   GET COMPLETE AUDIENCE TICKET
 ====================================================== */
-router.get("/:audienceBookingId", verifyToken, async (req, res) => {
-    const connection = await pool.getConnection();
+router.get("/ticket/:audienceBookingId", verifyToken, async (req, res) => {
 
-    try {
-      const userId = req.user?.id;
-      const {
-        audienceBookingId
-      } = req.params;
+  const connection = await pool.getConnection();
 
-      if (!audienceBookingId) {
-        return res.status(400).json({
-          success: false,
-          message: "Audience booking ID is required"
-        });
-      }
+  try {
 
-      /* ==========================
-         GET BOOKING
-      ========================== */
-      const [rows] =
-        await connection.execute(
-          `
-          SELECT *
-          FROM
-            audience_bookings
-          WHERE
-            audience_booking_id=?
-            AND user_id=?
-          LIMIT 1
-          `,
-          [
-            audienceBookingId,
-            userId
-          ]
-        );
+    const userId = req.user?.id;
 
-      if (!rows.length) {
-        return res.status(404).json({
-          success: false,
-          message: "Audience booking not found"
-        });
-      }
-
-      const booking = rows[0];
-
-      return res.status(200).json({
-        success: true,
-        booking: formatAudienceResponse(booking)
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized."
       });
     }
-    catch (err) {
-      console.error(
-        "Get Audience Booking Error:",
-        err
+
+    const {
+      audienceBookingId
+    } = req.params;
+
+    /* ==========================
+       INPUT VALIDATION
+    ========================== */
+    if (
+      !validateAudienceBookingId(
+        audienceBookingId
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid audience booking ID."
+      });
+    }
+
+    /* ==========================
+       FETCH COMPLETE TICKET
+    ========================== */
+    const [rows] =
+      await connection.execute(
+        `
+        SELECT
+            ab.audience_booking_id,
+            ab.booking_id,
+            ab.user_id,
+
+            ab.event_type,
+            ab.event_category,
+
+            ab.event_date,
+            ab.event_time,
+
+            ab.audience_count,
+
+            ab.full_name,
+            ab.email,
+            ab.phone,
+
+            ab.audience_data,
+
+            ab.ticket_price,
+            ab.total,
+
+            ab.payment_id,
+            ab.payment_status,
+
+            ab.status,
+
+            ab.created_at,
+            ab.updated_at,
+
+            b.assigned_address,
+
+            b.status AS event_status,
+
+            es.audience_capacity,
+            es.audience_booked,
+            es.audience_booking_enabled,
+            es.audience_booking_open
+        FROM audience_bookings AS ab
+
+        INNER JOIN bookings AS b
+            ON ab.booking_id = b.booking_id
+
+        INNER JOIN event_settings AS es
+            ON ab.booking_id = es.booking_id
+
+        WHERE
+            ab.audience_booking_id = ?
+            AND ab.user_id = ?
+
+        LIMIT 1;
+        `,
+        [
+          audienceBookingId,
+          userId
+        ]
       );
 
-      return res.status(500).json({
+    if (!rows.length) {
+      return res.status(404).json({
         success: false,
-        message: "Failed to fetch booking"
+        message: "Ticket not found."
       });
     }
-    finally {
-      connection.release();
+
+    const ticket = rows[0];
+
+    /* ==========================
+       FORMAT AUDIENCE DATA
+    ========================== */
+    let audienceData = {};
+
+    try {
+
+      audienceData =
+        typeof ticket.audience_data === "string"
+          ? JSON.parse(ticket.audience_data)
+          : (
+              ticket.audience_data ||
+              {}
+            );
+
     }
+    catch {
+
+      audienceData = {};
+
+    }
+
+    /* ==========================
+       SUCCESS RESPONSE
+    ========================== */
+    return res.status(200).json({
+
+      success: true,
+
+      ticket: {
+
+        audienceBookingId:
+          ticket.audience_booking_id,
+
+        bookingId:
+          ticket.booking_id,
+
+        status:
+          ticket.status,
+
+        paymentStatus:
+          ticket.payment_status,
+
+        paymentId:
+          ticket.payment_id,
+
+        customer: {
+
+          fullName:
+            ticket.full_name,
+
+          email:
+            ticket.email,
+
+          phone:
+            ticket.phone
+
+        },
+
+        event: {
+
+          type:
+            ticket.event_type,
+
+          category:
+            ticket.event_category,
+
+          date:
+            ticket.event_date,
+
+          time:
+            ticket.event_time,
+
+          venue:
+            ticket.assigned_address,
+
+          status:
+            ticket.event_status
+
+        },
+
+        audience: {
+
+          count:
+            Number(ticket.audience_count),
+
+          details:
+            audienceData
+
+        },
+
+        pricing: {
+
+          ticketPrice:
+            Number(ticket.ticket_price),
+
+          total:
+            Number(ticket.total),
+
+          currency: "INR"
+
+        },
+
+        booking: {
+
+          createdAt:
+            ticket.created_at,
+
+          updatedAt:
+            ticket.updated_at
+
+        },
+
+        availability: {
+
+          capacity:
+            Number(ticket.audience_capacity),
+
+          booked:
+            Number(ticket.audience_booked),
+
+          available:
+            Math.max(
+              0,
+              Number(ticket.audience_capacity) -
+              Number(ticket.audience_booked)
+            ),
+
+          bookingEnabled:
+            Boolean(
+              ticket.audience_booking_enabled
+            ),
+
+          bookingOpen:
+            Boolean(
+              ticket.audience_booking_open
+            )
+
+        }
+
+      }
+
+    });
+
   }
-);
+  catch (err) {
+    console.error(
+      "Get Audience Ticket Error:",
+      err
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch ticket."
+    });
+  }
+  finally {
+    connection.release();
+  }
+});
+
+/* ======================================================
+   UPCOMING AUDIENCE BOOKINGS
+====================================================== */
+router.get("/upcoming", verifyToken, async (req, res) => {
+
+  const connection = await pool.getConnection();
+
+  try {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized."
+      });
+    }
+
+    /* ==========================
+       PAGINATION
+       parseInt() is mandatory — mysql2 prepared statements
+       reject floating-point or coerced values for LIMIT/OFFSET
+       with ER_WRONG_ARGUMENTS (errno 1210).
+    ========================== */
+    const page  = Math.max(parseInt(req.query.page,  10) || 1,  1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const offset = (page - 1) * limit;
+
+    /* ==========================
+       TOTAL COUNT
+    ========================== */
+    const [countRows] =
+      await connection.execute(
+        `
+        SELECT COUNT(*) AS total
+        FROM audience_bookings ab
+        WHERE
+          ab.user_id = ?
+          AND ab.status = 'confirmed'
+          AND TIMESTAMP(event_date, event_time) >= NOW()
+        `,
+        [userId]
+      );
+
+    const total = Number(countRows[0].total) || 0;
+
+    /* ==========================
+       FETCH BOOKINGS
+    ========================== */
+    const [rows] = await connection.query(
+      `
+      SELECT
+        ab.audience_booking_id,
+        ab.booking_id,
+        ab.user_id,
+        ab.event_type,
+        ab.event_category,
+        ab.event_date,
+        ab.event_time,
+        ab.audience_count,
+        ab.full_name,
+        ab.email,
+        ab.phone,
+        ab.ticket_price,
+        ab.total,
+        ab.payment_status,
+        ab.status,
+        ab.created_at,
+        ab.updated_at,
+        b.assigned_address,
+        b.status AS event_status,
+        es.audience_capacity,
+        es.audience_booked
+      FROM audience_bookings ab
+
+      INNER JOIN bookings b
+      ON ab.booking_id = b.booking_id
+
+      INNER JOIN event_settings es
+      ON ab.booking_id = es.booking_id
+      WHERE
+        ab.user_id = ?
+        AND ab.status = 'confirmed'
+        AND TIMESTAMP(ab.event_date, ab.event_time) >= NOW()
+      ORDER BY
+        ab.event_date ASC,
+        ab.event_time ASC
+      LIMIT ${limit} OFFSET ${offset}
+      `,
+      [userId]
+    );
+
+    /* ==========================
+       FORMAT RESPONSE
+    ========================== */
+    const bookings =
+      rows.map(booking =>
+        formatAudienceResponse(
+          booking
+        )
+      );
+
+    /* ==========================
+       SUCCESS
+    ========================== */
+    return res.status(200).json({
+
+      success: true,
+
+      pagination: {
+
+        page,
+
+        limit,
+
+        total,
+
+        totalPages:
+          Math.ceil(total / limit)
+
+      },
+
+      bookings
+
+    });
+
+  }
+  catch (err) {
+
+    console.error(
+      "Get Upcoming Audience Bookings Error:",
+      err
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to fetch upcoming audience bookings."
+
+    });
+
+  }
+  finally {
+
+    connection.release();
+
+  }
+
+});
+
+/* ======================================================
+   COMPLETED AUDIENCE BOOKINGS
+====================================================== */
+router.get("/completed", verifyToken, async (req, res) => {
+
+  const connection = await pool.getConnection();
+
+  try {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized."
+      });
+    }
+
+    /* ==========================
+       PAGINATION
+    ========================== */
+    const page  = Math.max(parseInt(req.query.page,  10) || 1,  1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const offset = (page - 1) * limit;
+
+    /* ==========================
+       TOTAL COUNT
+    ========================== */
+    const [countRows] = await connection.execute(
+      `
+      SELECT
+          COUNT(*) AS total
+      FROM audience_bookings AS ab
+      WHERE
+          ab.user_id = ?
+          AND ab.status = 'confirmed'
+          AND TIMESTAMP(
+              ab.event_date,
+              ab.event_time
+          ) < NOW()
+      `,
+      [userId]
+    );
+
+    const total = Number(countRows[0].total) || 0;
+
+    /* ==========================
+       FETCH BOOKINGS
+    ========================== */
+    const [rows] = await connection.query(
+    `
+    SELECT
+      ab.audience_booking_id,
+      ab.booking_id,
+      ab.user_id,
+      ab.event_type,
+      ab.event_category,
+      ab.event_date,
+      ab.event_time,
+      ab.audience_count,
+      ab.full_name,
+      ab.email,
+      ab.phone,
+      ab.ticket_price,
+      ab.total,
+      ab.payment_status,
+      ab.status,
+      ab.created_at,
+      ab.updated_at,
+      b.assigned_address,
+      b.status AS event_status,
+      es.audience_capacity,
+      es.audience_booked
+    FROM audience_bookings AS ab
+
+    INNER JOIN bookings AS b
+        ON ab.booking_id = b.booking_id
+    INNER JOIN event_settings AS es
+        ON ab.booking_id = es.booking_id
+    WHERE
+        ab.user_id = ?
+        AND ab.status = 'confirmed'
+        AND TIMESTAMP(
+            ab.event_date,
+            ab.event_time
+        ) < NOW()
+    ORDER BY
+      ab.event_date DESC,
+      ab.event_time DESC
+    LIMIT ${limit}
+    OFFSET ${offset}
+    `,
+    [userId]
+    );
+
+    /* ==========================
+       FORMAT RESPONSE
+    ========================== */
+    const bookings = rows.map(
+      booking =>
+        formatAudienceResponse(
+          booking
+        )
+    );
+
+    /* ==========================
+       SUCCESS RESPONSE
+    ========================== */
+    return res.status(200).json({
+
+      success: true,
+
+      pagination: {
+
+        page,
+
+        limit,
+
+        total,
+
+        totalPages:
+          Math.ceil(total / limit)
+
+      },
+
+      bookings
+
+    });
+
+  }
+  catch (err) {
+
+    console.error(
+      "Get Completed Audience Bookings Error:",
+      err
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to fetch completed audience bookings."
+
+    });
+
+  }
+  finally {
+    connection.release();
+  }
+});
+
+/* ======================================================
+   CANCELLED AUDIENCE BOOKINGS
+====================================================== */
+router.get("/cancelled", verifyToken, async (req, res) => {
+
+  const connection = await pool.getConnection();
+
+  try {
+
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized."
+      });
+    }
+
+    /* ==========================
+       PAGINATION
+    ========================== */
+    const page  = Math.max(parseInt(req.query.page,  10) || 1,  1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const offset = (page - 1) * limit;
+
+    /* ==========================
+       TOTAL COUNT
+    ========================== */
+    const [countRows] =
+      await connection.execute(
+        `
+        SELECT COUNT(*) AS total
+        FROM audience_bookings
+        WHERE
+          user_id = ?
+          AND status = 'cancelled'
+        `,
+        [userId]
+      );
+
+    const total = Number(countRows[0].total) || 0;
+
+    /* ==========================
+       FETCH BOOKINGS
+    ========================== */
+    const [rows] = await connection.query(
+      `
+      SELECT
+    ab.audience_booking_id,
+    ab.booking_id,
+    ab.user_id,
+
+    ab.event_type,
+    ab.event_category,
+    ab.event_date,
+    ab.event_time,
+
+    ab.audience_count,
+
+    ab.full_name,
+    ab.email,
+    ab.phone,
+
+    ab.ticket_price,
+    ab.total,
+
+    ab.payment_status,
+    ab.status,
+
+    ab.created_at,
+    ab.updated_at,
+
+    b.assigned_address,
+
+    b.status AS event_status,
+
+    es.audience_capacity,
+    es.audience_booked
+
+FROM audience_bookings ab
+
+INNER JOIN bookings b
+ON ab.booking_id = b.booking_id
+
+INNER JOIN event_settings es
+ON ab.booking_id = es.booking_id
+      WHERE
+        ab.user_id = ?
+        AND ab.status = 'cancelled'
+      ORDER BY
+        updated_at DESC,
+        created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+      `,
+      [userId]
+    );
+
+    /* ==========================
+       FORMAT RESPONSE
+    ========================== */
+    const bookings = rows.map(
+      booking =>
+        formatAudienceResponse(
+          booking
+        )
+    );
+
+    /* ==========================
+       SUCCESS RESPONSE
+    ========================== */
+    return res.status(200).json({
+
+      success: true,
+
+      pagination: {
+
+        page,
+
+        limit,
+
+        total,
+
+        totalPages:
+          Math.ceil(total / limit)
+
+      },
+
+      bookings
+
+    });
+
+  }
+  catch (err) {
+
+    console.error(
+      "Get Cancelled Audience Bookings Error:",
+      err
+    );
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        "Failed to fetch cancelled audience bookings."
+
+    });
+
+  }
+  finally {
+
+    connection.release();
+
+  }
+
+});
 
 /* ======================================================
    CANCEL AUDIENCE BOOKING

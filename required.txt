@@ -3306,3 +3306,73 @@ input, textarea{width:96%;padding:10px;border-radius:8px;border:1px solid #ccc;}
   }
 }
 </style>
+
+/* ======================================================
+   SINGLE AUDIENCE BOOKING
+====================================================== */
+router.get("/:audienceBookingId", verifyToken, async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      const userId = req.user?.id;
+      const {
+        audienceBookingId
+      } = req.params;
+
+      if (!audienceBookingId) {
+        return res.status(400).json({
+          success: false,
+          message: "Audience booking ID is required"
+        });
+      }
+
+      /* ==========================
+         GET BOOKING
+      ========================== */
+      const [rows] =
+        await connection.execute(
+          `
+          SELECT *
+          FROM
+            audience_bookings
+          WHERE
+            audience_booking_id=?
+            AND user_id=?
+          LIMIT 1
+          `,
+          [
+            audienceBookingId,
+            userId
+          ]
+        );
+
+      if (!rows.length) {
+        return res.status(404).json({
+          success: false,
+          message: "Audience booking not found"
+        });
+      }
+
+      const booking = rows[0];
+
+      return res.status(200).json({
+        success: true,
+        booking: formatAudienceResponse(booking)
+      });
+    }
+    catch (err) {
+      console.error(
+        "Get Audience Booking Error:",
+        err
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch booking"
+      });
+    }
+    finally {
+      connection.release();
+    }
+  }
+);

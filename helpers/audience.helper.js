@@ -684,6 +684,31 @@ function formatAudienceResponse(data = {}) {
   };
 }
 
+/* TICKET VALIDATORS */
+function validateAudienceBookingId(audienceBookingId) {
+  if (typeof audienceBookingId !== "string") {
+    return false;
+  }
+
+  return /^AUD\d{6}$/.test(
+    audienceBookingId.trim()
+  );
+}
+
+function validateTicketStatus(status) {
+  if (typeof status !== "string") {
+    return false;
+  }
+
+  return [
+    "confirmed",
+    "completed",
+    "cancelled"
+  ].includes(
+    status.trim().toLowerCase()
+  );
+}
+
 module.exports = {
   generatePendingAudienceId,
   generateAudienceBookingId,
@@ -694,5 +719,7 @@ module.exports = {
   buildAudienceExtras,
   checkDuplicateAudienceBooking,
   getAudienceEvent,
-  formatAudienceResponse
+  formatAudienceResponse,
+  validateAudienceBookingId,
+  validateTicketStatus
 };

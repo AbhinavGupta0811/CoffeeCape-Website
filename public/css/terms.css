@@ -1,0 +1,75 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f4f6f8;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.terms-wrapper {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.terms-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.terms-header h1 {
+  font-size: 2.5rem;
+  color: #222;
+}
+
+.terms-section {
+  margin-bottom: 30px;
+}
+
+.terms-section h2 {
+  font-size: 1.5rem;
+  color: #444;
+  margin-bottom: 12px;
+  border-left: 4px solid #ff6f61;
+  padding-left: 10px;
+}
+
+.terms-section p {
+  line-height: 1.7;
+  font-size: 1rem;
+  text-align: justify;
+}
+
+.terms-footer {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Floating Home Button */
+.floating-home {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  transition: background .25s ease, transform .25s ease;
+  font-size: 24px;
+}
+
+.floating-home:hover {
+  background: #3730a3;
+  transform: translateY(-3px);
+}
