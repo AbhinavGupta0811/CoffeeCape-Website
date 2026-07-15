@@ -1173,74 +1173,6 @@ textarea {
 }
 
 /* =================================================================
-   FOOTER
-================================================================= */
-.booking-footer {
-  background: #1A1626;
-  color: rgba(255, 255, 255, 0.78);
-  padding: var(--space-3xl) 0 var(--space-lg);
-  margin-top: var(--space-2xl);
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: var(--space-2xl);
-  padding-bottom: var(--space-xl);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-brand img {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-sm);
-}
-
-.footer-brand h3 {
-  font-size: var(--fs-md);
-  color: #fff;
-  margin-bottom: var(--space-sm);
-}
-
-.footer-brand p {
-  font-size: var(--fs-sm);
-  max-width: 320px;
-}
-
-.footer-links h4,
-.footer-policy h4 {
-  font-size: var(--fs-sm);
-  color: #fff;
-  margin-bottom: var(--space-md);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.footer-links ul li,
-.footer-policy ul li {
-  margin-bottom: var(--space-sm);
-}
-
-.footer-links a,
-.footer-policy a {
-  font-size: var(--fs-sm);
-  transition: color var(--transition-fast);
-}
-
-.footer-links a:hover,
-.footer-policy a:hover {
-  color: var(--color-primary-light);
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: var(--space-lg);
-  font-size: var(--fs-xs);
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* =================================================================
    RESPONSIVE
 ================================================================= */
 @media (max-width: 1024px) {
@@ -1262,10 +1194,6 @@ textarea {
 
   .booking-sidebar {
     position: static;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr 1fr;
   }
 }
 

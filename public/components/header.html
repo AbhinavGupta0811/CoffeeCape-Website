@@ -1,0 +1,192 @@
+<header class="site-header">
+    <nav class="navbar section-content" aria-label="Main Navigation">
+
+        <!-- Logo -->
+        <a href="index.html" class="nav-logo">
+            <img
+                src="assets/logo-image.png"
+                alt="CoffeeCape Logo"
+                class="logo-img"
+            >
+            <h2 class="logo-text">
+                Coffee<span>Cape</span>
+            </h2>
+        </a>
+
+        <!-- Mobile Menu Open -->
+        <button
+            type="button"
+            id="menu-open-button"
+            class="menu-toggle"
+            aria-label="Open Navigation Menu"
+        >
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <!-- Navigation Menu -->
+        <ul
+            id="nav-menu"
+            class="nav-menu"
+            role="list"
+        >
+
+            <li class="nav-item">
+                <a href="index.html" class="nav-link-main">
+                    Home
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="index.html#about" class="nav-link-main">
+                    About
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="index.html#menu" class="nav-link-main">
+                    Menu
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="index.html#activities" class="nav-link-main">
+                    Activities
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="testimonials.html" class="nav-link-main">
+                    Testimonials
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="index.html#gallery" class="nav-link-main">
+                    Gallery
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link-main">
+                    Contact
+                </a>
+            </li>
+
+            <!-- Authentication -->
+            <li class="nav-item auth-item" id="auth-area">
+
+                <!-- Guest User -->
+                <a
+                    href="Auth.html"
+                    id="sign-in-btn"
+                    class="sign-in-button account-link"
+                >
+                    My Account
+                </a>
+
+                <!-- Logged In User -->
+                <div
+                    id="profile-dropdown"
+                    class="profile-dropdown"
+                    hidden
+                >
+
+                    <button
+                        type="button"
+                        id="profile-name"
+                        class="sign-in-button profile-name-button"
+                    >
+                        <img
+                            id="navProfileImg"
+                            class="user-icon"
+                            src=""
+                            alt="User Profile"
+                        >
+
+                        <span id="user-firstname">
+                            User
+                        </span>
+                    </button>
+
+                    <!-- Profile Popup -->
+                    <div
+                        id="profilePopup"
+                        class="profile-popup"
+                        hidden
+                    >
+
+                        <div class="popup-header">
+
+                            <button
+                                type="button"
+                                id="closePopup"
+                                class="close-btn"
+                                aria-label="Close Profile Popup"
+                            >
+                                &times;
+                            </button>
+
+                        </div>
+
+                        <div class="popup-content">
+
+                            <h3>
+                                Welcome,
+                                <span id="popupName">
+                                    User
+                                </span>
+                                👋
+                            </h3>
+
+                            <ul class="popup-links">
+
+                                <li>
+                                    <a href="My-Activity.html">
+                                        My Activity
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="My-profile.html">
+                                        My Profile
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="my-audience-tickets.html">
+                                        My Tickets
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                            <button
+                                type="button"
+                                id="logoutBtn"
+                                class="logout-btn"
+                            >
+                                Logout
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </li>
+
+            <!-- Mobile Menu Close -->
+            <li class="nav-item mobile-close-item">
+                <button
+                    type="button"
+                    id="menu-close-button"
+                    class="menu-toggle"
+                    aria-label="Close Navigation Menu"
+                >
+                    <i class="fa fa-times"></i>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</header>

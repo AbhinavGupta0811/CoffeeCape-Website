@@ -7,6 +7,7 @@ const editBtn = document.getElementById("editBtn");
 const saveBtn = document.getElementById("saveBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 const toast = document.getElementById("toast");
+const profileCard = document.getElementById("profileCard");
 
 const vFirst = document.getElementById("vFirst");
 const vLast = document.getElementById("vLast");
@@ -111,6 +112,7 @@ async function safeFetch(url, options = {}) {
    LOAD PROFILE (DETAILS + AVATAR)
    =============================== */
 async function loadProfile() {
+  profileCard?.classList.add("loading");
   try {
     const user = await safeFetch("/api/profile");
     if (!user) return;
@@ -152,8 +154,42 @@ async function loadProfile() {
   } catch {
     showToast(`<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Please login again`, "error");
     setTimeout(() => (window.location.href = "Auth.html"), 1500);
+  } finally {
+    profileCard?.classList.remove("loading");
   }
 }
+
+/* ===============================
+   INLINE FIELD VALIDATION
+   Gives live feedback on blur using the same regex rules
+   enforced on save, instead of only surfacing errors later.
+   =============================== */
+function attachValidation(input, regex, message, { allowEmpty = false } = {}) {
+  if (!input) return () => true;
+  const wrap = input.closest(".input-wrap");
+  const hint = document.getElementById(`hint${input.id.slice(1)}`);
+
+  function validate() {
+    const val = input.value.trim();
+    const valid = allowEmpty && val === "" ? true : regex.test(val);
+    wrap?.classList.toggle("invalid", !valid);
+    if (hint) hint.textContent = valid ? "" : message;
+    return valid;
+  }
+
+  input.addEventListener("blur", validate);
+  input.addEventListener("input", () => {
+    wrap?.classList.remove("invalid");
+    if (hint) hint.textContent = "";
+  });
+
+  return validate;
+}
+
+const validateFirst = attachValidation(eFirst, nameRegex, "Letters only, minimum 2 characters");
+const validateLast = attachValidation(eLast, nameRegex, "Letters only, minimum 2 characters");
+const validatePhone = attachValidation(ePhone, phoneRegex, "Enter a valid 10-digit number");
+const validateZip = attachValidation(eZip, zipRegex, "4–8 digit ZIP / postal code", { allowEmpty: true });
 
 /* ===============================
    EDIT PROFILE
@@ -180,16 +216,21 @@ saveBtn.onclick = async () => {
     country: eCountry.value.trim()
   };
 
-  if (!nameRegex.test(payload.first_name))
+  const firstValid = validateFirst();
+  const lastValid = validateLast();
+  const phoneValid = validatePhone();
+  const zipValid = validateZip();
+
+  if (!firstValid)
     return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Invalid first name`, "error");
 
-  if (!nameRegex.test(payload.last_name))
+  if (!lastValid)
     return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Invalid last name`, "error");
 
-  if (!phoneRegex.test(payload.phone))
+  if (!phoneValid)
     return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Invalid phone number`, "error");
 
-  if (payload.zip && !zipRegex.test(payload.zip))
+  if (!zipValid)
     return showToast(`<i class="fa-solid fa-triangle-exclamation"style="margin-right:6px;"></i> Invalid ZIP code`, "error");
 
   saveBtn.disabled = true;
@@ -236,6 +277,7 @@ if (avatarBox && avatarInput && avatarImg && avatarText) {
     avatarText.style.display = "none";
 
     /* UPLOAD */
+    avatarBox.classList.add("uploading");
     try {
       const formData = new FormData();
       formData.append("profile_image", file);
@@ -255,6 +297,8 @@ if (avatarBox && avatarInput && avatarImg && avatarText) {
 
     } catch {
       showToast(`<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i> Image upload failed`, "error");
+    } finally {
+      avatarBox.classList.remove("uploading");
     }
   });
 }

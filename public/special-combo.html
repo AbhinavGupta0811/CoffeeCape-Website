@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>Special Combos</title>
   <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
   <style>
 :root{
     --bg:#f8f5f1;
@@ -37,10 +39,6 @@ body{
         );
 
     color:var(--text);
-
-    min-height:100vh;
-
-    padding:25px;
 }
 
 /* HEADER */
@@ -54,45 +52,7 @@ h1{
     letter-spacing:.5px;
 }
 
-.close-btn{
-    position:fixed;
-    top:20px;
-    right:20px;
-
-    width:52px;
-    height:52px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
-
-    background:#fff;
-
-    color:#444;
-
-    text-decoration:none;
-
-    font-size:30px;
-    font-weight:700;
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,.12);
-
-    transition:.35s ease;
-
-    z-index:1000;
-}
-
-.close-btn:hover{
-    background:#ef4444;
-    color:#fff;
-    transform:rotate(90deg);
-}
-
 /* GRID */
-
 .menu-grid,
 .combo-grid{
     width:100%;
@@ -489,15 +449,24 @@ h1{
 </style>
 </head>
 <body>
-  <a href="Index.html#menu" class="close-btn">&times;</a>
+  <header>
+    <div id="header-container"></div>
+  </header>
   <h1>🥘 Special Combos</h1>
 
   <section class="menu-section">
     <div class="menu-grid" data-category="combos"></div>
   </section>
+
+  <footer>
+    <div id="footer-container"></div>
+  </footer>
     
   <button id="nextBtn" disabled><i class="fa-solid fa-angle-right"></i>Next</button>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/common.js"></script>
   <script src="js/cart.js" defer></script>
 </body>
 </html>

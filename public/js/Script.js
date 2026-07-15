@@ -259,57 +259,95 @@ if (typeof Swiper !== "undefined") {
 })();
 
 /************************************************************
- * CONTACT FORM (MAIN LANDING PAGE)
-************************************************************/
+ * VIDEO SLIDER (HERO)
+ * Four slides: autoplay every 6s, fade transition,
+ * prev/next arrows, dot navigation, pause on hover.
+ ************************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-  const landingForm =
-    document.getElementById(
-      "landingContactForm"
-    );
+    const slides    = document.querySelectorAll(".video-slide");
+    const dots      = document.querySelectorAll(".slider-dot");
+    const prevBtn   = document.getElementById("sliderPrev");
+    const nextBtn   = document.getElementById("sliderNext");
 
-  if (!landingForm) return;
+    if (!slides.length) return;
 
-  landingForm.addEventListener(
-    "submit",
-    (e) => {
-      e.preventDefault();
+    let current   = 0;
+    let autoTimer = null;
+    const INTERVAL = 6000;
 
-      const message =
-        landingForm.message.value.trim();
+    /* ---- Activate a slide by index ---- */
+    function goTo(index) {
+        // Pause video on current slide
+        const prevVideo = slides[current].querySelector(".slide-video");
+        if (prevVideo) prevVideo.pause();
 
-      if (!message) {
-        showToast(
-          "Please enter your message",
-          "warning"
-        );
-        return;
-      }
+        // Deactivate current
+        slides[current].classList.remove("active");
+        dots[current]?.classList.remove("active");
 
-      if (message.length < 10) {
-        showToast(
-          "Message should be at least 10 characters",
-          "warning"
-        );
-        return;
-      }
+        // Advance index
+        current = (index + slides.length) % slides.length;
 
-      if (message.length > 2000) {
-        showToast(
-          "Message is too long",
-          "warning"
-        );
-        return;
-      }
+        // Activate new slide
+        slides[current].classList.add("active");
+        dots[current]?.classList.add("active");
 
-      const params =
-        new URLSearchParams({
-          message
-        });
-
-      window.location.href =
-        `contact.html?${params.toString()}`;
+        // Play video on new slide
+        const nextVideo = slides[current].querySelector(".slide-video");
+        if (nextVideo) {
+            nextVideo.currentTime = 0;
+            nextVideo.play().catch(() => {
+                /* Autoplay blocked — video stays muted/paused, overlay is still visible */
+            });
+        }
     }
-  );
+
+    /* ---- Auto-advance ---- */
+    function startAuto() {
+        autoTimer = setInterval(() => goTo(current + 1), INTERVAL);
+    }
+
+    function stopAuto() {
+        clearInterval(autoTimer);
+    }
+
+    /* ---- Controls ---- */
+    prevBtn?.addEventListener("click", () => { stopAuto(); goTo(current - 1); startAuto(); });
+    nextBtn?.addEventListener("click", () => { stopAuto(); goTo(current + 1); startAuto(); });
+
+    dots.forEach(dot => {
+        dot.addEventListener("click", () => {
+            stopAuto();
+            goTo(Number(dot.dataset.index));
+            startAuto();
+        });
+    });
+
+    /* ---- Pause on hover ---- */
+    const slider = document.getElementById("videoSlider");
+    slider?.addEventListener("mouseenter", stopAuto);
+    slider?.addEventListener("mouseleave", startAuto);
+
+    /* ---- Keyboard ---- */
+    document.addEventListener("keydown", e => {
+        if (e.key === "ArrowLeft")  { stopAuto(); goTo(current - 1); startAuto(); }
+        if (e.key === "ArrowRight") { stopAuto(); goTo(current + 1); startAuto(); }
+    });
+
+    /* ---- Touch swipe ---- */
+    let touchStartX = 0;
+    slider?.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+    slider?.addEventListener("touchend",   e => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) < 40) return;
+        stopAuto();
+        goTo(diff > 0 ? current + 1 : current - 1);
+        startAuto();
+    });
+
+    /* ---- Boot ---- */
+    goTo(0);
+    startAuto();
 });
 
 /************************************************************
@@ -329,7 +367,108 @@ document.querySelectorAll("a[href^='#']").forEach(anchor => {
   });
 });
 
+/************************************************************
+ * STATS STRIP — Animated Counters
+ * Counts each .stat-number up from 0 to its data-target
+ * once the stats section scrolls into view.
+ ************************************************************/
 document.addEventListener("DOMContentLoaded", () => {
+    const statsSection = document.getElementById("stats");
+    const counters      = document.querySelectorAll(".stat-number");
+
+    if (!statsSection || !counters.length) return;
+
+    const DURATION = 1800; // ms
+
+    function animateCounter(el) {
+        const target = Number(el.dataset.target) || 0;
+        const start  = performance.now();
+
+        function tick(now) {
+            const progress = Math.min((now - start) / DURATION, 1);
+            // ease-out for a natural deceleration
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const value = Math.floor(eased * target);
+
+            el.textContent = value.toLocaleString("en-IN");
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                el.textContent = target.toLocaleString("en-IN");
+            }
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                counters.forEach(animateCounter);
+                obs.disconnect();
+            }
+        });
+    }, { threshold: 0.4 });
+
+    observer.observe(statsSection);
+});
+
+/************************************************************
+ * ACTIVITIES — Filter Chips
+ * Shows/hides event cards by data-category based on the
+ * selected filter chip, without touching the booking modal.
+ ************************************************************/
+document.addEventListener("DOMContentLoaded", () => {
+    const chips = document.querySelectorAll(".filter-chip");
+    const cards = document.querySelectorAll(".activity-card");
+    const emptyState = document.getElementById("activityEmpty");
+
+    if (!chips.length || !cards.length) return;
+
+    chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+            chips.forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+
+            const filter = chip.dataset.filter;
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const match = filter === "all" || card.dataset.category === filter;
+                card.classList.toggle("is-hidden", !match);
+                if (match) visibleCount++;
+            });
+
+            if (emptyState) {
+                emptyState.hidden = visibleCount !== 0;
+            }
+        });
+    });
+});
+
+/************************************************************
+ * FAQ — Accordion
+ * Toggles one answer open at a time and keeps aria-expanded
+ * in sync for accessibility.
+ ************************************************************/
+document.addEventListener("DOMContentLoaded", () => {
+    const faqQuestions = document.querySelectorAll(".faq-question");
+    if (!faqQuestions.length) return;
+
+    faqQuestions.forEach(button => {
+        button.addEventListener("click", () => {
+            const isOpen = button.getAttribute("aria-expanded") === "true";
+
+            faqQuestions.forEach(other => other.setAttribute("aria-expanded", "false"));
+
+            button.setAttribute("aria-expanded", isOpen ? "false" : "true");
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const galleryItems  = document.querySelectorAll(".gallery-item");
   const galleryImages = document.querySelectorAll(".gallery-image");
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightboxImg");
@@ -337,17 +476,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextBtn = document.querySelector(".lightbox-nav.next");
   const prevBtn = document.querySelector(".lightbox-nav.prev");
 
-  if (!galleryImages.length || !lightbox) return;
+  if (!galleryItems.length || !galleryImages.length || !lightbox) return;
 
   let currentIndex = 0;
 
   function showImage() {
     lightboxImg.src = galleryImages[currentIndex].src;
+    lightboxImg.alt = galleryImages[currentIndex].alt || "";
   }
 
-  // Open lightbox
-  galleryImages.forEach((img, index) => {
-    img.addEventListener("click", () => {
+  // Open lightbox — listen on the whole tile (image + hover overlay)
+  // so clicks anywhere on the card, including the overlay caption/
+  // zoom icon that sit above the image, still open the lightbox.
+  galleryItems.forEach((item, index) => {
+    item.addEventListener("click", () => {
       currentIndex = index;
       showImage();
       lightbox.classList.add("active");
@@ -355,19 +497,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Next image
-  nextBtn?.addEventListener("click", () => {
+  nextBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
     currentIndex = (currentIndex + 1) % galleryImages.length;
     showImage();
   });
 
   // Previous image
-  prevBtn?.addEventListener("click", () => {
+  prevBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
     currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
     showImage();
   });
 
   // Close button
-  lightboxcloseBtn?.addEventListener("click", () => {
+  lightboxcloseBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
     lightbox.classList.remove("active");
   });
 

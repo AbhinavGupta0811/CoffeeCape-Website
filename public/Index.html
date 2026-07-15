@@ -7,13 +7,14 @@
     <link rel="icon" type="image/png" href="assets/logo-image.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.css" integrity="sha512-pmAAV1X4Nh5jA9m+jcvwJXFQvCBi3T17aZ1KWkqXr7g/O2YMvO8rfaa5ETWDuBvRq6fbDjlw4jHL44jNTScaKg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/Style.css">
     <link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
     <!-- Header / Navbar -->
     <header>
-        <nav class="navbar section-content">
+        <nav class="navbar section-content" aria-label="Main Navigation">
           <a href="#" class="nav-logo">
             <img src="assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img" />
             <h2 class="logo-text">Coffee<span>Cape</span></h2>
@@ -25,16 +26,23 @@
           <ul class="nav-menu" id="nav-menu">
             <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
             <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+            <li class="nav-item"><a href="#why-us" class="nav-link">Why Us</a></li>
             <li class="nav-item"><a href="#menu" class="nav-link">Menu</a></li>
             <li class="nav-item"><a href="#activities" class="nav-link">Activities</a></li>
             <li class="nav-item"><a href="testimonials.html" class="nav-link">Testimonials</a></li>
             <li class="nav-item"><a href="#gallery" class="nav-link">Gallery</a></li>
+            <li class="nav-item"><a href="#faq" class="nav-link">FAQ</a></li>
             <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
             
             <!-- Inside your <ul class="nav-menu" id="nav-menu"> -->
             <li class="nav-item" id="auth-area">
                 <!-- Sign In Button (shown when not logged in) -->
-                <button class="sign-in-button" id="sign-in-btn"><a href="Auth.html" style="color: #fff;">My Account</a></button>
+                <button class="sign-in-button" id="sign-in-btn">
+                    <a href="Auth.html">
+                        <i class="fa-regular fa-user"></i> 
+                        My Account
+                    </a>
+                </button>
 
                 <!-- Profile Dropdown Popup -->
                 <div class="profile-dropdown" id="profile-dropdown" style="display: none;">
@@ -77,50 +85,249 @@
     </header>
     
     <main>
-        <!-- Hero-Section -->
-        <section class="hero-section">
-            <div class="section-content">
-                <div class="hero-details">
-                    <h2 class="title">Best Coffee</h2>
-                    <h3 class="subtitle">Make your day great with our special 
-                    Coffee!</h3>
-                    <p class="description">Welcome to our coffee paradise, where 
-                    every bean tells a story and every cup sparks joy.</p>
+        <!-- Hero Video Slider -->
+        <section class="hero-section" id="hero" aria-label="Hero">
+            <div class="video-slider" id="videoSlider">
 
-                    <div class="buttons">
-                        <a href="#" class="button order-now">Order Now</a>
-                        <a href="contact.html" class="button contact-us">Contact Us</a>
+                <!-- SLIDE 1 -->
+                <div class="video-slide active" data-index="0">
+                    <video class="slide-video" autoplay muted loop playsinline>
+                        <source src="assets/videos/hero-1.mp4" type="video/mp4">
+                    </video>
+                    <div class="slide-overlay">
+                        <div class="slide-content">
+                            <span class="slide-tag">Fresh Every Morning</span>
+                            <h1 class="slide-title">Best Coffee<br>in Mumbai</h1>
+                            <p class="slide-desc">Welcome to our coffee paradise, where every bean tells a story and every cup sparks joy.</p>
+                            <div class="slide-buttons">
+                                <a href="#menu" class="slide-btn primary">Order Now</a>
+                                <a href="#about" class="slide-btn outline">Our Story</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="hero-image-wrapper">
-                    <img src="assets/coffee-hero-section.png" alt="Hero" class="hero-image">
+
+                <!-- SLIDE 2 -->
+                <div class="video-slide" data-index="1">
+                    <video class="slide-video" muted loop playsinline>
+                        <source src="assets/videos/hero-2.mp4" type="video/mp4">
+                    </video>
+                    <div class="slide-overlay">
+                        <div class="slide-content">
+                            <span class="slide-tag">Events & Activities</span>
+                            <h1 class="slide-title">Live Events<br>Every Week</h1>
+                            <p class="slide-desc">From karaoke nights to open mic sessions — there's always something happening at CoffeeCape.</p>
+                            <div class="slide-buttons">
+                                <a href="#activities" class="slide-btn primary">Explore Events</a>
+                                <a href="audience-booking.html" class="slide-btn outline">Book a Seat</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- SLIDE 3 -->
+                <div class="video-slide" data-index="2">
+                    <video class="slide-video" muted loop playsinline>
+                        <source src="assets/videos/hero-3.mp4" type="video/mp4">
+                    </video>
+                    <div class="slide-overlay">
+                        <div class="slide-content">
+                            <span class="slide-tag">Our Special Menu</span>
+                            <h1 class="slide-title">Taste the<br>Difference</h1>
+                            <p class="slide-desc">Handcrafted beverages, artisan desserts and quick bites — all made with love and the finest ingredients.</p>
+                            <div class="slide-buttons">
+                                <a href="#menu" class="slide-btn primary">View Menu</a>
+                                <a href="hot-beverages.html" class="slide-btn outline">Hot Beverages</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 4 -->
+                <div class="video-slide" data-index="3">
+                    <video class="slide-video" muted loop playsinline>
+                        <source src="assets/videos/hero-4.mp4" type="video/mp4">
+                    </video>
+                    <div class="slide-overlay">
+                        <div class="slide-content">
+                            <span class="slide-tag">Private Celebrations</span>
+                            <h1 class="slide-title">Celebrate With<br>Your Loved Ones</h1>
+                            <p class="slide-desc">Book our cozy space for birthdays, anniversaries or any special occasion worth remembering.</p>
+                            <div class="slide-buttons">
+                                <a href="#activities" class="slide-btn primary">Book a Party</a>
+                                <a href="contact.html" class="slide-btn outline">Contact Us</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prev / Next arrows -->
+                <button class="slider-arrow slider-prev" id="sliderPrev" aria-label="Previous slide">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="slider-arrow slider-next" id="sliderNext" aria-label="Next slide">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <!-- Dot navigation -->
+                <div class="slider-dots" id="sliderDots">
+                    <button class="slider-dot active" data-index="0" aria-label="Go to slide 1"></button>
+                    <button class="slider-dot" data-index="1" aria-label="Go to slide 2"></button>
+                    <button class="slider-dot" data-index="2" aria-label="Go to slide 3"></button>
+                    <button class="slider-dot" data-index="3" aria-label="Go to slide 4"></button>
+                </div>
+
+                <!-- Scroll hint -->
+                <a href="#about" class="slider-scroll-hint" aria-label="Scroll to About section">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </a>
+
             </div>
         </section>
 
-        <!-- about-section -->
+        <!-- STATS STRIP — Animated Counters -->
+        <section class="stats-section" id="stats" aria-label="Our numbers">
+          <div class="stats-grid section-content">
+
+            <article class="stat-item">
+              <i class="fa-solid fa-mug-hot stat-icon"></i>
+              <div>
+                <strong class="stat-number" data-target="12000">0</strong>
+                <span class="stat-suffix">+</span>
+                <p class="stat-label">Cups Brewed Daily</p>
+              </div>
+            </article>
+
+            <article class="stat-item">
+              <i class="fa-solid fa-face-smile stat-icon"></i>
+              <div>
+                <strong class="stat-number" data-target="8500">0</strong>
+                <span class="stat-suffix">+</span>
+                <p class="stat-label">Happy Customers</p>
+              </div>
+            </article>
+
+            <article class="stat-item">
+              <i class="fa-solid fa-calendar-check stat-icon"></i>
+              <div>
+                <strong class="stat-number" data-target="320">0</strong>
+                <span class="stat-suffix">+</span>
+                <p class="stat-label">Events Hosted</p>
+              </div>
+            </article>
+
+            <article class="stat-item">
+              <i class="fa-solid fa-award stat-icon"></i>
+              <div>
+                <strong class="stat-number" data-target="7">0</strong>
+                <span class="stat-suffix">+</span>
+                <p class="stat-label">Years of Excellence</p>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- ABOUT Section -->
         <section class="about-section" id="about">
-            <div class="section-content">
-                <div class="about-image-wrapper">
-                    <img src="assets/about-image.jpg" alt="About" class="about-image">
+          <div class="section-content about-layout">
+
+            <figure class="about-figure">
+              <img src="assets/about-image.jpg" alt="Inside CoffeeCape café" class="about-img" loading="lazy">
+              <figcaption class="about-badge">
+                <i class="fa-solid fa-leaf"></i>
+                <span>Est. 2017 · Navi Mumbai</span>
+              </figcaption>
+            </figure>
+
+            <div class="about-body">
+              <span class="section-eyebrow">Our Story</span>
+              <h2 class="section-title left">More Than a<br>Coffee Shop</h2>
+              <p class="about-text">
+                At CoffeeCape in Navi Mumbai, we're more than just a café — we're a community
+                hub where every cup opens a conversation. Our baristas pour passion into every
+                brew, our chefs craft bites that complement perfectly, and our events team keeps
+                the calendar buzzing.
+              </p>
+              <p class="about-text">
+                Whether you're here for a quick espresso, a slow Saturday brunch, or a lively
+                karaoke night, CoffeeCape is your place to be.
+              </p>
+
+              <div class="about-highlights">
+                <div class="highlight-item">
+                  <i class="fa-solid fa-seedling"></i>
+                  <span>Ethically Sourced Beans</span>
                 </div>
-                <div class="about-details">
-                    <h2 class="section-title">About Us</h2>
-                    <p class="text">At Coffee House in Mumbai, India, we pride
-                        ourselves on being a go-to destination for coffee lovers and 
-                        conversation seekers alike. We're dedicated to providing an 
-                        exceptional coffee experience in a cozy and inviting atomsphere,
-                        where guests can relax, unwind, and enjoy their time in comfort.
-                    </p>
-                    <div class="social-link-list">
-                        <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
-                        <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
-                    </div>
+                <div class="highlight-item">
+                  <i class="fa-solid fa-fire-burner"></i>
+                  <span>In-House Roastery</span>
                 </div>
+                <div class="highlight-item">
+                  <i class="fa-solid fa-wifi"></i>
+                  <span>Free High-Speed WiFi</span>
+                </div>
+                <div class="highlight-item">
+                  <i class="fa-solid fa-parking"></i>
+                  <span>Free Parking</span>
+                </div>
+              </div>
+
+              <div class="about-social">
+                <a href="#" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-btn" aria-label="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="social-btn" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+              </div>
             </div>
+
+          </div>
         </section>
-        
+
+        <!--WHY COFFEECAPE — Feature Cards -->
+        <section class="features-section section-pad" id="why-us" aria-label="Why choose us">
+          <div class="section-content">
+            <span class="section-eyebrow center">Why Choose Us</span>
+            <h2 class="section-title center">The CoffeeCape Difference</h2>
+
+            <div class="features-grid">
+
+              <article class="feature-card">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-mug-saucer"></i>
+                </div>
+                <h3>Premium Quality</h3>
+                <p>Every drink is made from hand-selected, single-origin beans roasted fresh in our own roastery.</p>
+              </article>
+
+              <article class="feature-card">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-couch"></i>
+                </div>
+                <h3>Cozy Ambiance</h3>
+                <p>Warm lighting, comfortable seating and thoughtful décor — the perfect environment to relax or work.</p>
+              </article>
+
+              <article class="feature-card">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-music"></i>
+                </div>
+                <h3>Live Entertainment</h3>
+                <p>From open mic nights to karaoke sessions and private events, we keep things lively every week.</p>
+              </article>
+
+              <article class="feature-card">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h3>Fast Service</h3>
+                <p>Efficient online ordering, quick table service and doorstep delivery — your time is always respected.</p>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
         <!-- menu-section -->
         <section class="menu-section" id="menu">
         <h2 class="section-title">Our Menu</h2>
@@ -177,61 +384,143 @@
         </div>
         </section>
 
-        <!-- activities-section -->
-        <section class="activities-section" id="activities">
-            <h2 class="section-title">Events & Activities</h2>
-            <div class="section-content">
-                <ul class="activity-list">
-                    <li class="activity-card">
+        <!-- ACTIVITIES Setion -->
+        <section class="activities-section section-pad" id="activities" aria-label="Events and activities">
+          <div class="section-content">
+            <span class="section-eyebrow center">What's On</span>
+            <h2 class="section-title center">Events & Activities</h2>
+
+            <div class="activity-filters" role="tablist" aria-label="Filter events by category">
+              <button type="button" class="filter-chip active" data-filter="all">All Events</button>
+              <button type="button" class="filter-chip" data-filter="music">Music</button>
+              <button type="button" class="filter-chip" data-filter="dining">Dining</button>
+              <button type="button" class="filter-chip" data-filter="social">Social</button>
+              <button type="button" class="filter-chip" data-filter="tasting">Tasting</button>
+              <button type="button" class="filter-chip" data-filter="party">Private</button>
+            </div>
+
+            <ul class="activity-list">
+
+                <li class="activity-card" data-category="dining">
+                    <span class="activity-badge">Popular</span>
+                    <div class="activity-media">
                         <img src="assets/Dinner-night.png" alt="Dinner Night">
+                        <span class="activity-day">Daily</span>
+                        <span class="activity-tag">Dining</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> 7:00 – 10:30 PM</span>
+                            <span><i class="fa-solid fa-user-group"></i> All Day</span>
+                        </div>
                         <h3>Dinner Nights</h3>
-                        <p>Enjoy fine dining with live acoustic music every Friday evening.</p>
+                        <p>Enjoy fine dining with live acoustic music every evening.</p>
                         <a href="#" class="activity-button book-now-btn" data-event="dinner">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                    <li class="activity-card">
+                    </div>
+                </li>
+
+                <li class="activity-card" data-category="social">
+                    <div class="activity-media">
                         <img src="assets/get-together.png" alt="Get Together">
+                        <span class="activity-day">Daily</span>
+                        <span class="activity-tag">Social</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> All Day</span>
+                            <span><i class="fa-solid fa-user-group"></i> Walk-ins welcome</span>
+                        </div>
                         <h3>Friendly Get-Togethers</h3>
                         <p>Bring your crew and hang out over your favorite brews.</p>
                         <a href="#" class="activity-button book-now-btn" data-event="get">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                    <li class="activity-card">
+                    </div>
+                </li>
+
+                <li class="activity-card" data-category="music">
+                    <span class="activity-badge">Popular</span>
+                    <div class="activity-media">
                         <img src="assets/karaoke.jpg" alt="Karaoke Night">
+                        <span class="activity-day">Sat</span>
+                        <span class="activity-tag">Music</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> 8:00 – 11:00 PM</span>
+                            <span><i class="fa-solid fa-user-group"></i> 8 seats left</span>
+                        </div>
                         <h3>Karaoke Nights</h3>
                         <p>Sing your heart out and cheer for friends every Saturday night!</p>
                         <a href="#" class="activity-button book-now-btn" data-event="karaoke">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                    <li class="activity-card">
+                    </div>
+                </li>
+
+                <li class="activity-card" data-category="music">
+                    <div class="activity-media">
                         <img src="assets/open-mic-night.png" alt="Open Mic">
+                        <span class="activity-day">Thu</span>
+                        <span class="activity-tag">Music</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> 7:30 – 10:00 PM</span>
+                            <span><i class="fa-solid fa-user-group"></i> 15 seats left</span>
+                        </div>
                         <h3>Open Mic Nights</h3>
                         <p>Poetry, comedy, or stories — the mic is yours every Thursday.</p>
                         <a href="#" class="activity-button book-now-btn" data-event="openmic">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                    <li class="activity-card">  
+                    </div>
+                </li>
+
+                <li class="activity-card" data-category="tasting">
+                    <div class="activity-media">
                         <img src="assets/tasting-event.png" alt="Tasting Event">
+                        <span class="activity-day">Sun</span>
+                        <span class="activity-tag">Tasting</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> 4:00 – 6:00 PM</span>
+                            <span><i class="fa-solid fa-user-group"></i> 10 seats left</span>
+                        </div>
                         <h3>Tasting Event</h3>
                         <p>Sample a curated selection of brews, desserts, and seasonal flavors.</p>
                         <a href="#" class="activity-button book-now-btn" data-event="tasting">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                    <li class="activity-card">
+                    </div>
+                </li>
+
+                <li class="activity-card" data-category="party">
+                    <div class="activity-media">
                         <img src="assets/birthday-party.png" alt="Birthday Party">
+                        <span class="activity-day">On Request</span>
+                        <span class="activity-tag">Private</span>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-meta">
+                            <span><i class="fa-regular fa-clock"></i> Custom Timing</span>
+                            <span><i class="fa-solid fa-user-group"></i> Up to 40 guests</span>
+                        </div>
                         <h3>Private Celebrations</h3>
                         <p>Book our space for your birthdays or small private parties.</p>
                         <a href="#" class="activity-button book-now-btn" data-event="private">
-                            Book Now
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
                         </a>
-                    </li>
-                </ul>
-            </div>
+                    </div>
+                </li>
+
+            </ul>
+
+            <p class="activity-empty" id="activityEmpty" hidden>No events in this category right now — check back soon!</p>
+          </div>
         </section>
 
         <!-- testimonials-section -->
@@ -281,50 +570,115 @@
             </div>
         </section>
 
-        <!-- gallery-section -->
-        <section class="gallery-section" id="gallery">
-            <h2 class="section-title">Gallery</h2>
-            <div class="section-content">
-                <ul class="gallery-list">
-                    <li class="gallery-item">
-                        <img src="assets/gallery-1.jpg" alt="Gallery 1" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="assets/gallery-2.jpg" alt="Gallery 2" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="assets/gallery-3.jpg" alt="Gallery 3" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="assets/gallery-4.jpg" alt="Gallery 4" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="assets/gallery-5.jpg" alt="Gallery 5" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="assets/gallery-6.jpg" alt="Gallery 6" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://www.realmenrealstyle.com/wp-content/uploads/2023/06/Women-Love-A-Man-With-Manners-768x525.jpg" alt="Gallery 7" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://wallpapercave.com/wp/wp10808152.jpg" alt="Gallery 8" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://cdn9.dissolve.com/p/D2012_136_043/D2012_136_043_1200.jpg" alt="Gallery 9" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://media.istockphoto.com/id/1068798566/photo/microphone.jpg?s=612x612&w=0&k=20&c=gh9aNR8gZt67rbo3WdjSJIAER_y5llQqYA6hUSCetqk=" alt="Gallery 10" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://media.istockphoto.com/id/2158580612/photo/mature-woman-celebrating-birthday-with-family-at-home.jpg?s=612x612&w=0&k=20&c=Adwbozn1_g-0PciiqGcQae4a-ABfq-SWxsIb5cDm010=" alt="Gallery 11" class="gallery-image">
-                    </li>
-                    <li class="gallery-item">
-                        <img src="https://media.istockphoto.com/id/937483290/photo/server-holding-a-tray-of-appetizers-at-a-banquet.jpg?s=612x612&w=0&k=20&c=npgO7U825B6xuIehGCcmVCTGPo56HCHvw4_q_u3mmKU=" alt="Gallery 12" class="gallery-image">
-                    </li>
-                </ul>
-            </div>
+        <!-- Gallery Section -->
+        <section class="gallery-section section-pad" id="gallery" aria-label="Photo gallery">
+          <div class="section-content">
+            <span class="section-eyebrow center">Moments</span>
+            <h2 class="section-title center">Gallery</h2>
+
+            <ul class="gallery-grid">
+                <li class="gallery-item span-big">
+                    <img src="assets/interior.webp" alt="Gallery 1" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Interior</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/cozy corner.png" alt="Gallery 2" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Cozy Corner</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/fresh-brew.webp" alt="Gallery 3" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Fresh Brew</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item span-wide">
+                    <img src="assets/luxury_dessert_table.webp" alt="Gallery 4" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Dessert Table</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/indian_coffee_house_blue_hour.webp" alt="Gallery 5" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Evening Ambience</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item span-tall">
+                    <img src="assets/indian_coffee_workspace.webp" alt="Gallery 6" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Community Table</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/couple date.webp" alt="Gallery 7" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Couple Memories</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/family_coffee_moment.webp" alt="Gallery 8" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Family Moments</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item span-wide">
+                    <img src="assets/dj_night_coffeehouse.webp" alt="Gallery 9" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">DJ Night</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/open_mic_evening.webp" alt="Gallery 10" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Live Mic Night</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/luxury_indian_birthday_celebration.webp" alt="Gallery 11" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Birthday Cheers</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="https://media.istockphoto.com/id/937483290/photo/server-holding-a-tray-of-appetizers-at-a-banquet.jpg?s=612x612&w=0&k=20&c=npgO7U825B6xuIehGCcmVCTGPo56HCHvw4_q_u3mmKU=" alt="Gallery 12" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Event Catering</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+                <li class="gallery-item">
+                    <img src="assets/indian_coffee_concert.webp" alt="Gallery 13" class="gallery-image">
+                    <div class="gallery-overlay">
+                        <span class="gallery-cat">Musical Night</span>
+                        <span class="gallery-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                    </div>
+                </li>
+            </ul>
+          </div>
         </section>
+
+        <!-- Lightbox Effect for Gallery Images -->
+        <div class="lightbox" id="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <span class="lightbox-nav prev">&#10094;</span>
+            <img class="lightbox-img" id="lightboxImg">
+            <span class="lightbox-nav next">&#10095;</span>
+        </div>
 
         <!-- lightbox Effect for Gallery Images -->
         <div class="lightbox" id="lightbox">
@@ -334,124 +688,399 @@
             <span class="lightbox-nav next">&#10095;</span>
         </div>
 
-        <!-- contact-section -->
-        <section class="contact-section" id="contact">
-            <h2 class="section-title">Contact Us</h2>
+        <!-- FAQ — Accordion -->
+        <section class="faq-section section-pad" id="faq" aria-label="Frequently asked questions">
+          <div class="section-content">
+            <span class="section-eyebrow center">FAQs</span>
+            <h2 class="section-title center">Frequently Asked Questions</h2>
+
+            <div class="faq-list">
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="true">
+                        <span>Do I need to book a table in advance?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Walk-ins are always welcome, but we recommend booking ahead for weekends and event nights like Karaoke or Open Mic, since seating fills up quickly.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Can I reserve the café for a private event?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Absolutely. Our space can be booked for birthdays, anniversaries and small gatherings of up to 40 guests. Use the "Book Now" button on the Private Celebrations card to get started.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Do you offer vegan or gluten-free options?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes — our menu includes plant-based milk alternatives, vegan pastries and a handful of gluten-free bites. Just ask our staff and they'll point you in the right direction.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Is parking available?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, we offer free parking right outside the café for both two-wheelers and cars, subject to availability during peak hours.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Can I bring my laptop and work from CoffeeCape?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Of course! We have free high-speed WiFi and comfortable seating throughout the café, making it a great spot for remote work or study sessions.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What payment methods do you accept?</span>
+                        <i class="fa-solid fa-chevron-down faq-icon"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We accept cash, all major debit/credit cards, and UPI payments. Online orders can also be paid for securely through our website.</p>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- visit-section (replaces contact-section) -->
+        <section class="visit-section" id="contact">
+            <h2 class="section-title">Find Us</h2>
 
             <div class="section-content">
-                <!-- CONTACT INFO -->
-                <ul class="contact-info-list">
-                <li class="contact-info">
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                    <p>Nav Mumbai, India</p>
-                </li>
 
-                <li class="contact-info">
-                    <i class="fa-regular fa-envelope"></i>
-                    <p>
-                    <a href="mailto:info@coffeeshopwebsite.com">
-                        info@coffeeshopwebsite.com
-                    </a>
-                    </p>
-                </li>
+                <div class="visit-layout">
 
-                <li class="contact-info">
-                    <i class="fa-solid fa-phone"></i>
-                    <p>
-                    <a href="tel:+919876543210">+91 98765 43210</a>
-                    </p>
-                </li>
+                    <!-- Map embed -->
+                    <div class="visit-map">
+                        <iframe
+                            src="https://www.google.com/maps?q=Navi+Mumbai,Maharashtra,India&output=embed"
+                            title="CoffeeCape location map"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            allowfullscreen>
+                        </iframe>
+                        <div class="visit-map-badge">
+                            <span class="status-dot"></span>
+                            <span>Open Now · Closes 10:00 PM</span>
+                        </div>
+                    </div>
 
-                <li class="contact-info">
-                    <i class="fa-regular fa-clock"></i>
-                    <p>Mon – Fri: 9:00 AM – 5:00 PM</p>
-                </li>
+                    <!-- Info cards grid -->
+                    <div class="visit-grid">
 
-                <li class="contact-info">
-                    <i class="fa-regular fa-clock"></i>
-                    <p>Saturday: 10:00 AM – 3:00 PM</p>
-                </li>
+                    <!-- Location -->
+                    <div class="visit-card">
+                        <div class="visit-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <h3>Location</h3>
+                        <p>Navi Mumbai, Maharashtra, India</p>
+                        <a href="https://maps.google.com/?q=Navi+Mumbai" target="_blank" rel="noopener" class="visit-link">
+                            Get Directions <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
 
-                <li class="contact-info">
-                    <i class="fa-regular fa-clock"></i>
-                    <p>Sunday: Closed</p>
-                </li>
+                    <!-- Hours -->
+                    <div class="visit-card">
+                        <div class="visit-icon">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                        <h3>Opening Hours</h3>
+                        <ul class="hours-list">
+                            <li>
+                                <span>Mon – Fri</span>
+                                <span>9:00 AM – 10:00 PM</span>
+                            </li>
+                            <li>
+                                <span>Saturday</span>
+                                <span>10:00 AM – 11:00 PM</span>
+                            </li>
+                            <li>
+                                <span>Sunday</span>
+                                <span>10:00 AM – 9:00 PM</span>
+                            </li>
+                        </ul>
+                    </div>
 
-                <li class="contact-info">
-                    <i class="fa-solid fa-globe"></i>
-                    <p>
-                    <a href="https://www.codingJayeshweb.com" target="_blank" rel="noopener">
-                        www.codingJayeshweb.com
-                    </a>
-                    </p>
-                </li>
-                </ul>
-                
-                <!-- LANDING PAGE CONTACT FORM -->
-                <form id="landingContactForm" class="landing-contact-form" novalidate>
-                <textarea name='message' placeholder="How can we help you?" rows="4" required aria-label="Your message"></textarea>
-                <button type="submit">Contact Support</button>
-                </form>
+                    <!-- Contact -->
+                    <div class="visit-card">
+                        <div class="visit-icon">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h3>Get In Touch</h3>
+                        <p>
+                            <a href="tel:+919876543210">+91 98765 43210</a>
+                        </p>
+                        <p>
+                            <a href="mailto:info@coffeecape.com">info@coffeecape.com</a>
+                        </p>
+                        <a href="contact.html" class="visit-link">
+                            Send a Message <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    </div>
+
+                </div>
+
+                <!-- CTA strip -->
+                <div class="visit-cta">
+                    <a href="#menu" class="button order-now">Order Online</a>
+                    <a href="contact.html" class="button contact-us">Full Contact Page</a>
+                </div>
+
             </div>
         </section>
 
         <!-- footer-section -->
         <footer class="footer">
             <div class="footer-container">
+
+                <!-- Brand -->
                 <div class="footer-column">
+                    <a href="index.html" class="footer-logo">
+
+                        <img
+                            src="assets/logo-image.png"
+                            alt="CoffeeCape Logo"
+                            class="footer-logo-img"
+                        >
+
+                        <h3>CoffeeCape</h3>
+
+                    </a>
+
+                    <p>
+                        Delivering fresh, delicious food from trusted restaurants
+                        straight to your doorstep. Experience premium coffee,
+                        fresh meals, secure payments and lightning-fast delivery.
+                    </p>
+
+                    <div class="footer-contact">
+
+                        <p>
+                            <i class="fa-solid fa-envelope"></i>
+                            support@coffeecape.com
+                        </p>
+
+                        <p>
+                            <i class="fa-solid fa-phone"></i>
+                            +91 98765 43210
+                        </p>
+                    </div>
+
+                    <div class="footer-social">
+                        <a
+                            id="facebookLink"
+                            href="#"
+                            aria-label="Facebook"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+
+                        <a
+                            id="instagramLink"
+                            href="#"
+                            aria-label="Instagram"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+
+                        <a
+                            id="twitterLink"
+                            href="#"
+                            aria-label="X"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+
+                        <a
+                            id="linkedinLink"
+                            href="#"
+                            aria-label="LinkedIn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+
+                        <a
+                            id="youtubeLink"
+                            href="#"
+                            aria-label="YouTube"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <i class="fa-brands fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-column">
+
                     <h4>Quick Links</h4>
+
                     <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Browse Restaurants</a></li>
-                        <li><a href="MyOrder.html">My Orders</a></li>
-                        <li><a href="contact.html">Contact Support</a></li>
+
+                        <li>
+                            <a href="index.html">Home</a>
+                        </li>
+
+                        <li>
+                            <a href="index.html#menu">Browse Restaurants</a>
+                        </li>
+
+                        <li>
+                            <a href="MyOrder.html">My Orders</a>
+                        </li>
+
+                        <li>
+                            <a href="contact.html">Contact Support</a>
+                        </li>
+
                     </ul>
+
                 </div>
 
+                <!-- Support -->
                 <div class="footer-column">
+
                     <h4>Support</h4>
+
                     <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Order Issues</a></li>
-                        <li><a href="refund-policy.html">Refund Policy</a></li>
-                        <li><a href="#">Cancellation Policy</a></li>
+
+                        <li>
+                            <a href="#">Help Center</a>
+                        </li>
+
+                        <li>
+                            <a href="#">Order Issues</a>
+                        </li>
+
+                        <li>
+                            <a href="refund-policy.html">
+                                Refund Policy
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                Cancellation Policy
+                            </a>
+                        </li>
+
                     </ul>
+
                 </div>
 
+                <!-- Legal & Company -->
                 <div class="footer-column">
-                    <h4>Legal</h4>
+
+                    <h4>Legal & Company</h4>
+
                     <ul>
-                        <li><a href="#">Terms & Conditions</a></li>
-                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
+
+                        <li>
+                            <a href="#">Terms & Conditions</a>
+                        </li>
+
+                        <li>
+                            <a href="privacy-policy.html">
+                                Privacy Policy
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">Cookie Policy</a>
+                        </li>
+
+                        <li>
+                            <a href="#">About Us</a>
+                        </li>
+
+                        <li>
+                            <a href="#">Careers</a>
+                        </li>
+
+                        <li>
+                            <a href="#">Partner With Us</a>
+                        </li>
+
+                        <li>
+                            <a href="#">Blog</a>
+                        </li>
+
                     </ul>
+
                 </div>
 
-                <div class="footer-column">
-                    <h4>Connect</h4>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Partner With Us</a></li>
-                        <li><a href="#">Blog</a></li>
-                    </ul>
-                </div>
             </div>
 
+            <!-- Footer Bottom -->
             <div class="footer-bottom">
-                <div class="footer-download">
-                    <a href="#">
-                        <img src="assets/download-on-the-app-store.svg"
-                        alt="Download on the App Store">
-                    </a>
-                    <a href="#">
-                        <img src="assets/Google_Play_Store_badge_EN.svg"
-                        alt="Get it on Google Play">
-                    </a>
+                <div class="footer-download-section">
+                    <h5>Download Our App</h5>
+
+                    <div class="footer-download">
+                        <a
+                            href="#"
+                            id="appStoreLink"
+                            aria-label="Download on App Store"
+                        >
+                            <img
+                                src="assets/download-on-the-app-store.svg"
+                                alt="Download on the App Store"
+                            >
+                        </a>
+
+                        <a
+                            href="#"
+                            id="playStoreLink"
+                            aria-label="Get it on Google Play"
+                        >
+                            <img
+                                src="assets/Google_Play_Store_badge_EN.svg"
+                                alt="Get it on Google Play"
+                            >
+                        </a>
+                    </div>
                 </div>
-                <p>
-                    © 2025 CoffeeCape. All rights reserved.
-                </p>
+
+                <div class="footer-copyright">
+                    <p>
+                        © <span id="footerYear"></span>
+                        CoffeeCape. All rights reserved.
+                    </p>
+
+                    <p class="footer-made">
+                        Made with ❤️ in India
+                    </p>
+                </div>
             </div>
         </footer>
     </main>

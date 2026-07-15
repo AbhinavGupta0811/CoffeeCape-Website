@@ -8,6 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="css/payment.css">
+<style>
+  /* Hidden until payment.js confirms this isn't a reload/re-access */
+  html.pay-guard-pending body { visibility: hidden; }
+</style>
+<script>
+  // Runs before body renders, so a blocked reload never flashes the form.
+  document.documentElement.classList.add("pay-guard-pending");
+</script>
 </head>
 <body>
 

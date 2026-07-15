@@ -803,7 +803,7 @@ function renderRefundSection(order, refundableAmount = 0, nonRefundable = 0) {
     /* COD Order */
     return `
       <div class="refund-detail-box refund-danger">
-        ❌ Order cancelled by admin.
+        ❌ Order is not available.
       </div>
     `;
   }

@@ -1,8 +1,3 @@
-/* =================================================================
-   CoffeeCape — My Audience Tickets
-   Theme: Vibrant & Modern
-   ================================================================= */
-
 /* -------------------- DESIGN TOKENS -------------------- */
 :root {
   --color-primary:        #FF6B35;
@@ -1523,7 +1518,7 @@ select { font-family: inherit; }
 
 @media (max-width: 360px) {
   .ticket-overview {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; 
   }
 
   .filter-btn {

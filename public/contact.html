@@ -7,6 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/footer.css">
 <style>
 *{
   margin:0;
@@ -17,19 +19,76 @@
 }
 
 body{
-  background:#f4f6f8;
-  color:#333;
+  background:#faf7f2;
+  color:#2d2d2d;
 }
 
 /* HEADER */
-.header{
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#fff;
+.contact-hero{
+  background:
+  linear-gradient(rgba(50,34,24,.78),rgba(50,34,24,.78)),
+  url("assets/contact-banner.jpg") center/cover;
+  min-height:420px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   text-align:center;
-  padding:60px 20px;
+  color:white;
+  padding:80px 20px;
 }
-.header h1{font-size:36px;margin-bottom:10px;}
-.header p{opacity:.9}
+
+.hero-content{
+  max-width:750px;
+}
+
+.hero-tag{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  background:rgba(255,255,255,.12);
+  padding:10px 18px;
+  border-radius:50px;
+  margin-bottom:22px;
+  backdrop-filter:blur(10px);
+  font-size:.95rem;
+}
+
+.hero-content h1{
+  font-size:3rem;
+  margin-bottom:18px;
+}
+
+.hero-content p{
+  color:#f4f4f4;
+  line-height:1.8;
+  margin-bottom:35px;
+}
+
+.hero-buttons{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.hero-btn{
+  background:#c47c3c;
+  color:white;
+  text-decoration:none;
+  padding:15px 30px;
+  border-radius:40px;
+  transition:.3s;
+}
+
+.hero-btn:hover{
+  transform:translateY(-3px);
+  background:#a9662e;
+}
+
+.hero-btn.outline{
+  background:transparent;
+  border:2px solid white;
+}
 
 /*Home link*/
 .home-link {
@@ -49,34 +108,54 @@ body{
 
 /* CONTACT */
 .contact-section{
-  padding:60px 20px;
+  padding:0 20px 90px;
+  background:#faf7f2;
 }
+
 .contact-container{
-  max-width:1100px;
-  margin:auto;
+  max-width:1200px;
+  margin: 80px auto 0;
   background:#fff;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  border-radius:10px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  grid-template-columns:1.2fr .8fr;
+  border-radius:25px;
   overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.12);
+  position:relative;
+  z-index:5;
 }
 
 /* FORM */
-.form-box{padding:40px;}
-.form-box h2{margin-bottom:25px;}
+.form-box{padding:55px;}
+.form-box h2{
+  font-size:2rem;
+  color:#5c3924;
+  margin-bottom:35px;
+}
+
 .input-group{
   position:relative;
   margin-bottom:20px;
 }
+
 .input-group input,
 .input-group textarea{
   width:100%;
-  padding:14px;
-  border:1px solid #ccc;
-  border-radius:6px;
-  outline:none;
+  padding:18px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  background:#faf7f4;
+  transition:.3s;
+  font-size:15px;
 }
+
+.input-group input:focus,
+.input-group textarea:focus{
+  border-color:#b8743c;
+  background:white;
+  box-shadow:0 0 0 4px rgba(184,116,60,.15);
+}
+
 .input-group label{
   position:absolute;
   left:12px;
@@ -88,6 +167,7 @@ body{
   color:#777;
   transition:.3s;
 }
+
 .input-group input:focus+label,
 .input-group input:not(:placeholder-shown)+label,
 .input-group textarea:focus+label,
@@ -96,32 +176,46 @@ body{
   font-size:12px;
   color:#0f2027;
 }
+
 button{
   width:100%;
-  padding:14px;
-  background:#0f2027;
+  padding:18px;
   border:none;
-  border-radius:6px;
-  color:#fff;
-  font-size:15px;
-  cursor:pointer;
+  border-radius:14px;
+  background:linear-gradient(135deg,#8B5E3C,#6F4E37);
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  transition:.3s;
 }
-button:hover{background:#203a43;}
+
+button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 15px 30px rgba(111,78,55,.3);
+}
 
 /* INFO */
 .info-box{
-  background:#f8fafc;
-  padding:40px;
+  background:#6F4E37;
+  color:white;
+  padding:55px;
 }
 .info-box h2{margin-bottom:15px;}
 .info-box p{color:#555;margin-bottom:20px;}
 .info-item{
   display:flex;
-  align-items:center;
-  margin-bottom:12px;
+  gap:18px;
+  align-items:flex-start;
+  background:rgba(255,255,255,.08);
+  padding:18px;
+  margin-bottom:18px;
+  border-radius:14px;
 }
 .info-item span{margin-right:10px;}
-.info-item i{color: #0f2027;}
+.info-item i{
+  color:#f6d5a9;
+  font-size:22px;
+}
 
 /* SUPPORT */
 .support{
@@ -136,16 +230,26 @@ button:hover{background:#203a43;}
   gap:20px;
 }
 .support-card{
-  background:#f8fafc;
-  padding:30px;
-  text-align:center;
-  border-radius:8px;
+  background:white;
+  padding:40px;
+  border-radius:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
+  transition:.35s;
+}
+.support-card:hover{
+  transform:translateY(-10px);
 }
 
 /* WHY */
-.why{
-  padding:60px 20px;
-  background:#ffffff;
+.why-box{
+  background:white;
+  border-radius:18px;
+  padding:40px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
+  transition:.35s;
+}
+.why-box:hover{
+  transform:translateY(-8px);
 }
 .why-grid{
   max-width:1100px;
@@ -172,8 +276,12 @@ button:hover{background:#203a43;}
 }
 .faq h2{text-align:center;margin-bottom:40px;}
 .faq-item{
-  border-bottom:1px solid #ddd;
-  padding:18px 0;
+  background:white;
+  border-radius:15px;
+  padding:22px;
+  margin-bottom:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.05);
+  border:none;
 }
 .faq-item h3{
   font-size:16px;
@@ -186,7 +294,7 @@ button:hover{background:#203a43;}
 
 /* FOOTER */
 .footer {
-  background: #0f2027;
+  background: #322218;
   color: #ffffff;
   padding: 60px 20px 20px;
 }
@@ -315,262 +423,262 @@ button:hover{background:#203a43;}
 
 <body>
 
-<div class="header">
-  <h1>Contact Us</h1>
-  <p>We’re here to help with your food orders</p>
-</div>
+  <!-- HEADER -->
+  <header>
+    <div id="header-container"></div>
+  </header>
 
-<section class="contact-section">
-  <div class="contact-container">
-    <div class="form-box">
-    <h2>Send Us a Message</h2>
-    <form id="contactForm">
+  <main>
+    <!-- CONTACT CARD -->
+    <section class="contact-hero">
+        <div class="hero-content">
+            <span class="hero-tag">
+              <img src="assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+              CoffeeCape Support
+            </span>
 
-      <div class="input-group">
-        <input type="text" name="name" placeholder=" " required>
-        <label>Full Name</label>
+            <h1>We're Here to Help</h1>
+
+            <p>
+              Whether you have a question about an order, payment,
+              refund, or restaurant, our support team is always ready
+              to assist you.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="tel:+919876543210" class="hero-btn">
+                  <i class="fa-solid fa-phone"></i>
+                  Call Us
+                </a>
+
+                <a href="mailto:support@coffeecape.com" class="hero-btn outline">
+                  <i class="fa-solid fa-envelope"></i>
+                  Email Support
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section class="contact-section">
+      <div class="contact-container">
+        <div class="form-box">
+        <h2>Send Us a Message</h2>
+        <form id="contactForm">
+
+          <div class="input-group">
+            <input type="text" name="name" placeholder=" " required>
+            <label>Full Name</label>
+          </div>
+
+          <div class="input-group">
+            <input type="text" name="email" placeholder=" " required>
+            <label>Email Address</label>
+          </div>
+
+          <div class="input-group">
+            <input type="text" name="subject" placeholder="Order ID">
+            <label>Order ID (optional)</label>
+          </div>
+
+          <div class="input-group">
+            <textarea name="message" rows="5" required></textarea>
+            <label>Your Message</label>
+          </div>
+
+          <button type="submit">Submit</button>
+        </form>
       </div>
 
-      <div class="input-group">
-        <input type="text" name="email" placeholder=" " required>
-        <label>Email Address</label>
+      <div class="info-box">
+        <h2>Contact Information</h2>
+        <p>Reach out for order issues, refunds, or feedback.</p>
+        <div class="info-item">
+          <span><i class="fa-solid fa-location-dot"></i></span>
+          Navi Mumbai, Maharashtra, India
+        </div>
+
+        <div class="info-item">
+          <span><i class="fa-solid fa-envelope"></i></span>
+          support@CoffeeCape.com
+        </div>
+
+        <div class="info-item">
+          <span><i class="fa-solid fa-phone"></i></span>
+          +91 9876543210
+        </div>
       </div>
+    </section>
 
-      <div class="input-group">
-        <input type="text" name="subject" placeholder="Order ID">
-        <label>Order ID (optional)</label>
+    <!-- SUPPORT FORM -->
+    <section class="support">
+      <div class="support-grid">
+        <div class="support-card">
+          <h3><i class="fa-solid fa-clock"></i> Office Hours</h3>
+          <p>Mon–Sun</p>
+          <p>9 AM – 11 PM</p>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="fa-solid fa-reply"></i> Response Time</h3>
+          <p>Email: 24 hrs</p>
+          <p>Chat: Instant</p>
+        </div>
+
+        <div class="support-card">
+          <h3><i class="fa-solid fa-headset"></i> Support</h3>
+          <p>Order Issues</p>
+          <p>Refund Help</p>
+        </div>
       </div>
+    </section>
 
-      <div class="input-group">
-        <textarea name="message" rows="5" required></textarea>
-        <label>Your Message</label>
+    <!-- CONTACT SUPPORT REASON -->
+    <section class="why">
+        <div class="why-grid">
+          <div class="why-box">
+            <h3><i class="fa-solid fa-bolt"></i> Fast Support</h3>
+            <p>Quick help for order issues</p>
+          </div>
+
+          <div class="why-box">
+            <h3><i class="fa-solid fa-shield-halved"></i> Secure Payments</h3>
+            <p>Safe & encrypted transactions</p>
+          </div>
+
+          <div class="why-box">
+            <h3><i class="fa-solid fa-store"></i> Trusted Restaurants</h3>
+            <p>Verified food partners</p>
+          </div>
+        </div>
+    </section>
+
+    <!-- FREQUENTLY ASKED QUESTIONS SECTION -->
+    <section class="faq">
+      <div class="faq-container">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-bag-shopping"></i> How do I place an order?</h3>
+          <p>Browse available restaurants, select your favorite items, add them to your cart, and complete the checkout process.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-location-dot"></i> How can I track my order?</h3>
+          <p>You can track your order in real-time from the "My Orders" section once your order has been confirmed.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-clock"></i> What should I do if my order is delayed?</h3>
+          <p>If your delivery exceeds the estimated time, please contact our support team for assistance and updates.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-ban"></i> Can I cancel my order?</h3>
+          <p>Orders can be canceled before the restaurant starts preparing the food. Cancellation eligibility may vary by restaurant.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-rotate-left"></i> How do I request a refund?</h3>
+          <p>You can submit a refund request through the order details page if there is an issue with your order.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-box-open"></i> What if I receive the wrong order?</h3>
+          <p>Please report the issue within 30 minutes of delivery, and our team will investigate and provide an appropriate resolution.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-temperature-low"></i> What if my food arrives cold or damaged?</h3>
+          <p>Contact support immediately with photos of the issue, and we will review your case for compensation or replacement.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-credit-card"></i> Which payment methods are accepted?</h3>
+          <p>We accept UPI, debit cards, credit cards, digital wallets, net banking, and cash on delivery where available.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-triangle-exclamation"></i> My payment was deducted, but the order was not placed.</h3>
+          <p>If your payment was successful but no order was created, the amount is usually refunded automatically within a few business days.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-ticket"></i> How do I use a promo code?</h3>
+          <p>Enter your promo code during checkout before completing payment. Eligible discounts will be applied automatically.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-percent"></i> Why is my promo code not working?</h3>
+          <p>Please verify the code's validity, expiration date, minimum order value, and restaurant eligibility.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-map-location-dot"></i> Can I change my delivery address after ordering?</h3>
+          <p>Address changes may be possible before dispatch, depending on the delivery status and service availability.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-user"></i> Do I need an account to place an order?</h3>
+          <p>Creating an account provides a better experience, including order tracking, saved addresses, and order history.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-heart"></i> Can I reorder a previous order?</h3>
+          <p>Yes. Visit your order history and select the reorder option for any eligible past order.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-utensils"></i> How are restaurants selected on the platform?</h3>
+          <p>We partner with verified restaurants that meet our quality, safety, and service standards.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-shield-halved"></i> Is my payment information secure?</h3>
+          <p>Yes. All transactions are processed through secure and encrypted payment gateways.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-truck-fast"></i> What are the delivery charges?</h3>
+          <p>Delivery fees vary depending on restaurant location, distance, and current demand.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-calendar-days"></i> Can I schedule an order for later?</h3>
+          <p>Yes. Many restaurants allow customers to schedule deliveries for a future date and time.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-users"></i> Do you support bulk or corporate orders?</h3>
+          <p>Yes. We offer solutions for large group orders, office lunches, events, and corporate catering requests.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3><i class="fa-solid fa-headset"></i> How can I contact customer support?</h3>
+          <p>You can reach our support team through live chat, email, or phone for assistance with any order-related concerns.</p>
+        </div>
+
       </div>
+    </section>
 
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-
-  <div class="info-box">
-    <h2>Contact Information</h2>
-    <p>Reach out for order issues, refunds, or feedback.</p>
-    <div class="info-item">
-      <span><i class="fa-solid fa-location-dot"></i></span>
-      Gwalior, Madhya Pradesh, India
-    </div>
-
-    <div class="info-item">
-      <span><i class="fa-solid fa-envelope"></i></span>
-      support@CoffeeCape.com
-    </div>
-
-    <div class="info-item">
-      <span><i class="fa-solid fa-phone"></i></span>
-      +91 9876543210
-    </div>
-  </div>
-</section>
-
-<section class="support">
-  <div class="support-grid">
-    <div class="support-card">
-      <h3><i class="fa-solid fa-clock"></i> Office Hours</h3>
-      <p>Mon–Sun</p>
-      <p>9 AM – 11 PM</p>
-    </div>
-
-    <div class="support-card">
-      <h3><i class="fa-solid fa-reply"></i> Response Time</h3>
-      <p>Email: 24 hrs</p>
-      <p>Chat: Instant</p>
-    </div>
-
-    <div class="support-card">
-      <h3><i class="fa-solid fa-headset"></i> Support</h3>
-      <p>Order Issues</p>
-      <p>Refund Help</p>
-    </div>
-  </div>
-</section>
-
-<section class="why">
-    <div class="why-grid">
-      <div class="why-box">
-        <h3><i class="fa-solid fa-bolt"></i> Fast Support</h3>
-        <p>Quick help for order issues</p>
-      </div>
-
-      <div class="why-box">
-        <h3><i class="fa-solid fa-shield-halved"></i> Secure Payments</h3>
-        <p>Safe & encrypted transactions</p>
-      </div>
-
-      <div class="why-box">
-        <h3><i class="fa-solid fa-store"></i> Trusted Restaurants</h3>
-        <p>Verified food partners</p>
-      </div>
-    </div>
-</section>
-
-<section class="faq">
-  <div class="faq-container">
-    <h2>Frequently Asked Questions</h2>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-bag-shopping"></i> How do I place an order?</h3>
-      <p>Browse available restaurants, select your favorite items, add them to your cart, and complete the checkout process.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-location-dot"></i> How can I track my order?</h3>
-      <p>You can track your order in real-time from the "My Orders" section once your order has been confirmed.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-clock"></i> What should I do if my order is delayed?</h3>
-      <p>If your delivery exceeds the estimated time, please contact our support team for assistance and updates.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-ban"></i> Can I cancel my order?</h3>
-      <p>Orders can be canceled before the restaurant starts preparing the food. Cancellation eligibility may vary by restaurant.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-rotate-left"></i> How do I request a refund?</h3>
-      <p>You can submit a refund request through the order details page if there is an issue with your order.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-box-open"></i> What if I receive the wrong order?</h3>
-      <p>Please report the issue within 30 minutes of delivery, and our team will investigate and provide an appropriate resolution.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-temperature-low"></i> What if my food arrives cold or damaged?</h3>
-      <p>Contact support immediately with photos of the issue, and we will review your case for compensation or replacement.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-credit-card"></i> Which payment methods are accepted?</h3>
-      <p>We accept UPI, debit cards, credit cards, digital wallets, net banking, and cash on delivery where available.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-triangle-exclamation"></i> My payment was deducted, but the order was not placed.</h3>
-      <p>If your payment was successful but no order was created, the amount is usually refunded automatically within a few business days.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-ticket"></i> How do I use a promo code?</h3>
-      <p>Enter your promo code during checkout before completing payment. Eligible discounts will be applied automatically.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-percent"></i> Why is my promo code not working?</h3>
-      <p>Please verify the code's validity, expiration date, minimum order value, and restaurant eligibility.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-map-location-dot"></i> Can I change my delivery address after ordering?</h3>
-      <p>Address changes may be possible before dispatch, depending on the delivery status and service availability.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-user"></i> Do I need an account to place an order?</h3>
-      <p>Creating an account provides a better experience, including order tracking, saved addresses, and order history.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-heart"></i> Can I reorder a previous order?</h3>
-      <p>Yes. Visit your order history and select the reorder option for any eligible past order.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-utensils"></i> How are restaurants selected on the platform?</h3>
-      <p>We partner with verified restaurants that meet our quality, safety, and service standards.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-shield-halved"></i> Is my payment information secure?</h3>
-      <p>Yes. All transactions are processed through secure and encrypted payment gateways.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-truck-fast"></i> What are the delivery charges?</h3>
-      <p>Delivery fees vary depending on restaurant location, distance, and current demand.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-calendar-days"></i> Can I schedule an order for later?</h3>
-      <p>Yes. Many restaurants allow customers to schedule deliveries for a future date and time.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-users"></i> Do you support bulk or corporate orders?</h3>
-      <p>Yes. We offer solutions for large group orders, office lunches, events, and corporate catering requests.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3><i class="fa-solid fa-headset"></i> How can I contact customer support?</h3>
-      <p>You can reach our support team through live chat, email, or phone for assistance with any order-related concerns.</p>
-    </div>
-
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="footer-container">
-
-    <div class="footer-column">
-      <h3>CoffeeCape</h3>
-      <p>
-        Delivering fresh, delicious food from trusted restaurants
-        straight to your doorstep.
-      </p>
-    </div>
-
-    <div class="footer-column">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="Index.html">Home</a></li>
-        <li><a href="#">Browse Restaurants</a></li>
-        <li><a href="MyOrder.html">My Orders</a></li>
-        <li><a href="contact.html">Contact Support</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-column">
-      <h4>Support</h4>
-      <ul>
-        <li><a href="#">Help Center</a></li>
-        <li><a href="#">Order Issues</a></li>
-        <li><a href="refund-policy.html">Refund Policy</a></li>
-        <li><a href="#">Cancellation Policy</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-column">
-      <h4>Legal</h4>
-      <ul>
-        <li><a href="#">Terms & Conditions</a></li>
-        <li><a href="privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="#">Cookie Policy</a></li>
-      </ul>
-    </div>
-
-  </div>
-
-  <div class="footer-bottom">
-    <p>© 2025 FoodApp. All rights reserved.</p>
-  </div>
-</footer>
+    <!-- FOOTER SECTION -->
+    <footer>
+      <div id="footer-container"></div>
+    </footer>
+  </main>
 
 <!-- Toast Container -->
 <div id="toast-container"></div>
+
 <!-- Floating Home Button -->
 <button class="floating-home" id="floatingHomeBtn" title="Go Home">
   <i class="fa-solid fa-house"></i>
 </button>
+<script src="js/header.js"></script>
+<script src="js/footer.js"></script>
+<script src="js/common.js"></script>
 <script src="js/contact.js"></script>
 </body>
 </html>

@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <title>Cold Beverages Menu</title>
   <link rel="icon" type="image/png" href="assets/logo-image.png">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
   <style>
     :root{
     --bg:#f4f7fb;
@@ -36,8 +38,6 @@ body{
             #f4f7fb 40%
         );
     color:var(--text);
-    min-height:100vh;
-    padding:25px;
 }
 
 /* PAGE TITLE */
@@ -50,41 +50,7 @@ h1{
     text-align:center;
 }
 
-/* CLOSE BUTTON */
-
-.close-btn{
-    position:fixed;
-    top:20px;
-    right:25px;
-
-    width:48px;
-    height:48px;
-
-    border-radius:50%;
-    background:#fff;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:28px;
-    text-decoration:none;
-
-    color:#444;
-
-    box-shadow:var(--shadow);
-
-    transition:.35s;
-}
-
-.close-btn:hover{
-    transform:rotate(90deg);
-    color:#fff;
-    background:var(--danger);
-}
-
 /* FILTERS */
-
 .filters{
     display:flex;
     justify-content:center;
@@ -469,15 +435,24 @@ h1{
   </style>
 </head>
 <body>
-  <a href="Index.html#menu" class="close-btn">&times;</a>
+  <header>
+    <div id="header-container"></div>
+  </header>
   <h1>❄️ Cold Beverages Menu</h1>
 
   <section class="menu-section">
     <div class="menu-grid" data-category="cold-beverages"></div>
   </section>
 
+  <footer>
+    <div id="footer-container"></div>
+  </footer>
+
   <button id="nextBtn" disabled><i class="fa-solid fa-angle-right"></i>Next</button>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/common.js"></script>
   <script src="js/cart.js" defer></script>
 </body>
 </html>

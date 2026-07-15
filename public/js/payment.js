@@ -141,6 +141,66 @@
     return;
   }
 
+  /* =====================================
+     RELOAD / RE-ACCESS PROTECTION
+     Blocks intentional page reloads (F5, Ctrl+R, reload button,
+     location.reload()) and blocks re-entry via back/forward
+     navigation or bfcache restore, for this order/booking id.
+
+     NOTE: This is a client-side UX safeguard only, scoped to the
+     current tab's sessionStorage. It stops a casual reload/back
+     from re-showing the form, but it is NOT a substitute for
+     server-side protection — the backend must still invalidate
+     or consume the pending order/booking token once payment is
+     confirmed, so a resubmitted request can never double-charge.
+  ====================================== */
+  const guardKey = `pay_guard_${type}_${orderId}`;
+
+  function blockPaymentAccess(reason) {
+    try {
+      sessionStorage.setItem(guardKey, "blocked");
+    } catch (e) {
+      // sessionStorage unavailable (e.g. private mode) - fall through to redirect anyway
+    }
+    window.location.replace(`error.html?type=${reason}`);
+  }
+
+  const navEntry = performance.getEntriesByType("navigation")[0];
+  const navType = navEntry
+    ? navEntry.type
+    : (performance.navigation && performance.navigation.type === 1 ? "reload" : "navigate");
+
+  const guardState = sessionStorage.getItem(guardKey);
+
+  if (guardState === "blocked") {
+    blockPaymentAccess("session-expired");
+    return;
+  }
+
+  if (navType === "reload") {
+    blockPaymentAccess("reload-detected");
+    return;
+  }
+
+  if (guardState === "visited") {
+    // Page was already opened once this session (fresh navigate, back/forward, etc.)
+    blockPaymentAccess("session-expired");
+    return;
+  }
+
+  sessionStorage.setItem(guardKey, "visited");
+
+  // Catches the case where the browser restores this page from bfcache
+  // (e.g. pressing back) without re-running the script from scratch.
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) {
+      blockPaymentAccess("session-expired");
+    }
+  });
+
+  // Guard passed for this load - safe to reveal the page now.
+  document.documentElement.classList.remove("pay-guard-pending");
+
   function generateDisplayOrderId(id) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let random = "";

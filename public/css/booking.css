@@ -244,8 +244,17 @@ body {
   margin-top: var(--gap-lg);
 }
 
-.tab-pane {
-  animation: tabIn 0.3s var(--ease) both;
+/* BOOTSTRAP TAB FIX */
+.tab-content > .tab-pane{
+    display:none;
+}
+
+.tab-content > .tab-pane.active{
+    display:block;
+}
+
+.tab-content > .tab-pane.show.active{
+    animation:tabIn .3s var(--ease);
 }
 
 @keyframes tabIn {

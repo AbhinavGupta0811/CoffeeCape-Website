@@ -7,6 +7,8 @@
   <link rel="icon" type="image/png" href="assets/logo-image.png">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
   <style>
     :root{
         --bg:#faf6f1;
@@ -38,8 +40,6 @@
                 #faf6f1 45%
             );
         color:var(--text);
-        min-height:100vh;
-        padding:25px;
     }
 
     /* PAGE TITLE */
@@ -53,46 +53,15 @@
         letter-spacing:.5px;
     }
 
-    /* CLOSE BUTTON */
-
-    .close-btn{
-        position:fixed;
-        top:20px;
-        right:20px;
-
-        width:52px;
-        height:52px;
-
-        display:flex;
-        align-items:center;
-        justify-content:center;
-
-        background:#fff;
-
-        color:#444;
-
-        text-decoration:none;
-
-        border-radius:50%;
-
-        font-size:30px;
-        font-weight:700;
-
-        box-shadow:var(--shadow);
-
-        transition:.35s ease;
-
-        z-index:1000;
-    }
-
-    .close-btn:hover{
-        background:#ef4444;
-        color:#fff;
-        transform:rotate(90deg);
-    }
 
     /* TOGGLE */
-
+    .switch-box{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
     .switch{
         position:relative;
         display:inline-block;
@@ -528,11 +497,12 @@
 </style>
 </head>
 <body>
-  <a href="Index.html#menu" class="close-btn">&times;</a>
-
+  <header>
+    <div id="header-container"></div>
+  </header>
   <h1>🍔 Burger & 🍟 Fries</h1>
 
-  <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+  <div class="switch-box">
     <!-- <span>🍔 Burgers</span> -->
 
     <label class="switch" for="menuToggle">
@@ -553,10 +523,17 @@
     <div class="menu-grid" data-category="fries"></div>
   </section>
 
+  <footer>
+    <div id="footer-container"></div>
+  </footer>
+
   <button id="nextBtn" style="user-select:none;" disabled>
     <i class="fa-solid fa-angle-right"></i>Next
   </button>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/common.js"></script>
   <script src="js/cart.js" defer></script>
 </body>
 </html>

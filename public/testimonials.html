@@ -6,95 +6,170 @@
   <link rel="icon" type="image/png" href="assets/logo-image.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Fraunces for display, Inter for body, IBM Plex Mono for ticket meta -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <!-- CSS -->
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
   <link rel="stylesheet" href="css/testimonials.css">
 </head>
 <body>
-<a href="index.html" title="Return to Home" style="position: absolute; top: 26px; right: 24px; text-decoration: none; font-size: 2rem; color: #d2691e; background: #fff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 100;">
-  &times;
-</a>
+<div id="header-container"></div>
+
 <!-- ================= HEADER ================= -->
 <header class="page-header">
   <div class="container">
+    <span class="eyebrow">Tasting notes from our guests</span>
     <h1>Loved by Our Customers</h1>
-    <p>Real reviews from people who trust FoodieHub</p>
+    <p>Real reviews from people who trust CoffeeCape</p>
   </div>
 </header>
 
-<!-- ================= STATS ================= -->
-<section class="stats container">
-  <div class="stat">
-    <h2>4.9</h2>
-    <span>Average Rating</span>
+<!-- ================= RATING OVERVIEW ================= -->
+<section class="overview container">
+
+  <div class="gauge" id="ratingGauge" style="--pct:98">
+    <div class="gauge-ring">
+      <div class="gauge-hole">
+        <i class="fa-solid fa-mug-saucer"></i>
+      </div>
+    </div>
+    <div class="gauge-copy">
+      <strong>4.9</strong>
+      <span>average rating</span>
+    </div>
   </div>
-  <div class="stat">
-    <h2>2,400+</h2>
-    <span>Happy Customers</span>
+
+  <div class="breakdown" id="breakdown" aria-label="Rating breakdown">
+    <div class="breakdown-row" data-star="5">
+      <span class="breakdown-label">5 <i class="fa-solid fa-star"></i></span>
+      <div class="cup-bar"><span class="cup-fill" style="--fill:0%"></span></div>
+      <span class="breakdown-pct">0%</span>
+    </div>
+    <div class="breakdown-row" data-star="4">
+      <span class="breakdown-label">4 <i class="fa-solid fa-star"></i></span>
+      <div class="cup-bar"><span class="cup-fill" style="--fill:0%"></span></div>
+      <span class="breakdown-pct">0%</span>
+    </div>
+    <div class="breakdown-row" data-star="3">
+      <span class="breakdown-label">3 <i class="fa-solid fa-star"></i></span>
+      <div class="cup-bar"><span class="cup-fill" style="--fill:0%"></span></div>
+      <span class="breakdown-pct">0%</span>
+    </div>
+    <div class="breakdown-row" data-star="2">
+      <span class="breakdown-label">2 <i class="fa-solid fa-star"></i></span>
+      <div class="cup-bar"><span class="cup-fill" style="--fill:0%"></span></div>
+      <span class="breakdown-pct">0%</span>
+    </div>
+    <div class="breakdown-row" data-star="1">
+      <span class="breakdown-label">1 <i class="fa-solid fa-star"></i></span>
+      <div class="cup-bar"><span class="cup-fill" style="--fill:0%"></span></div>
+      <span class="breakdown-pct">0%</span>
+    </div>
   </div>
-  <div class="stat">
-    <h2>98%</h2>
-    <span>Positive Reviews</span>
+
+  <div class="figures">
+    <div class="figure">
+      <strong>2,400+</strong>
+      <span>Happy Customers</span>
+    </div>
+    <div class="figure">
+      <strong>98%</strong>
+      <span>Positive Reviews</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= TOOLBAR ================= -->
+<section class="toolbar container">
+  <label class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="searchInput" placeholder="Search reviews...">
+  </label>
+
+  <div class="toolbar-right">
+    <label class="sort-box">
+      <span>Sort</span>
+      <select id="sortSelect">
+        <option value="newest">Newest</option>
+        <option value="highest">Highest rated</option>
+        <option value="liked">Most liked</option>
+      </select>
+    </label>
+
+    <div class="filter" id="filterGroup">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="5">5★</button>
+      <button data-filter="4">4★</button>
+      <button data-filter="3">3★</button>
+    </div>
   </div>
 </section>
 
-<!-- ================= FILTER ================= -->
-<section class="filter container">
-  <button class="active" data-filter="all">All</button>
-  <button data-filter="5">5★</button>
-  <button data-filter="4">4★</button>
-  <button data-filter="3">3★</button>
-</section>
-
-<!-- ================= TESTIMONIALS LIST ================= -->
-<section class="container testimonials" id="testimonials">
-  <!-- Reviews injected by JS -->
+<!-- ================= TESTIMONIALS WALL ================= -->
+<section class="container testimonials-wall" id="testimonials">
+  <!-- Ticket cards injected by JS -->
 </section>
 
 <!-- ================= EMPTY STATE ================= -->
-<div id="emptyState" class="empty-state">
-  No reviews yet. Be the first to leave one ⭐
+<div id="emptyState" class="empty-state" hidden>
+  No tasting notes yet — yours could be the first stub on the board.
 </div>
 
 <!-- ================= REVIEW FORM ================= -->
 <section class="form-section">
-  <div class="container">
-    <h2>Leave a Review</h2>
+  <div class="container form-layout">
 
-    <form id="reviewForm" novalidate>
+    <div class="form-col">
+      <h2>Leave a Review</h2>
 
-      <div class="form-group">
-        <label for="nameInput">Full Name</label>
-        <input type="text" id="nameInput" placeholder="Your full name" required/>
-      </div>
+      <form id="reviewForm" novalidate>
 
-      <div class="form-group">
-        <label>Your Rating</label>
-        <div class="star-input">
-          <span data-value="1">★</span>
-          <span data-value="2">★</span>
-          <span data-value="3">★</span>
-          <span data-value="4">★</span>
-          <span data-value="5">★</span>
+        <div class="form-group">
+          <label for="nameInput">Full Name</label>
+          <input type="text" id="nameInput" placeholder="Your full name" required maxlength="60" />
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="reviewInput">Your Review</label>
-        <textarea id="reviewInput" placeholder="Share your experience with Coffeecape..." required></textarea>
-      </div>
+        <div class="form-group">
+          <label>Your Rating</label>
+          <div class="star-input" id="starInput">
+            <span data-value="1" role="button" tabindex="0" aria-label="Rate 1 star">★</span>
+            <span data-value="2" role="button" tabindex="0" aria-label="Rate 2 stars">★</span>
+            <span data-value="3" role="button" tabindex="0" aria-label="Rate 3 stars">★</span>
+            <span data-value="4" role="button" tabindex="0" aria-label="Rate 4 stars">★</span>
+            <span data-value="5" role="button" tabindex="0" aria-label="Rate 5 stars">★</span>
+          </div>
+        </div>
 
-      <button type="submit" class="submit-btn">
-        Submit Review
-      </button>
+        <div class="form-group">
+          <label for="reviewInput">Your Review</label>
+          <textarea id="reviewInput" placeholder="Share your experience with CoffeeCape..." required maxlength="500"></textarea>
+          <div class="char-counter"><span id="charCount">0</span>/500</div>
+        </div>
 
-    </form>
+        <button type="submit" class="submit-btn">
+          Submit Review
+        </button>
+
+      </form>
+    </div>
+
+    <div class="form-col preview-col">
+      <span class="preview-label">Live preview</span>
+      <div id="ticketPreview"></div>
+    </div>
+
   </div>
 </section>
-<div id="toastContainer"></div>
-<!-- ================= JS ================= -->
-<script src="js/testimonials.js"></script>
 
+<div id="toastContainer"></div>
+<div id="footer-container"></div>
+
+<!-- ================= JS ================= -->
+<script src="js/header.js"></script>
+<script src="js/footer.js"></script>
+<script src="js/common.js"></script>
+<script src="js/testimonials.js"></script>
 </body>
 </html>

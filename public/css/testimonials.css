@@ -1,28 +1,34 @@
 /* ===========================
-   ROOT – CLASSIC DESIGN TOKENS
+   ROOT – TICKET DESIGN TOKENS
 =========================== */
 :root {
-  --bg-main: #f6f4f1;        /* warm off-white */
-  --bg-soft: #ffffff;
-  --bg-card: #ffffff;
+  --cream: #f6f1e7;         /* page background */
+  --paper: #fffdf9;         /* card / ticket background */
 
-  --primary: #8b6f47;       /* muted gold / coffee */
-  --primary-dark: #6f5636;
+  --ink: #2b1b12;           /* near-black coffee, headlines */
+  --ink-soft: #5b4a3a;      /* body copy on paper */
 
-  --text-main: #1f2933;     /* charcoal */
-  --text-muted: #6b7280;    /* slate */
+  --coffee: #8b6f47;        /* brand brown (kept from original) */
+  --coffee-dark: #6f5636;
+  --caramel: #c08a45;       /* warm accent for stamps / stars */
+  --sage: #5f7a55;          /* verified / success, ties to coffee-plant leaf */
+  --danger: #c0392b;
 
-  --border-light: #e5e7eb;
+  --line: #e4dacb;          /* warm hairline, replaces cool gray */
 
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
 
-  --shadow-soft: 0 6px 18px rgba(0,0,0,.08);
-  --shadow-hover: 0 14px 30px rgba(0,0,0,.12);
+  --shadow-soft: 0 6px 18px rgba(43, 27, 18, .08);
+  --shadow-hover: 0 14px 30px rgba(43, 27, 18, .14);
 
   --transition-fast: .2s ease;
   --transition-slow: .35s ease;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 /* ===========================
@@ -32,14 +38,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", system-ui, sans-serif;
-  user-select: none;
+  font-family: var(--font-body);
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
-  background: var(--bg-main);
-  color: var(--text-main);
+  background: var(--cream);
+  color: var(--ink);
   line-height: 1.65;
 }
 
@@ -49,8 +53,21 @@ body {
 }
 
 small {
-  color: var(--text-muted);
+  color: var(--ink-soft);
   font-size: .75rem;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--coffee-dark);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
 /* ===========================
@@ -61,171 +78,406 @@ small {
   text-align: center;
 }
 
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--coffee-dark);
+  margin-bottom: .9rem;
+}
+
 .page-header h1 {
-  font-size: clamp(2.2rem, 4vw, 2.8rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.4vw, 3.2rem);
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: -.01em;
+  color: var(--ink);
 }
 
 .page-header p {
   margin-top: .75rem;
-  color: var(--text-muted);
+  color: var(--ink-soft);
   max-width: 520px;
   margin-inline: auto;
 }
 
 /* ===========================
-   STATS
+   RATING OVERVIEW
 =========================== */
-.stats {
+.overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 1.5rem;
-  margin-bottom: 4rem;
-}
-
-.stat {
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: var(--radius-md);
-  text-align: center;
+  grid-template-columns: auto 1fr auto;
+  gap: 2.5rem;
+  align-items: center;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2.25rem;
   box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-light);
+  margin-bottom: 2.5rem;
 }
 
-.stat h2 {
-  font-size: 2rem;
-  color: var(--primary);
-  margin-bottom: .25rem;
+/* --- Gauge --- */
+.gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .6rem;
 }
 
-.stat span {
-  color: var(--text-muted);
-  font-size: .9rem;
+.gauge-ring {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: conic-gradient(var(--coffee) calc(var(--pct) * 1%), var(--line) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 1s var(--transition-slow);
+}
+
+.gauge-hole {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--coffee-dark);
+}
+
+.gauge-copy {
+  text-align: center;
+}
+
+.gauge-copy strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+.gauge-copy span {
+  font-size: .78rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* --- Breakdown --- */
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 40px;
+  align-items: center;
+  gap: .75rem;
+}
+
+.breakdown-label {
+  font-size: .8rem;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.breakdown-label i {
+  color: var(--caramel);
+  font-size: .7rem;
+}
+
+.cup-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.cup-fill {
+  --fill: 0%;
+  display: block;
+  height: 100%;
+  width: var(--fill);
+  background: var(--coffee);
+  border-radius: 999px;
+  transition: width 1s var(--transition-slow);
+}
+
+.breakdown-pct {
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+/* --- Figures --- */
+.figures {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-left: 1px solid var(--line);
+  padding-left: 2rem;
+}
+
+.figure strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--coffee-dark);
+}
+
+.figure span {
+  font-size: .78rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 860px) {
+  .overview {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .figures {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 1.25rem;
+    flex-direction: row;
+    gap: 2.5rem;
+  }
 }
 
 /* ===========================
-   FILTER
+   TOOLBAR
 =========================== */
-.filter {
+.toolbar {
   display: flex;
-  gap: .75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.filter button {
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .55rem 1rem;
+  min-width: 240px;
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+
+.search-box i {
+  color: var(--ink-soft);
+  font-size: .85rem;
+}
+
+.search-box input[type="text"] {
+  border: none;
+  outline: none;
   background: transparent;
-  border: 1px solid var(--border-light);
-  color: var(--text-muted);
-  padding: .45rem 1.1rem;
+  width: 100%;
+  font-size: .88rem;
+  color: var(--ink);
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sort-box {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+
+.sort-box select {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  padding: .4rem .6rem;
+  font-size: .82rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.filter {
+  display: flex;
+  gap: .6rem;
+}
+
+.filter button {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  padding: .45rem 1rem;
   border-radius: 999px;
   cursor: pointer;
+  font-size: .85rem;
   transition: var(--transition-fast);
 }
 
 .filter button.active,
 .filter button:hover {
-  background: var(--primary);
+  background: var(--coffee);
   color: #fff;
   border-color: transparent;
 }
 
 /* ===========================
-   HORIZONTAL TESTIMONIALS
+   TESTIMONIALS WALL (MASONRY)
 =========================== */
-.testimonials {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(320px, 360px);
-  gap: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
-  scroll-snap-type: x mandatory;
-}
-
-.testimonials::-webkit-scrollbar {
-  height: 6px;
-}
-
-.testimonials::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 10px;
+.testimonials-wall {
+  columns: 3 320px;
+  column-gap: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .empty-state {
-  font-family:'Times New Roman', Times, serif;
+  font-family: var(--font-display);
   font-size: 1.2rem;
-  font-weight: bolder;
+  font-weight: 500;
   line-height: 1.5;
-  color: var(--text-muted);
+  color: var(--ink-soft);
   text-align: center;
-  padding: 1.5rem 1rem;
+  padding: 3rem 1rem;
 }
 
 /* ===========================
-   REVIEW CARD
+   TICKET CARD (signature element)
 =========================== */
-.review {
-  background: var(--bg-card);
+.ticket {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
   box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-light);
-  scroll-snap-align: start;
-  transition: transform var(--transition-slow),
-              box-shadow var(--transition-slow);
-  cursor: pointer;
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+  overflow: hidden;
 }
 
-.review:hover {
+.ticket:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-hover);
 }
 
-.review-header {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
+/* perforated tear edge */
+.ticket-perf {
+  height: 14px;
+  background-image: radial-gradient(circle at 10px 0, var(--cream) 6px, transparent 6.5px);
+  background-size: 20px 14px;
+  background-repeat: repeat-x;
+  background-position: -4px -7px;
 }
 
-.review-header img {
-  width: 52px;
-  height: 52px;
+.ticket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  margin-top: .35rem;
+}
+
+.ticket-no {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--ink-soft);
+}
+
+.ticket-stamp {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--caramel);
+  border: 1.5px dashed var(--caramel);
+  border-radius: 999px;
+  padding: .1rem .55rem;
+  transform: rotate(1deg);
+}
+
+.ticket-body {
+  padding: 1rem 1.5rem 0;
+}
+
+.ticket-person {
+  display: flex;
+  gap: .85rem;
+  align-items: center;
+  margin-bottom: .9rem;
+}
+
+.ticket-person img {
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line);
 }
 
-.review-header h3 {
-  font-size: 1rem;
-  font-weight: 500;
+.ticket-person h3 {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: .35rem;
 }
 
-.review-header span {
-  color: #c9a14a;
-  font-size: .9rem;
+.ticket-person .verified {
+  color: var(--sage);
+  font-size: .8rem;
 }
 
-.verified {
-  color: #2e7d32;
-  font-size: .75rem;
-  margin-left: .25rem;
+.ticket-person small {
+  display: block;
+  margin-top: .1rem;
 }
 
-.review p {
-  color: #374151;
+.ticket-quote {
+  color: var(--ink-soft);
   font-size: .9rem;
   margin-bottom: 1rem;
+}
+
+.ticket-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1.25rem 1.25rem;
 }
 
 /* ===========================
    LIKE BUTTON
 =========================== */
 .like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
   background: transparent;
-  border: 1px solid var(--border-light);
-  color: var(--text-muted);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
   padding: .4rem .9rem;
   border-radius: 999px;
   cursor: pointer;
@@ -233,84 +485,158 @@ small {
   transition: var(--transition-fast);
 }
 
-.like-btn:hover {
-  background: var(--primary);
+.like-btn:hover:not(:disabled) {
+  background: var(--coffee);
   color: #fff;
   border-color: transparent;
 }
 
+.like-btn.liked {
+  background: var(--coffee);
+  color: #fff;
+  border-color: transparent;
+  cursor: default;
+}
+
+.like-btn:disabled {
+  opacity: .85;
+}
+
 /* ===========================
-   FORM SECTION – CLASSIC
+   SKELETON LOADING
+=========================== */
+.ticket-skeleton {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  height: 210px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(100deg, var(--paper) 30%, #efe7d8 45%, var(--paper) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ===========================
+   FORM SECTION
 =========================== */
 .form-section {
-  margin-top: 6rem;
+  margin-top: 5rem;
   padding-bottom: 5rem;
 }
 
-.form-section h2 {
+.form-layout {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.form-col h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
 }
 
 form {
-  background: var(--bg-soft);
+  background: var(--paper);
   padding: 2.5rem;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--line);
   box-shadow: var(--shadow-soft);
 }
 
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: .82rem;
+  color: var(--ink-soft);
+  margin-bottom: .4rem;
+}
+
 /* Inputs */
-input,
+input[type="text"],
 textarea {
   width: 100%;
   background: #fff;
-  border: 1px solid var(--border-light);
-  color: var(--text-main);
+  border: 1px solid var(--line);
+  color: var(--ink);
   padding: .75rem .9rem;
   border-radius: var(--radius-sm);
-  margin-bottom: 1rem;
   font-size: .9rem;
   transition: var(--transition-fast);
 }
 
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
 input::placeholder,
 textarea::placeholder {
-  color: #9ca3af;
+  color: #a8998a;
 }
 
 input:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(139,111,71,.15);
+  border-color: var(--coffee);
+  box-shadow: 0 0 0 2px rgba(139, 111, 71, .15);
+}
+
+.char-counter {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--ink-soft);
+  margin-top: .3rem;
+}
+
+.char-counter.near-limit {
+  color: var(--danger);
 }
 
 /* ===========================
    STAR INPUT
 =========================== */
 .star-input {
-  margin-bottom: 1rem;
+  display: flex;
+  gap: .3rem;
 }
 
 .star-input span {
-  font-size: 1.4rem;
-  color: #d1d5db;
+  font-size: 1.5rem;
+  color: var(--line);
   cursor: pointer;
-  transition: color .2s;
+  transition: color .2s, transform .2s;
+  line-height: 1;
+}
+
+.star-input span:hover {
+  transform: scale(1.1);
 }
 
 .star-input span.active {
-  color: #c9a14a;
+  color: var(--caramel);
 }
 
 /* ===========================
    FORM BUTTON
 =========================== */
-form button {
-  background: var(--primary);
+.submit-btn {
+  background: var(--coffee);
   border: none;
-  padding: .75rem;
+  padding: .8rem;
   width: 100%;
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -318,31 +644,48 @@ form button {
   cursor: pointer;
   letter-spacing: .02em;
   transition: var(--transition-fast);
+  margin-top: .5rem;
 }
 
-form button:hover {
-  background: var(--primary-dark);
+.submit-btn:hover {
+  background: var(--coffee-dark);
+}
+
+.submit-btn:disabled {
+  opacity: .7;
+  cursor: not-allowed;
 }
 
 /* ===========================
-   MODAL
+   LIVE PREVIEW
 =========================== */
-.review-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn .25s ease;
-  z-index: 1000;
+.preview-col {
+  position: sticky;
+  top: 1.5rem;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0 }
-  to { opacity: 1 }
+.preview-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--ink-soft);
+  margin-bottom: .9rem;
 }
 
+#ticketPreview .ticket {
+  cursor: default;
+}
+
+#ticketPreview .ticket:hover {
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===========================
+   TOAST
+=========================== */
 #toastContainer {
   position: fixed;
   top: 20px;
@@ -360,7 +703,7 @@ form button:hover {
   border-radius: 10px;
   color: #fff;
   font-size: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.3s ease forwards;
 }
 
@@ -381,11 +724,19 @@ form button:hover {
 /* ===========================
    RESPONSIVE
 =========================== */
-@media (max-width: 768px) {
-  .testimonials {
-    grid-auto-columns: 85%;
+@media (max-width: 900px) {
+  .form-layout {
+    grid-template-columns: 1fr;
   }
+  .preview-col {
+    position: static;
+  }
+}
 
+@media (max-width: 768px) {
+  .testimonials-wall {
+    columns: 1;
+  }
   form {
     padding: 2rem;
   }
