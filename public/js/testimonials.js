@@ -16,6 +16,7 @@ let ticketPreviewEl;
 let selectedRating = 0;
 let reviewsCache = [];
 let likedIds = loadLikedIds();
+let isLoggedIn = null; // null = unknown, true/false once checked
 
 let currentFilter = "all";
 let currentSort = "newest";
@@ -42,9 +43,83 @@ document.addEventListener("DOMContentLoaded", () => {
   initCharCounter();
   updateTicketPreview();
   loadReviews();
+  checkAuthStatus();
 
   form.addEventListener("submit", submitReview);
 });
+
+/* ===================== AUTH CHECK (no redirect) ===================== */
+async function checkAuthStatus() {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "include" });
+
+    if (res.status === 401) {
+      isLoggedIn = false;
+      lockReviewFormForGuest("Log in to share your CoffeeCape experience.");
+      return;
+    }
+
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {}
+
+    isLoggedIn = !!(res.ok && data.success);
+
+    if (!isLoggedIn) {
+      lockReviewFormForGuest("Log in to share your CoffeeCape experience.");
+    }
+  } catch (err) {
+    console.error("Auth check failed:", err);
+    // Stay usable on network hiccups — a 401 on submit will lock it reactively.
+  }
+}
+
+/* ===================== LOCK REVIEW FORM (no redirect) ===================== */
+function lockReviewFormForGuest(message) {
+  if (!form || form.dataset.locked === "true") return;
+  form.dataset.locked = "true";
+
+  if (nameInput) nameInput.disabled = true;
+  if (reviewInput) reviewInput.disabled = true;
+
+  document.querySelectorAll(".star-input span").forEach(star => {
+    star.style.pointerEvents = "none";
+    star.style.opacity = "0.5";
+  });
+
+  const submitBtn = form.querySelector("button[type='submit']");
+  if (submitBtn) {
+    if (!submitBtn.dataset.originalHtml) {
+      submitBtn.dataset.originalHtml = submitBtn.innerHTML;
+    }
+    submitBtn.type = "button";
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Log In to Review`;
+    submitBtn.onclick = (e) => {
+      e.preventDefault();
+      location.href = `Auth.html?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+    };
+  }
+
+  showAuthBanner(message);
+}
+
+function showAuthBanner(message) {
+  if (document.getElementById("authNotice")) return;
+
+  const notice = document.createElement("div");
+  notice.id = "authNotice";
+  notice.setAttribute("role", "status");
+  notice.style.cssText =
+    "display:flex;align-items:center;gap:10px;background:#fdf1e2;" +
+    "border:1px solid #f3961c;color:#3b141c;padding:12px 16px;" +
+    "border-radius:10px;font-size:14px;font-weight:500;margin-bottom:16px;";
+  notice.innerHTML =
+    `<i class="fa-solid fa-lock" style="color:#f3961c;"></i><span>${message}</span>`;
+
+  form.parentElement.insertBefore(notice, form);
+}
 
 /*==========Toast Notification=========== */
 function showToast(message, type = "info") {
