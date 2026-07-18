@@ -70,6 +70,48 @@ function clean(value) {
   ).trim();
 }
 
+/* =========================
+   AUTH LOCK (no redirect)
+========================= */
+function lockFormForGuest(form, submitBtn, message) {
+  if (!form || !submitBtn || form.dataset.locked === "true") return;
+  form.dataset.locked = "true";
+
+  form.querySelectorAll("input, textarea, select").forEach(el => {
+    el.disabled = true;
+  });
+
+  if (!submitBtn.dataset.originalText) {
+    submitBtn.dataset.originalText = submitBtn.textContent;
+  }
+
+  submitBtn.type = "button";
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Log In to Continue";
+  submitBtn.onclick = (e) => {
+    e.preventDefault();
+    location.href = `Auth.html?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+  };
+
+  showAuthBanner(form, message);
+}
+
+function showAuthBanner(form, message) {
+  if (document.getElementById("authNotice")) return;
+
+  const notice = document.createElement("div");
+  notice.id = "authNotice";
+  notice.setAttribute("role", "status");
+  notice.style.cssText =
+    "display:flex;align-items:center;gap:10px;background:#fdf1e2;" +
+    "border:1px solid #f3961c;color:#3b141c;padding:12px 16px;" +
+    "border-radius:10px;font-size:14px;font-weight:500;margin-bottom:16px;";
+  notice.innerHTML =
+    `<i class="fa-solid fa-lock" style="color:#f3961c;"></i><span>${message}</span>`;
+
+  form.parentElement.insertBefore(notice, form);
+}
+
 function validate(subject, message) {
 
   if (!subject ) {
@@ -136,16 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       /* NOT LOGGED IN */
       if (res.status === 401) {
-        showToast(
-          "Please login first",
-          "warning"
-        );
-
-        setTimeout(() => {
-          location.href =
-            "Auth.html";
-        }, 1500);
-
+        lockFormForGuest(form, submitBtn, "Please log in to send us a message.");
         return;
       }
 
@@ -298,17 +331,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           /* LOGIN */
           if (response.status === 401) {
-            showToast(
-              "Please login first",
-              "warning"
-            );
-
-            setTimeout(
-              () => {
-                location.href =
-                  "Auth.html";
-              },
-              1500
+            lockFormForGuest(
+              form,
+              submitBtn,
+              "Your session has expired. Log in to send this message."
             );
             return;
           }
@@ -390,8 +416,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           );
 
         } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = oldText;
+          if (form.dataset.locked !== "true") {
+            submitBtn.disabled = false;
+            submitBtn.textContent = oldText;
+          }
         }
       }
     );
