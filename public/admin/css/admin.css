@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
+
 /* ============================================================
    ADMIN DASHBOARD — admin.css
    Sections:
@@ -30,81 +32,82 @@
 :root {
   /* ── Core Palette ─────────────────────────────────────── */
   --color-white:        #fff;
-  --color-bg:            #f3f6fb;
-  --color-text:          #1e293b;
-  --color-text-soft:     #334155;
-  --color-text-muted:    #475569;
-  --color-text-faint:    #64748b;
+  --color-bg:            #f5f1ea;
+  --color-text:          #2b1b12;
+  --color-text-soft:     #4a382b;
+  --color-text-muted:    #6b5847;
+  --color-text-faint:    #8a7862;
 
   /* ── Sidebar / Dark Surfaces ──────────────────────────── */
-  --color-sidebar-bg:        #0f172a;
-  --color-sidebar-link:      #cbd5e1;
-  --color-sidebar-hover-bg:  #1e293b;
-  --color-sidebar-tile-bg:   rgba(255,255,255,0.08);
-  --color-sidebar-tile-hover:rgba(255,255,255,0.15);
-  --color-sidebar-tile-text: #d7d2d2;
-  --color-sidebar-icon:      #a5a2a2;
+  --color-sidebar-bg:        #241209;
+  --color-sidebar-bg-end:    #170c06;
+  --color-sidebar-link:      #d8c8b8;
+  --color-sidebar-hover-bg:  #3a2214;
+  --color-sidebar-tile-bg:   rgba(255,244,230,0.08);
+  --color-sidebar-tile-hover:rgba(255,244,230,0.15);
+  --color-sidebar-tile-text: #ecdfd0;
+  --color-sidebar-icon:      #c2a68c;
 
   /* ── Borders / Dividers ───────────────────────────────── */
-  --color-border:        #e2e8f0;
-  --color-border-soft:   #f1f5f9;
-  --color-border-input:  #dbe2ea;
-  --color-border-modal:  #e5e7eb;
+  --color-border:        #e6ddd0;
+  --color-border-soft:   #f2ece1;
+  --color-border-input:  #ddccb8;
+  --color-border-modal:  #e8e0d3;
 
   /* ── Surface Backgrounds ──────────────────────────────── */
-  --color-surface:        #fff;
-  --color-surface-muted:  #f8fafc;
-  --color-surface-input:  #f8fafc;
-  --color-surface-readonly: #f1f5f9;
+  --color-surface:        #fffdf9;
+  --color-surface-muted:  #faf6ef;
+  --color-surface-input:  #faf6ef;
+  --color-surface-readonly: #f2ece1;
 
   /* ── Brand / Accent ───────────────────────────────────── */
-  --color-primary:        #2563eb;
-  --color-primary-hover:  #1d4ed8;
-  --color-primary-soft:   rgba(37,99,235,.08);
+  --color-primary:        #8b5a2b;
+  --color-primary-hover:  #6e4520;
+  --color-primary-soft:   rgba(139,90,43,.1);
 
-  --color-info:           #0ea5e9;
-  --color-info-hover:     #0284c7;
+  --color-info:           #2f7a6b;
+  --color-info-hover:     #24594e;
 
-  --color-warning:        #f59e0b;
-  --color-warning-hover:  #d97706;
+  --color-warning:        #c07f1f;
+  --color-warning-hover:  #9c6412;
 
-  --color-danger:         #ef4444;
-  --color-danger-hover:   #dc2626;
+  --color-danger:         #c0392b;
+  --color-danger-hover:   #a53024;
 
-  --color-secondary:        #e5e7eb;
-  --color-secondary-text:   #334155;
-  --color-secondary-hover:  #cbd5f5;
+  --color-secondary:        #ece3d5;
+  --color-secondary-text:   #4a382b;
+  --color-secondary-hover:  #ddd0ba;
 
-  --color-muted-btn:        #64748b;
-  --color-muted-btn-hover:  #475569;
+  --color-muted-btn:        #7a6b5a;
+  --color-muted-btn-hover:  #5c4d3d;
 
-  --color-success:    #16a34a;
-  --color-error:      #dc2626;
+  --color-success:    #4d7a3d;
+  --color-error:      #c0392b;
 
   /* ── Status Badge Colors ──────────────────────────────── */
-  --status-pending-bg: #fff7ed;       --status-pending-text: #c2410c;
-  --status-confirmed-bg: #dbeafe;     --status-confirmed-text: #1d4ed8;
-  --status-preparing-bg: #ecfeff;     --status-preparing-text: #0369a1;
-  --status-delivery-bg: #fef9c3;      --status-delivery-text: #854d0e;
-  --status-delivered-bg: #ecfdf5;     --status-delivered-text: #047857;
-  --status-cancelled-bg: #fee2e2;     --status-cancelled-text: #b91c1c;
-  --status-refunded-bg: #f3e8ff;      --status-refunded-text: #6b21a8;
-  --status-active-bg: #ecfdf5;        --status-active-text: #047857;
-  --status-blocked-bg: #fee2e2;       --status-blocked-text: #b91c1c;
-  --status-paid-bg: #dcfce7;          --status-paid-text: #15803d;
-  --status-unpaid-bg: #fee2e2;        --status-unpaid-text: #991b1b;
-  --status-partial-bg: #fef3c7;       --status-partial-text: #92400e;
-  --status-user-bg: #dbeafe;          --status-user-text: #1e40af;
-  --status-admin-bg: #fee2e2;         --status-admin-text: #991b1b;
-  --status-read-bg: #dcfce7;          --status-read-text: #166534;
-  --status-new-bg: #fef3c7;           --status-new-text: #92400e;
+  --status-pending-bg: #fbeee0;       --status-pending-text: #a8551c;
+  --status-confirmed-bg: #e4ecfa;     --status-confirmed-text: #2c4f8f;
+  --status-preparing-bg: #e6f6f4;     --status-preparing-text: #146b63;
+  --status-delivery-bg: #faf1cf;      --status-delivery-text: #8a5d12;
+  --status-delivered-bg: #e9f5e6;     --status-delivered-text: #2f6b3d;
+  --status-cancelled-bg: #fbe3df;     --status-cancelled-text: #a8362a;
+  --status-refunded-bg: #f1e6f7;      --status-refunded-text: #6b3f8f;
+  --status-active-bg: #e9f5e6;        --status-active-text: #2f6b3d;
+  --status-blocked-bg: #fbe3df;       --status-blocked-text: #a8362a;
+  --status-paid-bg: #e2f4e0;          --status-paid-text: #256b34;
+  --status-unpaid-bg: #fbe3df;        --status-unpaid-text: #96241c;
+  --status-partial-bg: #faf1cf;       --status-partial-text: #8a5d12;
+  --status-user-bg: #e4ecfa;          --status-user-text: #2c4f8f;
+  --status-admin-bg: #fbe3df;         --status-admin-text: #96241c;
+  --status-read-bg: #e2f4e0;          --status-read-text: #1f5c30;
+  --status-new-bg: #faf1cf;           --status-new-text: #8a5d12;
 
-  /* ── Shadows ──────────────────────────────────────────── */
-  --shadow-card:      0 6px 15px rgba(0,0,0,.06);
-  --shadow-table:     0 10px 30px rgba(0,0,0,.05);
-  --shadow-settings:  0 20px 45px rgba(0,0,0,.08);
-  --shadow-modal:     0 20px 40px rgba(0,0,0,.25);
-  --shadow-toast:     0 10px 25px rgba(0,0,0,0.2);
+  /* ── Shadows (warm-tinted, matching brand ink rather than flat black) ── */
+  --shadow-card:      0 6px 16px rgba(43,27,18,.07);
+  --shadow-table:     0 10px 30px rgba(43,27,18,.06);
+  --shadow-settings:  0 20px 45px rgba(43,27,18,.09);
+  --shadow-modal:     0 20px 40px rgba(43,27,18,.28);
+  --shadow-toast:     0 10px 25px rgba(43,27,18,.22);
   --shadow-focus:     0 0 0 3px var(--color-primary-soft);
 
   /* ── Radii ────────────────────────────────────────────── */
@@ -126,7 +129,8 @@
   --space-xxl:  25px;
 
   /* ── Typography ───────────────────────────────────────── */
-  --font-family-base: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-base:    'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-display: 'Fraunces', Georgia, serif;
 
   --font-size-xs:    12px;
   --font-size-s:     13px;
@@ -167,6 +171,18 @@ body {
   color: var(--color-text);
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 
 /* ============================================================
    03. LAYOUT
@@ -182,7 +198,7 @@ body {
    ============================================================ */
 .sidebar {
   width: var(--sidebar-width);
-  background: var(--color-sidebar-bg);
+  background: linear-gradient(180deg, var(--color-sidebar-bg) 0%, var(--color-sidebar-bg-end) 100%);
   color: var(--color-white);
   padding: var(--space-xl);
   display: flex;
@@ -207,6 +223,7 @@ body {
 }
 
 .logo-text {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-logo);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
@@ -215,7 +232,8 @@ body {
 
 .sidebar nav a {
   display: block;
-  padding: 12px;
+  padding: 12px 12px 12px 9px;
+  border-left: 3px solid transparent;
   color: var(--color-sidebar-link);
   text-decoration: none;
   border-radius: var(--radius-s);
@@ -227,6 +245,7 @@ body {
 .sidebar nav a:hover,
 .sidebar nav a.active {
   background: var(--color-sidebar-hover-bg);
+  border-left-color: var(--color-primary);
   color: var(--color-white);
 }
 
@@ -258,6 +277,7 @@ body {
 }
 
 .page-header h2 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xxl);
   font-weight: var(--font-weight-semibold);
 }
@@ -288,11 +308,29 @@ body {
 
 .stat-card h3 {
   margin-top: 8px;
+  font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
 }
 
 .highlight {
-  background: var(--color-info);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2a160c 0%, #4a2a16 100%);
+  color: var(--color-white);
+}
+
+.highlight::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border: 16px solid rgba(255,255,255,.06);
+  border-radius: 50%;
+}
+
+.highlight h3 {
   color: var(--color-white);
 }
 
@@ -386,7 +424,7 @@ body {
 
 .admin-table tbody tr:hover,
 .modern-table tbody tr:hover {
-  background: #eef2ff;
+  background: #f7f1e6;
 }
 
 
@@ -450,6 +488,7 @@ body {
 .btn:hover,
 .btn-primary:hover {
   background: var(--color-primary-hover);
+  transform: translateY(-1px);
 }
 
 /* View Button */
@@ -466,6 +505,7 @@ body {
 
 .btn-view:hover {
   background: var(--color-info-hover);
+  transform: translateY(-1px);
 }
 
 /* Warning Button */
@@ -482,6 +522,7 @@ body {
 
 .btn-warning:hover {
   background: var(--color-warning-hover);
+  transform: translateY(-1px);
 }
 
 /* Danger Button */
@@ -498,6 +539,7 @@ body {
 
 .btn-danger:hover {
   background: var(--color-danger-hover);
+  transform: translateY(-1px);
 }
 
 /* Secondary Button */
@@ -716,6 +758,7 @@ body {
 
 /* Modal Elements */
 .modal-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-l);
   margin-bottom: 10px;
 }
@@ -796,6 +839,7 @@ body {
 }
 
 .settings-card h2 {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-m);
   margin-bottom: var(--space-xl);
   display: flex;
