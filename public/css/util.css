@@ -1,0 +1,581 @@
+/* ===================================================
+   PAGE SHELL (body / layout wrapper)
+   =================================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background-color: var(--color-cream, #fdf6ee);
+  font-family: var(--font-body, Arial, Helvetica, sans-serif);
+}
+
+/* ===================================================
+   ROOT VARIABLES
+   =================================================== */
+:root {
+  --color-espresso: #4b2e2b;
+  --color-coffee-dark: #3b2620;
+  --color-coffee-light: #a9746e;
+  --color-cream: #fdf6ee;
+  --color-tan: #e8d4c0;
+  --color-gold: #c69749;
+  --color-error: #b3261e;
+  --color-success: #2e7d32;
+  --font-heading: Georgia, 'Times New Roman', serif;
+  --font-body: Arial, Helvetica, sans-serif;
+  --border-radius: 10px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --shadow-card: 0 2px 8px rgba(75, 46, 43, 0.08);
+  --shadow-card-hover: 0 6px 16px rgba(75, 46, 43, 0.15);
+}
+
+/* ===================================================
+   GLOBAL RESET
+   =================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+}
+
+/* ===================================================
+   HEADINGS
+   =================================================== */
+h1 {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--color-espresso);
+  text-align: center;
+  letter-spacing: 0.5px;
+  padding: var(--spacing-lg) 0 var(--spacing-sm);
+}
+
+/* Toggle switch sitting directly under the page title
+   (e.g. refreshment.html's Drinks / Refreshments switch) */
+h1 + .switch,
+h1 + label.switch {
+  margin: 0 0 var(--spacing-lg);
+}
+
+/* ===================================================
+   MENU SECTION (wraps each .menu-grid, e.g. cold drinks
+   vs. refreshments toggled by the switch above)
+   =================================================== */
+.menu-section {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+/* ===================================================
+   NEXT BUTTON (floating action button)
+   NOTE: js/cart.js sets this element's inline style via
+   style.cssText at runtime, which will override the rules
+   below since inline styles win. Keep this in cart.js's
+   initNextButton()/updateNextButton() in sync with these
+   colors, or remove the inline cssText there and rely on
+   this class instead for a single source of truth.
+   =================================================== */
+#nextBtn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 30px;
+  background-color: var(--color-gold);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-card-hover);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  z-index: 999;
+}
+
+#nextBtn:hover:not(:disabled) {
+  background-color: var(--color-espresso);
+}
+
+#nextBtn:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+/* ===================================================
+   FILTERS BAR
+   =================================================== */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-cream);
+}
+
+.filter-btn {
+  background-color: #ffffff;
+  color: var(--color-espresso);
+  border: 1px solid var(--color-tan);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: var(--color-tan);
+}
+
+.filter-btn.active {
+  background-color: var(--color-espresso);
+  color: #ffffff;
+  border-color: var(--color-espresso);
+}
+
+/* ===================================================
+   MENU GRID / CARD LAYOUT
+   =================================================== */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--color-cream);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid var(--color-tan);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  background-color: var(--color-tan);
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  flex-grow: 1;
+}
+
+/* ===================================================
+   PRODUCT BADGE (over the image)
+   =================================================== */
+.product-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-block;
+  background-color: var(--color-gold);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  z-index: 1;
+}
+
+/* ===================================================
+   PRODUCT HEADER
+   =================================================== */
+.product-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-tan);
+}
+
+.product-header h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-espresso);
+}
+
+.stock-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stock-status.in {
+  color: var(--color-success);
+}
+
+.stock-status.out {
+  color: var(--color-error);
+}
+
+/* ===================================================
+   PRODUCT META
+   =================================================== */
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: 13px;
+  color: var(--color-coffee-light);
+}
+
+.product-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.product-meta i {
+  color: var(--color-gold);
+  font-size: 12px;
+}
+
+/* ===================================================
+   PRODUCT DESCRIPTION
+   =================================================== */
+.product-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-coffee-dark);
+}
+
+/* ===================================================
+   PRODUCT EXTRA INFO
+   =================================================== */
+.product-extra-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-coffee-dark);
+  border-top: 1px dashed var(--color-tan);
+  padding-top: var(--spacing-sm);
+}
+
+.product-extra-info div {
+  display: flex;
+  gap: 6px;
+}
+
+.product-extra-info strong {
+  color: var(--color-espresso);
+}
+
+/* ===================================================
+   PRODUCT PRICE
+   =================================================== */
+.product-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}
+
+.offer-price,
+.original-price {
+  font-weight: bold;
+}
+
+.offer-price {
+  color: var(--color-error);
+  font-size: 20px;
+}
+
+.original-price {
+  color: #999999;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+/* ===================================================
+   ORDER BUTTON
+   =================================================== */
+.order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background-color: var(--color-espresso);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 11px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.order-btn:hover {
+  background-color: var(--color-coffee-dark);
+}
+
+.order-btn:disabled {
+  background-color: #b7a99e;
+  cursor: not-allowed;
+}
+
+/* ===================================================
+   UTILITY
+   =================================================== */
+.hidden {
+  display: none;
+}
+
+/* ===================================================
+   TOGGLE SWITCH
+   =================================================== */
+.switch-box {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-tan);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: left 0.2s ease;
+}
+
+.switch input:checked + .slider {
+  background-color: var(--color-gold);
+}
+
+.switch input:checked + .slider::before {
+  left: 25px;
+}
+
+/* ===================================================
+   COMBO GRID / CARDS
+   =================================================== */
+.combo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--color-cream);
+}
+
+.combo-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background-color: #ffffff;
+  border: 1px solid var(--color-tan);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  padding-bottom: var(--spacing-md);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.combo-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.combo-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  display: block;
+}
+
+.combo-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-block;
+  background-color: var(--color-gold);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.combo-badge i {
+  margin-right: 4px;
+  color: #ffffff;
+}
+
+.combo-card h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-espresso);
+  padding: 0 var(--spacing-md);
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--color-espresso);
+  padding: 0 var(--spacing-md);
+}
+
+/* ===================================================
+   CARD PARAGRAPH TEXT
+   =================================================== */
+.card p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-coffee-dark);
+}
+
+/* ===================================================
+   MEDIA QUERIES
+   =================================================== */
+
+/* Small laptops / large tablets: 3 columns */
+@media screen and (max-width: 1200px) {
+  .menu-grid,
+  .combo-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablets: 2 columns */
+@media screen and (max-width: 900px) {
+  .menu-grid,
+  .combo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .filters {
+    justify-content: center;
+    padding: var(--spacing-md);
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+}
+
+/* Mobile phones: 1 column */
+@media screen and (max-width: 560px) {
+  .menu-grid,
+  .combo-grid {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .card-image-wrapper,
+  .combo-card img {
+    height: 200px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .product-header h2,
+  .combo-card h2 {
+    font-size: 16px;
+  }
+
+  .filter-btn {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+
+  .order-btn {
+    font-size: 13px;
+    padding: 9px 0;
+  }
+
+  .switch {
+    width: 40px;
+    height: 22px;
+  }
+
+  .slider::before {
+    height: 16px;
+    width: 16px;
+  }
+
+  .switch input:checked + .slider::before {
+    left: 21px;
+  }
+}

@@ -398,21 +398,9 @@
       document.body.appendChild(nextBtn);
     }
 
-    nextBtn.style.cssText = `
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      padding: 14px 22px;
-      border-radius: 30px;
-      border: none;
-      background: #ccc;
-      color: #666;
-      cursor: not-allowed;
-      z-index: 9999;
-      transition: .3s;
-      font-weight: 600;
-      opacity: 0.6;
-    `;
+    // Styling now lives entirely in CSS (#nextBtn / #nextBtn:disabled).
+    // updateNextButton() below only toggles the disabled attribute,
+    // so no inline style is set here anymore.
 
     nextBtn.addEventListener("click", () => {
 
@@ -448,11 +436,9 @@
 
     const canProceed = userLoggedIn && itemSelected;
 
+    // Just flip the disabled attribute — #nextBtn / #nextBtn:disabled
+    // in the stylesheet handle the colors, cursor, and opacity.
     btn.disabled = !canProceed;
-    btn.style.background = canProceed ? "#4a90e2" : "#ccc";
-    btn.style.color = canProceed ? "#fff" : "#666";
-    btn.style.cursor = canProceed ? "pointer" : "not-allowed";
-    btn.style.opacity = canProceed ? "1" : "0.6";
   }
 
   /* ======================
