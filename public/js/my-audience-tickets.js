@@ -702,7 +702,7 @@
         <div class="ticket-detail-row">
           <span class="label">Payment Status</span>
           <span class="value">
-            ${capitalize(ticket.payment?.status || "Pending")}
+            ${capitalize(ticket.paymentStatus || "Pending")}
           </span>
         </div>
       </div>
