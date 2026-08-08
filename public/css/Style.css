@@ -567,18 +567,18 @@ body.menu-open {
     HERO — VIDEO SLIDER
 ======================================*/
 .hero-section {
-    position:   relative;
-    width:      100%;
-    height:     100vh;
-    min-height: 560px;
-    overflow:   hidden;
+  position:   relative;
+  width:      100%;
+  height:     100vh;
+  min-height: 560px;
+  overflow:   hidden;
 }
 
 /* ---- Slider container ---- */
 .video-slider {
-    position: relative;
-    width:    100%;
-    height:   100%;
+  position: relative;
+  width:    100%;
+  height:   100%;
 }
 
 /* ---- Each slide ---- */

@@ -1199,7 +1199,7 @@ select { font-family: inherit; }
 
 /* -------------------- MODAL SHELL -------------------- */
 .ticket-modal {
-  max-width: 540px;
+  max-width: 900px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1232,11 +1232,13 @@ select { font-family: inherit; }
    ================================================================= */
 .ticket-modal-header {
   display: flex;
+  max-width: 100%;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--space-sm);
-  padding: var(--space-xl) var(--space-xl) var(--space-lg);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-xl) var(--space-lg);
   background: var(--gradient-secondary);
   color: #fff;
   position: relative;
