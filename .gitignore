@@ -6,11 +6,12 @@ jspm_packages/
 bower_components/
 
 # ==========================================================
-# Environment Variables
+# Python
 # ==========================================================
-pycache/
+__pycache__/
+**/__pycache__/
+**pycache**/
 *.py[cod]
-*.pyo
 
 venv/
 .venv/
