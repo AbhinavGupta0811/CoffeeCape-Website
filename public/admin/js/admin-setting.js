@@ -104,7 +104,7 @@ if (profileImageInput) {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("profile_image", file);
 
     try {
 

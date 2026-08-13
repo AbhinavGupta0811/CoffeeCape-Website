@@ -1127,8 +1127,6 @@ async function viewBooking(bookingId) {
 
       </div>
 
-      <hr>
-
       <div class="booking-grid">
 
         <div><strong>Booking ID:</strong></div>

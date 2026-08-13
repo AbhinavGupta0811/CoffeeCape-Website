@@ -1,38 +1,38 @@
 /* -------------------- DESIGN TOKENS -------------------- */
 :root {
-  --color-primary:        #FF6B35;
-  --color-primary-dark:   #E0501F;
-  --color-primary-light:  #FF8C5A;
-  --color-secondary:      #6C4AB6;
-  --color-secondary-dark: #533594;
-  --color-accent:         #00C2A8;
+  --color-primary:        #6f4e37;
+  --color-primary-dark:   #4f3525;
+  --color-primary-light:  #8a6245;
+  --color-secondary:      #6f4e37;
+  --color-secondary-dark: #4f3525;
+  --color-accent:         #8a6245;
 
-  --gradient-primary:   linear-gradient(135deg, #FF6B35 0%, #FF3D7F 100%);
-  --gradient-secondary: linear-gradient(135deg, #6C4AB6 0%, #00C2A8 100%);
-  --gradient-upcoming:  linear-gradient(135deg, #FF6B35 0%, #FF3D7F 100%);
-  --gradient-completed: linear-gradient(135deg, #1DB954 0%, #00C2A8 100%);
-  --gradient-cancelled: linear-gradient(135deg, #FF3B5C 0%, #6C4AB6 100%);
-  --gradient-total:     linear-gradient(135deg, #6C4AB6 0%, #00C2A8 100%);
-  --gradient-bg:        radial-gradient(circle at 12% 8%,  rgba(255,107,53,0.08), transparent 40%),
-                        radial-gradient(circle at 88% 92%, rgba(108,74,182,0.10), transparent 40%);
+  --gradient-primary:   linear-gradient(135deg, #6f4e37 0%, #8a6245 100%);
+  --gradient-secondary: linear-gradient(135deg, #6f4e37 0%, #8a6245 100%);
+  --gradient-upcoming:  linear-gradient(135deg, #6f4e37 0%, #8a6245 100%);
+  --gradient-completed: linear-gradient(135deg, #27834f 0%, #8a6245 100%);
+  --gradient-cancelled: linear-gradient(135deg, #c94a4a 0%, #6f4e37 100%);
+  --gradient-total:     linear-gradient(135deg, #6f4e37 0%, #8a6245 100%);
+  --gradient-bg:        radial-gradient(circle at 12% 8%,  rgba(111,78,55,0.08), transparent 40%),
+                        radial-gradient(circle at 88% 92%, rgba(111,78,55,0.10), transparent 40%);
 
-  --color-bg:           #FAF9FC;
-  --color-surface:      #FFFFFF;
-  --color-surface-alt:  #F5F3FA;
-  --color-border:       #E7E3F0;
-  --color-text:         #1F1B2E;
-  --color-text-muted:   #6B6478;
-  --color-text-soft:    #948C9F;
+  --color-bg:           #f7f3ee;
+  --color-surface:      #ffffff;
+  --color-surface-alt:  #eee7df;
+  --color-border:       #e7e0d9;
+  --color-text:         #292421;
+  --color-text-muted:   #756d67;
+  --color-text-soft:    #9a918a;
 
-  --color-upcoming:   #FF6B35;
-  --color-completed:  #1DB954;
-  --color-cancelled:  #FF3B5C;
-  --color-pending:    #FF9F1C;
+  --color-upcoming:   #6f4e37;
+  --color-completed:  #27834f;
+  --color-cancelled:  #c94a4a;
+  --color-pending:    #a66a12;
 
-  --color-upcoming-bg:  rgba(255, 107, 53, 0.08);
-  --color-completed-bg: rgba(29, 185, 84, 0.08);
-  --color-cancelled-bg: rgba(255, 59, 92, 0.08);
-  --color-pending-bg:   rgba(255, 159, 28, 0.08);
+  --color-upcoming-bg:  rgba(111, 78, 55, 0.08);
+  --color-completed-bg: rgba(39, 131, 79, 0.08);
+  --color-cancelled-bg: rgba(201, 74, 74, 0.08);
+  --color-pending-bg:   rgba(166, 106, 18, 0.08);
 
   --font-base: 'Poppins', sans-serif;
   --fs-xs:   0.72rem;
@@ -56,12 +56,12 @@
   --radius-xl:  28px;
   --radius-pill: 999px;
 
-  --shadow-xs: 0 2px 8px rgba(31,27,46,0.05);
-  --shadow-sm: 0 4px 14px rgba(31,27,46,0.07);
-  --shadow-md: 0 10px 28px rgba(31,27,46,0.10);
-  --shadow-lg: 0 20px 50px rgba(31,27,46,0.15);
-  --shadow-primary:  0 8px 24px rgba(255,107,53,0.28);
-  --shadow-secondary: 0 8px 24px rgba(108,74,182,0.25);
+  --shadow-xs: 0 2px 8px rgba(41,36,33,0.05);
+  --shadow-sm: 0 4px 14px rgba(41,36,33,0.07);
+  --shadow-md: 0 10px 28px rgba(41,36,33,0.10);
+  --shadow-lg: 0 20px 50px rgba(41,36,33,0.15);
+  --shadow-primary:  0 8px 24px rgba(111,78,55,0.28);
+  --shadow-secondary: 0 8px 24px rgba(111,78,55,0.25);
 
   --transition-fast: 0.18s ease;
   --transition-base: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
@@ -139,7 +139,7 @@ select { font-family: inherit; }
 .back-btn:hover {
   background: var(--gradient-primary);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
   box-shadow: var(--shadow-primary);
   transform: translateX(-2px);
 }
@@ -172,7 +172,7 @@ select { font-family: inherit; }
   padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-pill);
   background: var(--gradient-secondary);
-  color: #fff;
+  color: #ffffff;
   font-size: var(--fs-sm);
   font-weight: 600;
   box-shadow: var(--shadow-secondary);
@@ -217,12 +217,12 @@ select { font-family: inherit; }
   align-items: center;
   justify-content: center;
   font-size: var(--fs-lg);
-  color: #fff;
+  color: #ffffff;
 }
 
-.overview-card.upcoming  .overview-icon { background: var(--gradient-upcoming); box-shadow: 0 6px 18px rgba(255,107,53,0.30); }
-.overview-card.completed .overview-icon { background: var(--gradient-completed); box-shadow: 0 6px 18px rgba(29,185,84,0.28); }
-.overview-card.cancelled .overview-icon { background: var(--gradient-cancelled); box-shadow: 0 6px 18px rgba(255,59,92,0.28); }
+.overview-card.upcoming  .overview-icon { background: var(--gradient-upcoming); box-shadow: 0 6px 18px rgba(111,78,55,0.30); }
+.overview-card.completed .overview-icon { background: var(--gradient-completed); box-shadow: 0 6px 18px rgba(39,131,79,0.28); }
+.overview-card.cancelled .overview-icon { background: var(--gradient-cancelled); box-shadow: 0 6px 18px rgba(201,74,74,0.28); }
 .overview-card.total     .overview-icon { background: var(--gradient-total);     box-shadow: var(--shadow-secondary); }
 
 .overview-card h3 {
@@ -273,7 +273,7 @@ select { font-family: inherit; }
 
 .search-box:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(255,107,53,0.10);
+  box-shadow: 0 0 0 4px rgba(111,78,55,0.10);
 }
 
 .search-box i {
@@ -322,7 +322,7 @@ select { font-family: inherit; }
 
 .filter-btn.active {
   background: var(--gradient-primary);
-  color: #fff;
+  color: #ffffff;
   border-color: transparent;
   box-shadow: var(--shadow-primary);
 }
@@ -515,13 +515,13 @@ select { font-family: inherit; }
 
 .ticket-action-btn.view {
   background: var(--gradient-secondary);
-  color: #fff;
+  color: #ffffff;
   box-shadow: var(--shadow-secondary);
 }
 
 .ticket-action-btn.view:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(108,74,182,0.35);
+  box-shadow: 0 10px 24px rgba(111,78,55,0.35);
 }
 
 .ticket-action-btn.cancel {
@@ -532,7 +532,7 @@ select { font-family: inherit; }
 
 .ticket-action-btn.cancel:hover {
   background: var(--color-cancelled);
-  color: #fff;
+  color: #ffffff;
 }
 
 .ticket-action-btn:disabled,
@@ -564,7 +564,7 @@ select { font-family: inherit; }
   background: linear-gradient(
     90deg,
     var(--color-surface-alt) 25%,
-    #ede9f5 50%,
+    #eee7df 50%,
     var(--color-surface-alt) 75%
   );
   background-size: 200% 100%;
@@ -625,7 +625,7 @@ select { font-family: inherit; }
   padding: var(--space-sm) var(--space-xl);
   border-radius: var(--radius-pill);
   background: var(--gradient-primary);
-  color: #fff;
+  color: #ffffff;
   font-size: var(--fs-base);
   font-weight: 600;
   box-shadow: var(--shadow-primary);
@@ -635,7 +635,7 @@ select { font-family: inherit; }
 
 .primary-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(255,107,53,0.38);
+  box-shadow: 0 14px 30px rgba(111,78,55,0.38);
 }
 
 /* =================================================================
@@ -666,7 +666,7 @@ select { font-family: inherit; }
 .page-btn:hover:not(:disabled) {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  background: rgba(255,107,53,0.06);
+  background: rgba(111,78,55,0.06);
 }
 
 .page-btn:disabled {
@@ -705,7 +705,7 @@ select { font-family: inherit; }
 .page-number.active {
   background: var(--gradient-primary);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
   box-shadow: var(--shadow-primary);
 }
 
@@ -715,7 +715,7 @@ select { font-family: inherit; }
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -729,7 +729,7 @@ select { font-family: inherit; }
 .modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(31, 27, 46, 0.55);
+  background: rgba(41, 36, 33, 0.55);
   backdrop-filter: blur(5px);
 }
 
@@ -769,7 +769,7 @@ select { font-family: inherit; }
 .modal-close:hover {
   background: var(--color-cancelled);
   border-color: transparent;
-  color: #fff;
+  color: #ffffff;
 }
 
 /* =================================================================
@@ -801,7 +801,7 @@ select { font-family: inherit; }
   align-items: center;
   justify-content: center;
   font-size: 2rem;
-  color: #fff;
+  color: #ffffff;
   background: var(--gradient-secondary);
   box-shadow: var(--shadow-secondary);
 }
@@ -890,8 +890,8 @@ select { font-family: inherit; }
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: rgba(255,59,92,0.10);
-  border: 2px solid rgba(255,59,92,0.25);
+  background: rgba(201,74,74,0.10);
+  border: 2px solid rgba(201,74,74,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -940,16 +940,16 @@ select { font-family: inherit; }
   padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-pill);
   background: var(--color-cancelled);
-  color: #fff;
+  color: #ffffff;
   font-size: var(--fs-base);
   font-weight: 600;
-  box-shadow: 0 8px 20px rgba(255,59,92,0.30);
+  box-shadow: 0 8px 20px rgba(201,74,74,0.30);
   transition: all var(--transition-fast);
 }
 
 .danger-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(255,59,92,0.40);
+  box-shadow: 0 12px 26px rgba(201,74,74,0.40);
 }
 
 /* =================================================================
@@ -1138,7 +1138,7 @@ select { font-family: inherit; }
 }
 
 .ticket-info-item:last-child i {
-  background: rgba(255, 107, 53, 0.08);
+  background: rgba(111, 78, 55, 0.08);
   border-color: rgba(255, 107, 53, 0.20);
   color: var(--color-primary);
 }
@@ -1163,14 +1163,14 @@ select { font-family: inherit; }
   font-size: var(--fs-sm);
   font-weight: 600;
   background: var(--gradient-secondary);
-  color: #fff;
+  color: #ffffff;
   box-shadow: var(--shadow-secondary);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .view-ticket-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(108, 74, 182, 0.38);
+  box-shadow: 0 10px 24px rgba(111, 78, 55, 0.38);
 }
 
 /* Cancel button */
@@ -1192,8 +1192,8 @@ select { font-family: inherit; }
 
 .cancel-ticket-btn:hover {
   background: var(--color-cancelled);
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(255, 59, 92, 0.30);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(201, 74, 74, 0.30);
   transform: translateY(-1px);
 }
 
@@ -1240,28 +1240,28 @@ select { font-family: inherit; }
   box-sizing: border-box;
   padding: var(--space-xl) var(--space-lg);
   background: var(--gradient-secondary);
-  color: #fff;
+  color: #ffffff;
   position: relative;
 }
 
 /* Badge inherits base .ticket-status-badge styles;
    override colors for contrast on the gradient header */
 .ticket-modal-header .ticket-status-badge {
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #ffffff;
   backdrop-filter: blur(4px);
 }
 
 .ticket-modal-header .ticket-status-badge::before {
-  background: #fff;
+  background: #ffffff;
 }
 
 .ticket-modal-header h2 {
   font-size: var(--fs-lg);
   font-weight: 700;
   line-height: 1.25;
-  color: #fff;
+  color: #ffffff;
 }
 
 .ticket-modal-id {
@@ -1269,11 +1269,11 @@ select { font-family: inherit; }
   font-family: 'Courier New', monospace;
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255,255,255,0.78);
+  background: rgba(255,255,255,0.12);
   padding: 4px var(--space-sm);
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255,255,255,0.22);
 }
 
 /* =================================================================
@@ -1400,7 +1400,7 @@ select { font-family: inherit; }
 
 .ticket-modal-actions .danger-btn:hover {
   background: var(--color-cancelled);
-  color: #fff;
+  color: #ffffff;
   box-shadow: 0 10px 24px rgba(255, 59, 92, 0.32);
   transform: translateY(-2px);
 }

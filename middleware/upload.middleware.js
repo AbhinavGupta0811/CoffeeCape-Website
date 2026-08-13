@@ -3,27 +3,30 @@ const path = require("path");
 const fs = require("fs");
 
 const createUploader = (folder = "general") => {
-
-  const UPLOAD_DIR = path.join(
+  const uploadDir = path.join(
     __dirname,
-    `../public/uploads/${folder}`
+    "../public/uploads",
+    folder
   );
 
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  /* Create directory if it doesn't exist */
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, {
+      recursive: true
+    });
   }
 
   const storage = multer.diskStorage({
 
     destination: (req, file, cb) => {
-      cb(null, UPLOAD_DIR);
+      cb(null, uploadDir);
     },
 
     filename: (req, file, cb) => {
 
-      const ext = path.extname(
-        file.originalname
-      ).toLowerCase();
+      const ext = path
+        .extname(file.originalname)
+        .toLowerCase();
 
       let filename;
 
@@ -44,13 +47,17 @@ const createUploader = (folder = "general") => {
 
   const fileFilter = (req, file, cb) => {
 
-    if (
-      !file.mimetype.startsWith("image/")
-    ) {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+    if (!allowedTypes.includes(file.mimetype)) {
 
       return cb(
         new Error(
-          "Only image files are allowed"
+          "Only JPG, PNG and WEBP images are allowed"
         ),
         false
       );
@@ -68,7 +75,77 @@ const createUploader = (folder = "general") => {
     limits: {
       fileSize: 5 * 1024 * 1024
     }
+
   });
 };
 
+const adminProfileUploadDir = path.join(
+  __dirname,
+  "../public/uploads/profiles"
+);
+
+/* Create admin profile directory */
+if (!fs.existsSync(adminProfileUploadDir)) {
+  fs.mkdirSync(adminProfileUploadDir, {
+    recursive: true
+  });
+}
+
+const adminProfileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(
+      null,
+      adminProfileUploadDir
+    );
+  },
+
+  filename: (req, file, cb) => {
+    const ext = path
+      .extname(file.originalname)
+      .toLowerCase();
+    const adminId = req.user?.id || "unknown";
+
+    const filename =
+      `admin-${adminId}-${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const adminProfileFileFilter = (
+  req,
+  file,
+  cb
+) => {
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+
+    return cb(
+      new Error(
+        "Only JPG, PNG and WEBP images are allowed"
+      ),
+      false
+    );
+
+  }
+
+  cb(null, true);
+
+};
+
+const adminProfileUpload = multer({
+  storage: adminProfileStorage,
+  fileFilter: adminProfileFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+});
+
 module.exports = createUploader;
+module.exports.createUploader = createUploader;
+module.exports.adminProfileUpload = adminProfileUpload;
