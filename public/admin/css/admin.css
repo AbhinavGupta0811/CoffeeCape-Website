@@ -1,31 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
-
-/* ============================================================
-   ADMIN DASHBOARD — admin.css
-   Sections:
-   01. CSS Custom Properties (Root Variables)
-   02. Global Reset & Base
-   03. Layout
-   04. Sidebar
-   05. Main Content / Page Header
-   06. Stats Grid
-   07. Charts
-   08. Panels & Reminder Box
-   09. Table
-   10. Empty State
-   11. Status Badges
-   12. Buttons
-   13. Order Filters
-   14. Products Page
-   15. Product Form
-   16. Category Switcher
-   17. Modal
-   18. Settings
-   19. Toast
-   20. Responsive
-   ============================================================ */
-
-
 /* ============================================================
    01. CSS CUSTOM PROPERTIES
    ============================================================ */
@@ -189,21 +162,98 @@ body {
    03. LAYOUT
    ============================================================ */
 .admin-wrapper {
-  display: flex;
+  display: block;
   min-height: 100vh;
 }
 
 
 /* ============================================================
-   04. SIDEBAR
+   04. SIDEBAR (off-canvas / collapsible)
    ============================================================ */
+
+/* Three-line hamburger button */
+.sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  z-index: 1080;
+  transition: transform var(--transition-fast),
+              background var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.sidebar-toggle:hover {
+  transform: translateY(-1px);
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Full-page overlay shown while the sidebar is open */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 12, 6, 0.42);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-base), visibility var(--transition-base);
+  z-index: 1090;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Off-canvas sidebar panel */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: var(--sidebar-width);
+  height: 100vh;
+  z-index: 1100;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: linear-gradient(180deg, var(--color-sidebar-bg) 0%, var(--color-sidebar-bg-end) 100%);
   color: var(--color-white);
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
+  transform: translateX(-105%);
+  transition: transform var(--transition-base);
+  box-shadow: 10px 0 35px rgba(43, 27, 18, .20);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Sidebar top row: logo + close button */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.sidebar-header .logo-container {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 .logo-container {
@@ -221,6 +271,7 @@ body {
   border-radius: var(--radius-circle);
   background: var(--color-white);
   padding: 4px;
+  flex-shrink: 0;
 }
 
 .logo-text {
@@ -229,10 +280,39 @@ body {
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
   letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.sidebar-close {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 1px solid rgba(255, 244, 230, .15);
+  border-radius: var(--radius-m);
+  background: rgba(255, 244, 230, .08);
+  color: var(--color-white);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.sidebar-close:hover {
+  background: var(--color-danger);
+}
+
+/* Nav fills the remaining space so the logout button sits at the bottom */
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .sidebar nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 12px 12px 9px;
   border-left: 3px solid transparent;
   color: var(--color-sidebar-link);
@@ -243,6 +323,12 @@ body {
   transition: var(--transition-slow);
 }
 
+.sidebar nav a i {
+  width: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
 .sidebar nav a:hover,
 .sidebar nav a.active {
   background: var(--color-sidebar-hover-bg);
@@ -250,18 +336,28 @@ body {
   color: var(--color-white);
 }
 
+/* margin-top: auto (not a % hack) pins this to the bottom of the flex column */
 .logout-btn {
-  margin-top: 25%;
+  margin-top: auto;
   background: var(--color-muted-btn);
   border: none;
   padding: 10px;
   color: var(--color-white);
   border-radius: var(--radius-pill);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 }
 
 .logout-btn:hover {
   background: var(--color-muted-btn-hover);
+}
+
+/* Prevent the page behind the drawer from scrolling while it's open */
+body.sidebar-open {
+  overflow: hidden;
 }
 
 
@@ -269,8 +365,9 @@ body {
    05. MAIN CONTENT / PAGE HEADER
    ============================================================ */
 .main-content {
-  flex: 1;
-  padding: var(--space-xxl);
+  width: 100%;
+  min-width: 0;
+  padding: 78px var(--space-xxl) var(--space-xxl);
 }
 
 .page-header {
@@ -907,59 +1004,28 @@ body {
 
 
 /* ============================================================
-   20. RESPONSIVE
+   20. SIDEBAR — RESPONSIVE ADJUSTMENTS
    ============================================================ */
-@media (max-width: 900px) {
-  .admin-wrapper {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-    gap: var(--space-s);
-  }
-
-  .sidebar nav {
-    display: flex;
-    gap: 6px;
-  }
-
-  .sidebar nav a {
-    white-space: nowrap;
-    margin: 0;
-  }
-}
-
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .sidebar {
+    width: min(300px, 86vw);
   }
 
-  .admin-table,
-  .modern-table {
-    min-width: 700px;
+  .sidebar-toggle {
+    top: 14px;
+    left: 14px;
   }
 
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .product-actions {
-    justify-content: stretch;
-  }
-
-  .product-actions button {
-    width: 100%;
+  .main-content {
+    padding: 70px 16px 16px;
   }
 
   .logo-text {
-    display: none;
+    display: inline;
   }
 
   .logo-container {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .logo-img {
@@ -969,11 +1035,16 @@ body {
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .sidebar-toggle {
+    width: 44px;
+    height: 44px;
   }
 
   .main-content {
-    padding: 14px;
+    padding: 66px 14px 14px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }

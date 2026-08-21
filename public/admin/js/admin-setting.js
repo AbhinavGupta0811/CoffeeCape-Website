@@ -1,3 +1,50 @@
+// Collapsible sidebar
+(() => {
+  const sidebar = document.getElementById("adminSidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  const sidebarClose = document.getElementById("sidebarClose");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+  // Ensure elements exist
+  if (!sidebar || !sidebarToggle || !sidebarClose || !sidebarOverlay) return;
+
+  // Sidebar state
+  function setSidebarState(open) {
+    sidebar.classList.toggle("open", open);
+    sidebarOverlay.classList.toggle("active", open);
+    document.body.classList.toggle("sidebar-open", open);
+
+    // Accessibility
+    sidebarToggle.setAttribute("aria-expanded", String(open));
+    sidebar.setAttribute("aria-hidden", String(!open));
+    sidebarOverlay.setAttribute("aria-hidden", String(!open));
+  }
+
+  // Toggle button
+  sidebarToggle.addEventListener("click", () => {
+    const isOpen = sidebar.classList.contains("open");
+    setSidebarState(!isOpen);
+  });
+
+  // Close button
+  sidebarClose.addEventListener("click", () => setSidebarState(false));
+
+  // Close on overlay click
+  sidebarOverlay.addEventListener("click", () => setSidebarState(false));
+
+  // Close on Escape key
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && sidebar.classList.contains("open")) {
+      setSidebarState(false);
+    }
+  });
+
+  // Close after navigation
+  sidebar.querySelectorAll("nav a").forEach((link) => {
+    link.addEventListener("click", () => setSidebarState(false));
+  });
+})();
+
 /************************************************************
  * ELEMENTS
  ************************************************************/

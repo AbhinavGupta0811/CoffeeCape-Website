@@ -202,6 +202,7 @@ async function sendOtpVerifiedMail(to, otp) {
   // Never log OTP — it is a credential
   const template = generateVerificationOtpTemplate(otp);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to,
     subject: "🔐 Email Verification OTP - CoffeeCape",
     html:    template.html,
@@ -216,6 +217,7 @@ async function sendOtpMail(to, otp) {
   // Never log OTP — it is a credential
   const template = generatePasswordResetOtpTemplate(otp);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to,
     subject: "🔐 Password Reset OTP - CoffeeCape",
     html:    template.html,
@@ -234,6 +236,7 @@ async function sendContactToAdmin({ name, email, subject, message }) {
   const safeMessage = escapeHTML(message);
 
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to:      process.env.ADMIN_EMAIL,
     subject: `📩 New Contact Message: ${sanitizeMailHeader(subject)}`,
     html: `
@@ -263,6 +266,7 @@ async function sendContactConfirmation({ name, email, message }) {
   const safeMessage = escapeHTML(message);
 
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to:      email,
     subject: "✅ We received your message - CoffeeCape",
     html: `
@@ -418,6 +422,7 @@ function generateBillTemplate(order) {
 async function sendPaymentBill(userEmail, order) {
   const template = generateBillTemplate(order);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to:      userEmail,
     subject: `🧾 Your CoffeeCape Receipt - Order: ${sanitizeMailHeader(order.order_id)}`,
     html:    template.html,
@@ -503,6 +508,7 @@ function generateBookingBillTemplate(booking) {
 async function sendBookingPaymentBill(userEmail, booking) {
   const template = generateBookingBillTemplate(booking);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to:      userEmail,
     subject: `📅 Your CoffeeCape Booking Receipt - Booking: ${sanitizeMailHeader(booking.booking_id)}`,
     html:    template.html,
@@ -685,6 +691,7 @@ function generateReviewThankYouTemplate(name, rating) {
 async function sendReviewThankYouMail(to, name, rating) {
   const template = generateReviewThankYouTemplate(name, rating);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to,
     subject: "☕ Thank You for Your CoffeeCape Review!",
     html:    template.html,
@@ -772,11 +779,317 @@ function generateAudiencePaymentTemplate(booking) {
 async function sendAudiencePaymentMail(email, booking){
   const template = generateAudiencePaymentTemplate(booking);
   return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
     to: email,
 
     subject: `🎟 Audience Booking Confirmed - ${sanitizeMailHeader(
       booking.audience_booking_id
     )}`,
+    html: template.html,
+    text: template.text
+  });
+}
+
+/* =====================================================
+   DELIVERY BOY PASSWORD RESET OTP TEMPLATE
+===================================================== */
+function generateDeliveryPasswordResetOtpTemplate(otp) {
+  const safeOtp = escapeHTML(String(otp));
+  return {
+    html: `
+      <div style="
+        font-family:Arial, sans-serif;
+        max-width:500px;
+        margin:auto;
+        padding:20px;
+        border:1px solid #eee;
+        border-radius:10px;
+      ">
+        <h2 style="
+          color:#2c7a7b;
+          text-align:center;
+        ">
+          🚴 CoffeeCape Delivery Portal
+        </h2>
+        <h3 style="text-align:center;">
+          Password Reset
+        </h3>
+        <p>
+          We received a request to reset the password
+          for your delivery account.
+        </p>
+        <p>
+          Your password reset OTP is:
+        </p>
+        <h1 style="
+          text-align:center;
+          letter-spacing:6px;
+          background:#f5f7fa;
+          padding:15px;
+          border-radius:8px;
+        ">
+          ${safeOtp}
+        </h1>
+        <p style="color:#555;">
+            This OTP is valid for
+            <strong>10 minutes</strong>.
+        </p>
+        <hr>
+        <p style="
+          font-size:12px;
+          color:#888;
+        ">
+          If you did not request a password reset,
+          please ignore this email.
+        </p>
+        <p style="
+          font-size:12px;
+          color:#888;
+          text-align:center;
+        ">
+          CoffeeCape Delivery Team
+        </p>
+      </div>
+    `,
+    text: `
+CoffeeCape Delivery Portal
+Password Reset
+
+Your password reset OTP is: ${safeOtp}
+
+This OTP is valid for 10 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+CoffeeCape Delivery Team
+        `.trim()
+    };
+}
+
+/* =====================================================
+   SEND DELIVERY PASSWORD RESET OTP
+===================================================== */
+async function sendDeliveryPasswordResetMail(to, otp) {
+  // Never log OTP — it is a credential
+  const template = generateDeliveryPasswordResetOtpTemplate(otp);
+  return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
+    to,
+    subject: "🔐 Delivery Account Password Reset - CoffeeCape",
+    html: template.html,
+    text: template.text
+  });
+}
+
+// Delivery Partner Registration Email Template
+function generateDeliveryRegistrationTemplate({ name, employeeId, email }) {
+  const safeName = escapeHTML(name);
+  const safeEmployeeId = escapeHTML(employeeId);
+  const safeEmail = escapeHTML(email);
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:30px 15px;">
+      <div style="max-width:600px;margin:auto;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,0.06);">
+        <!-- Header -->
+        <div style="background:#2c7a7b;color:#fff;padding:25px;text-align:center;">
+          <div style="font-size:38px;margin-bottom:8px;">🚴</div>
+          <h1 style="margin:0;font-size:25px;">CoffeeCape</h1>
+          <p style="margin:6px 0 0;font-size:14px;opacity:0.9;">Delivery Partner</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:30px;">
+          <h2 style="color:#1f2937;margin-top:0;">Welcome to CoffeeCape!</h2>
+          <p style="color:#374151;line-height:1.6;">Hi <strong>${safeName}</strong>,</p>
+          <p style="color:#374151;line-height:1.6;">Your CoffeeCape Delivery Partner account has been successfully created.</p>
+
+          <!-- Account Details -->
+          <div style="background:#f5f7fa;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin:25px 0;">
+            <h3 style="margin-top:0;color:#2c7a7b;">Your Account Details</h3>
+            <p><strong>Name:</strong> ${safeName}</p>
+            <p><strong>Email:</strong> ${safeEmail}</p>
+            <p><strong>Delivery ID:</strong></p>
+            <div style="background:#fff;border:1px dashed #2c7a7b;border-radius:8px;padding:14px;text-align:center;margin-top:8px;">
+              <span style="color:#2c7a7b;font-size:20px;font-weight:700;letter-spacing:1px;">${safeEmployeeId}</span>
+            </div>
+          </div>
+
+          <!-- Security Notice -->
+          <div style="background:#fff7ed;border-left:4px solid #f59e0b;padding:14px 16px;margin:20px 0;">
+            <p style="margin:0;color:#7c2d12;font-size:13px;line-height:1.5;">
+              <strong>Security Notice:</strong><br>
+              Your password is not included in this email. Keep your password private and never share it.
+            </p>
+          </div>
+
+          <p style="color:#374151;line-height:1.6;">
+            You can now use your Delivery ID and the password you created during registration to access the CoffeeCape Delivery Portal.
+          </p>
+
+          <!-- Login Info -->
+          <div style="text-align:center;margin:28px 0;">
+            <div style="display:inline-block;background:#2c7a7b;color:#fff;padding:13px 22px;border-radius:8px;font-weight:600;">
+              Your Delivery Account is Ready
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid #eee;margin:25px 0;">
+          <p style="color:#6b7280;font-size:13px;line-height:1.6;">
+            If you did not create this account, please contact CoffeeCape support immediately.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#f1f5f9;padding:16px;text-align:center;color:#6b7280;font-size:12px;">
+          CoffeeCape Delivery Team<br>
+          © ${new Date().getFullYear()} CoffeeCape
+        </div>
+      </div>
+    </div>
+  `;
+
+  const text = `
+  CoffeeCape Delivery Partner
+  ============================
+
+  Welcome to CoffeeCape!
+
+  Hi ${name},
+
+  Your CoffeeCape Delivery Partner account has been successfully created.
+
+  Account Details
+  ---------------
+  Name: ${name}
+  Email: ${email}
+  Delivery ID: ${employeeId}
+
+  Your Delivery ID is required to access the CoffeeCape Delivery Portal.
+
+  Your password is NOT included in this email.
+  Use the password you created during registration.
+
+  Security Notice:
+  If you did not create this account, please contact CoffeeCape support immediately.
+
+  CoffeeCape Delivery Team
+  © ${new Date().getFullYear()} CoffeeCape
+    `.trim();
+
+  return { html, text };
+}
+
+// Send registration email
+async function sendDeliveryRegistrationMail({ to, name, employeeId }) {
+  const template = generateDeliveryRegistrationTemplate({ name, employeeId, email: to });
+  return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
+    to,
+    subject: "🚴 Welcome to CoffeeCape Delivery Partner",
+    html: template.html,
+    text: template.text
+  });
+}
+
+function generateDeliveryOTPTemplate({ customerName, orderId, otp }) {
+  const safeCustomerName = escapeHTML(customerName || "Customer");
+  const safeOrderId = escapeHTML(orderId || "Order");
+  const safeOtp = escapeHTML(String(otp));
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:30px 15px;">
+      <div style="max-width:520px;margin:auto;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+        <div style="background:#2c7a7b;color:#fff;padding:25px;text-align:center;">
+          <div style="font-size:38px;margin-bottom:8px;">☕</div>
+          <h1 style="margin:0;">CoffeeCape</h1>
+          <p style="margin:6px 0 0;font-size:14px;">Delivery Verification</p>
+        </div>
+
+        <div style="padding:30px;">
+          <h2 style="color:#1f2937;margin-top:0;">
+            Delivery Verification OTP
+          </h2>
+
+          <p style="color:#374151;line-height:1.6;">
+            Hi <strong>${safeCustomerName}</strong>,
+          </p>
+
+          <p style="color:#374151;line-height:1.6;">
+            Your delivery partner is completing your CoffeeCape order.
+            Please provide the following OTP to the delivery partner to confirm delivery.
+          </p>
+
+          <div style="background:#f5f7fa;border:1px solid #e5e7eb;border-radius:12px;padding:25px;text-align:center;margin:25px 0;">
+            <p style="margin:0 0 10px;color:#6b7280;font-size:13px;">
+              Delivery OTP
+            </p>
+
+            <div style="font-size:34px;font-weight:700;letter-spacing:8px;color:#2c7a7b;">
+              ${safeOtp}
+            </div>
+
+            <p style="margin:15px 0 0;color:#6b7280;font-size:13px;">
+              Valid for 5 minutes
+            </p>
+          </div>
+
+          <div style="background:#fff7ed;border-left:4px solid #f59e0b;padding:14px 16px;margin:20px 0;">
+            <p style="margin:0;color:#7c2d12;font-size:13px;line-height:1.5;">
+              <strong>Order ID:</strong> ${safeOrderId}<br>
+              Do not share this OTP with anyone except the CoffeeCape delivery partner handling your order.
+            </p>
+          </div>
+
+          <p style="color:#6b7280;font-size:13px;line-height:1.6;">
+            If you did not request delivery verification, please contact CoffeeCape support.
+          </p>
+        </div>
+
+        <div style="background:#f1f5f9;padding:16px;text-align:center;color:#6b7280;font-size:12px;">
+          CoffeeCape Delivery Team<br>
+          © ${new Date().getFullYear()} CoffeeCape
+        </div>
+      </div>
+    </div>
+  `;
+
+  const text = `
+CoffeeCape Delivery Verification
+
+Hi ${customerName || "Customer"},
+
+Your delivery verification OTP is:
+
+${otp}
+
+Order ID: ${orderId || "Order"}
+
+This OTP is valid for 5 minutes.
+
+Do not share this OTP with anyone except the CoffeeCape delivery partner handling your order.
+
+If you did not request delivery verification, please contact CoffeeCape support.
+
+CoffeeCape Delivery Team
+  `.trim();
+
+  return {
+    html,
+    text
+  };
+}
+
+async function sendDeliveryOTPEmail({ to, customerName, orderId, otp }) {
+  const template = generateDeliveryOTPTemplate({
+    customerName,
+    orderId,
+    otp
+  });
+
+  return safeSendMail({
+    from: `"CoffeeCape Support" <${process.env.MAIL_USER}>`,
+    to,
+    subject: `🔐 Delivery OTP - Order ${sanitizeMailHeader(orderId)}`,
     html: template.html,
     text: template.text
   });
@@ -796,6 +1109,9 @@ module.exports = {
   generateBookingConfirmedTemplate,
   sendReviewThankYouMail,
   sendAudiencePaymentMail,
+  sendDeliveryPasswordResetMail, 
+  sendDeliveryRegistrationMail,
+  sendDeliveryOTPEmail,
   // Exported for use in other modules that build custom templates
   escapeHTML,
   sanitizeMailHeader

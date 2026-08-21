@@ -16,54 +16,81 @@
 <body>
 
 <div class="admin-wrapper">
+  <!-- ================= SIDEBAR CONTROLS ================= -->
 
-  <!-- ================= SIDEBAR ================= -->
-  <aside class="sidebar">
-    <!-- Logo -->
-    <div class="logo-container">
-      <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
-      <span class="logo-text">CoffeeCape</span>
-    </div>
-
-    <nav>
-      <a href="dashboard.html" class="active">
-        <i class="fa-solid fa-chart-line"></i> Dashboard
-      </a>
-
-      <a href="user.html">
-        <i class="fa-solid fa-users"></i> Users
-      </a>
-
-      <a href="product.html">
-        <i class="fa-solid fa-burger"></i> Products
-      </a>
-
-      <a href="orders.html">
-        <i class="fa-solid fa-box"></i> Orders
-      </a>
-
-      <a href="booking.html">
-        <i class="fa-solid fa-calendar-check"></i> Bookings
-      </a>
-
-      <a href="messages.html">
-        <i class="fa-solid fa-envelope"></i> Messages
-      </a>
-
-      <a href="setting.html">
-        <i class="fa-solid fa-gear"></i> Settings
-      </a>
-    </nav>
-
-    <button id="logoutBtn" class="logout-btn">
-      Logout
+    <!-- Three Dash / Hamburger Button -->
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Open sidebar" aria-controls="adminSidebar" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
     </button>
-  </aside>
+    
+    <!-- Background Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+    
+    <!-- ================= SIDEBAR ================= -->
+    <aside id="adminSidebar" class="sidebar" aria-hidden="true">
+      <!-- Close Button -->
+      <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close sidebar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <img src="/assets/logo-image.png" alt="CoffeeCape Logo" class="logo-img">
+          <span class="logo-text">
+            CoffeeCape
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav>
+        <a href="dashboard.html" class="active">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="user.html">
+          <i class="fa-solid fa-users"></i>
+          <span>Users</span>
+        </a>
+
+        <a href="product.html">
+          <i class="fa-solid fa-burger"></i>
+          <span>Products</span>
+        </a>
+
+        <a href="orders.html">
+          <i class="fa-solid fa-box"></i>
+          <span>Orders</span>
+        </a>
+
+        <a href="booking.html">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Bookings</span>
+        </a>
+
+        <a href="messages.html">
+          <i class="fa-solid fa-envelope"></i>
+          <span>Messages</span>
+        </a>
+
+        <a href="setting.html">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </a>
+
+      </nav>
+
+      <!-- Logout -->
+      <button id="logoutBtn" class="logout-btn">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </button>
+    </aside>
 
   <!-- ================= MAIN CONTENT ================= -->
-
   <main class="main-content">
-
     <!-- ===== STAT CARDS ===== -->
     <section class="stats-grid">
       <div class="stat-card">
