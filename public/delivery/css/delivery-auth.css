@@ -1,0 +1,582 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary: #2c7a7b;
+    --primary-dark: #205d5e;
+
+    --background: #f5f7fa;
+    --surface: #ffffff;
+
+    --text: #1f2937;
+    --muted: #6b7280;
+
+    --border: #d1d5db;
+
+    --danger: #dc2626;
+    --success: #16a34a;
+
+    --radius: 16px;
+}
+
+
+/* ================================
+   BODY
+================================ */
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: var(--background);
+
+    color: var(--text);
+}
+
+
+/* ================================
+   AUTH PAGE
+================================ */
+
+.auth-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+}
+
+
+/* ================================
+   AUTH CARD
+================================ */
+
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+
+    background: var(--surface);
+
+    border-radius: var(--radius);
+
+    padding: 32px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ================================
+   BRAND
+================================ */
+
+.brand {
+    text-align: center;
+
+    margin-bottom: 28px;
+}
+
+.brand-icon {
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background: #e6f4f4;
+
+    font-size: 30px;
+}
+
+.brand a{
+    text-decoration: none;
+}
+
+.brand h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: #000;
+}
+
+.brand p {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* ================================
+   AUTH TABS
+================================ */
+
+.auth-tabs {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    padding: 4px;
+
+    margin-bottom: 26px;
+
+    background: #eef2f3;
+
+    border-radius: 10px;
+}
+
+.auth-tab {
+    width: 100%;
+
+    height: 42px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.auth-tab:hover {
+    color: var(--primary);
+}
+
+.auth-tab.active {
+    background: var(--surface);
+
+    color: var(--primary);
+
+    box-shadow:
+        0 2px 7px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ================================
+   AUTH SECTION
+================================ */
+
+.auth-section {
+    width: 100%;
+}
+
+.auth-section.hidden {
+    display: none;
+}
+
+
+/* ================================
+   HEADING
+================================ */
+
+.auth-heading {
+    margin-bottom: 24px;
+}
+
+.auth-heading h2 {
+    font-size: 22px;
+
+    margin-bottom: 6px;
+}
+
+.auth-heading p {
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* ================================
+   FORM
+================================ */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(44, 122, 123, 0.12);
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+
+/* ================================
+   INPUT INVALID STATE
+================================ */
+
+.form-group input.input-error {
+    border-color: var(--danger);
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+
+/* ================================
+   PASSWORD
+================================ */
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 70px;
+}
+
+.password-toggle {
+    position: absolute;
+
+    right: 10px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--primary);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+.password-toggle:hover {
+    color: var(--primary-dark);
+}
+
+
+/* ================================
+   FIELD ERROR
+================================ */
+
+.field-error {
+    display: block;
+
+    min-height: 18px;
+
+    margin-top: 5px;
+
+    color: var(--danger);
+
+    font-size: 12px;
+
+    line-height: 1.4;
+}
+
+
+/* ================================
+   MESSAGE
+================================ */
+
+.form-message {
+    min-height: 20px;
+
+    margin-bottom: 14px;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+.form-message.error {
+    color: var(--danger);
+}
+
+.form-message.success {
+    color: var(--success);
+}
+
+
+/* ================================
+   BUTTON
+================================ */
+
+.primary-button {
+    width: 100%;
+
+    height: 50px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--primary);
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    transition:
+        background 0.2s,
+        transform 0.1s;
+}
+
+.primary-button:hover {
+    background: var(--primary-dark);
+}
+
+.primary-button:active {
+    transform: scale(0.99);
+}
+
+.primary-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+/* ================================
+   SPINNER
+================================ */
+
+.spinner {
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid rgba(255, 255, 255, 0.4);
+
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation: spin 0.7s linear infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+.auth-footer {
+    margin-top: 22px;
+
+    text-align: center;
+}
+
+.auth-footer a {
+    color: var(--primary);
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+
+/* ================================
+   REGISTER FORM
+================================ */
+
+#registerSection .auth-heading {
+    margin-bottom: 20px;
+}
+
+#registerSection .form-group {
+    margin-bottom: 14px;
+}
+
+
+/* ================================
+   REGISTER PASSWORD REQUIREMENT
+================================ */
+
+.password-hint {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 480px) {
+
+    .auth-page {
+        padding: 16px;
+
+        align-items: flex-start;
+
+        padding-top: 40px;
+    }
+
+    .auth-card {
+        padding: 24px 20px;
+    }
+
+    .brand {
+        margin-bottom: 24px;
+    }
+
+    .brand-icon {
+        width: 58px;
+        height: 58px;
+
+        font-size: 27px;
+    }
+
+    .brand h1 {
+        font-size: 22px;
+    }
+
+    .auth-tabs {
+        margin-bottom: 22px;
+    }
+
+    .auth-heading h2 {
+        font-size: 20px;
+    }
+
+    .form-group input {
+        height: 47px;
+    }
+
+    .primary-button {
+        height: 48px;
+    }
+}
+
+
+/* ================================
+   SMALL MOBILE
+================================ */
+
+@media (max-width: 360px) {
+
+    .auth-page {
+        padding: 12px;
+
+        padding-top: 24px;
+    }
+
+    .auth-card {
+        padding: 22px 16px;
+    }
+
+    .auth-tab {
+        font-size: 13px;
+    }
+
+    .auth-heading p {
+        font-size: 13px;
+    }
+
+    .form-group input {
+        font-size: 14px;
+    }
+}

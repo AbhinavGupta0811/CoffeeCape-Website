@@ -385,7 +385,9 @@ function loginConfirmedRedirect(role = "user") {
   console.log("Role received:", role);
   console.log("Role type:", typeof role);
 
-  if (String(role).trim().toLowerCase() === "admin") {
+  const normalizedRole = String(role).trim().toLowerCase();
+
+  if (normalizedRole === "admin") {
 
     showToast(
       "Login successful! Redirecting to admin dashboard...",
@@ -397,7 +399,19 @@ function loginConfirmedRedirect(role = "user") {
       window.location.href = "/admin/dashboard.html";
     }, 1500);
 
-  } else {
+  } else if(normalizedRole === "delivery"){ 
+
+    showToast(
+      "Login successful! Redirecting to Delivery login...",
+      "success",
+      1500
+    );
+
+    setTimeout(() => {
+      window.location.href = "/delivery/login.html";
+    }, 1500);
+  
+  }else  {
 
     showToast(
       "Login successful! Redirecting...",
@@ -408,7 +422,5 @@ function loginConfirmedRedirect(role = "user") {
     setTimeout(() => {
       window.location.href = "/Index.html";
     }, 1500);
-
   }
-
 }

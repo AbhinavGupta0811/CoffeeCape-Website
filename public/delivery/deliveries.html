@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#2c7a7b"
+    >
+
+    <title>Deliveries | CoffeeCape Delivery</title>
+
+    <link
+        rel="stylesheet"
+        href="css/delivery-dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/delivery-list.css"
+    >
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- HEADER -->
+
+        <header class="dashboard-header">
+
+            <div class="header-brand">
+
+                <div class="header-logo">
+                    ☕
+                </div>
+
+                <div>
+                    <h1>CoffeeCape</h1>
+                    <span>Delivery</span>
+                </div>
+
+            </div>
+
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="profile-button"
+                    id="profileButton"
+                    aria-label="Profile"
+                >
+                    👤
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- MAIN -->
+
+        <main class="dashboard-main delivery-page">
+
+            <section class="delivery-page-heading">
+
+                <p class="section-eyebrow">
+                    DELIVERY WORKSPACE
+                </p>
+
+                <h2>My Deliveries</h2>
+
+                <p>
+                    Manage orders assigned to you.
+                </p>
+
+            </section>
+
+
+            <!-- FILTERS -->
+
+            <section class="delivery-filters">
+
+                <button
+                    type="button"
+                    class="filter-button active"
+                    data-status="all"
+                >
+                    All
+                </button>
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-status="confirmed"
+                >
+                    Assigned
+                </button>
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-status="preparing"
+                >
+                    Preparing
+                </button>
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-status="out_for_delivery"
+                >
+                    Out for Delivery
+                </button>
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-status="delivered"
+                >
+                    Delivered
+                </button>
+
+            </section>
+
+
+            <!-- DELIVERY LIST -->
+
+            <section>
+
+                <div
+                    id="deliveryList"
+                    class="delivery-list-page"
+                >
+
+                    <div class="loading-card">
+
+                        <div class="loading-spinner"></div>
+
+                        <span>
+                            Loading deliveries...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PAGINATION -->
+
+            <div
+                id="pagination"
+                class="pagination"
+            ></div>
+
+        </main>
+
+
+        <!-- BOTTOM NAV -->
+
+        <nav
+            class="bottom-navigation"
+            aria-label="Main navigation"
+        >
+
+            <a
+                href="dashboard.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+
+            <a
+                href="deliveries.html"
+                class="bottom-nav-item active"
+            >
+                <span class="nav-icon">📦</span>
+                <span>Deliveries</span>
+            </a>
+
+            <a
+                href="history.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">🕘</span>
+                <span>History</span>
+            </a>
+
+            <a
+                href="profile.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <!-- PROFILE MENU -->
+
+    <div
+        id="profileMenu"
+        class="profile-menu hidden"
+    >
+
+        <a href="profile.html">
+            My Profile
+        </a>
+
+        <button
+            type="button"
+            id="logoutButton"
+        >
+            Logout
+        </button>
+
+    </div>
+    <script src="js/delivery-list.js"></script>
+</body>
+</html>

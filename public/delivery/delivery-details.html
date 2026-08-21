@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#2c7a7b"
+    >
+
+    <title>Delivery Details | CoffeeCape</title>
+    <link
+        rel="stylesheet"
+        href="css/delivery-dashboard.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/delivery-details.css"
+    >
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- HEADER -->
+
+        <header class="dashboard-header">
+
+            <div class="details-header-left">
+
+                <button
+                    type="button"
+                    id="backButton"
+                    class="back-button"
+                    aria-label="Go back"
+                >
+                    ←
+                </button>
+
+                <div>
+
+                    <h1>
+                        Delivery Details
+                    </h1>
+
+                    <span id="headerOrderId">
+                        Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="profileButton"
+                class="profile-button"
+                aria-label="Profile"
+            >
+                👤
+            </button>
+
+        </header>
+
+
+        <!-- MAIN -->
+
+        <main class="dashboard-main details-page">
+
+            <!-- PAGE LOADING -->
+
+            <div
+                id="pageLoading"
+                class="details-loading"
+            >
+
+                <div class="loading-spinner"></div>
+
+                <span>
+                    Loading delivery...
+                </span>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="pageError"
+                class="details-error hidden"
+            >
+
+                <div class="details-error-icon">
+                    ⚠️
+                </div>
+
+                <h2>
+                    Unable to load delivery
+                </h2>
+
+                <p id="errorMessage">
+                    Please try again.
+                </p>
+
+                <button
+                    type="button"
+                    id="retryButton"
+                    class="primary-button details-retry"
+                >
+                    Try Again
+                </button>
+
+            </div>
+
+
+            <!-- CONTENT -->
+
+            <div
+                id="detailsContent"
+                class="hidden"
+            >
+
+                <!-- STATUS -->
+
+                <section class="details-section">
+
+                    <div
+                        id="orderStatus"
+                        class="large-status"
+                    >
+                        --
+                    </div>
+
+                    <p
+                        id="statusDescription"
+                        class="status-description"
+                    >
+                        --
+                    </p>
+
+                </section>
+
+
+                <!-- ORDER -->
+
+                <section class="details-section details-card">
+
+                    <div class="details-card-heading">
+
+                        <div>
+
+                            <span class="details-eyebrow">
+                                ORDER
+                            </span>
+
+                            <h2 id="orderId">
+                                --
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="order-summary-grid">
+
+                        <div>
+                            <span>
+                                Order Date
+                            </span>
+
+                            <strong id="orderDate">
+                                --
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Payment
+                            </span>
+
+                            <strong id="paymentStatus">
+                                --
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Method
+                            </span>
+
+                            <strong id="paymentMethod">
+                                --
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Total
+                            </span>
+
+                            <strong id="orderTotal">
+                                --
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- CUSTOMER -->
+
+                <section class="details-section details-card">
+
+                    <div class="details-card-heading">
+
+                        <div>
+
+                            <span class="details-eyebrow">
+                                CUSTOMER
+                            </span>
+
+                            <h2 id="customerName">
+                                --
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="customer-actions">
+
+                        <a
+                            id="callCustomerButton"
+                            class="customer-action-button"
+                            href="#"
+                        >
+                            📞 Call
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ADDRESS -->
+
+                <section class="details-section details-card">
+
+                    <div class="details-card-heading">
+
+                        <div>
+
+                            <span class="details-eyebrow">
+                                DELIVERY ADDRESS
+                            </span>
+
+                            <h2>
+                                📍 Location
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <p
+                        id="deliveryAddress"
+                        class="delivery-address"
+                    >
+                        --
+                    </p>
+
+                </section>
+
+
+                <!-- ORDER ITEMS -->
+
+                <section class="details-section details-card">
+
+                    <div class="details-card-heading">
+
+                        <div>
+
+                            <span class="details-eyebrow">
+                                ORDER
+                            </span>
+
+                            <h2>
+                                Items
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="orderItems"
+                        class="order-items"
+                    >
+                        <!-- Items inserted by JS -->
+                    </div>
+
+
+                    <div class="order-total-row">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="itemsTotal">
+                            ₹0.00
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <!-- DELIVERY ACTION -->
+
+                <section
+                    id="deliveryActionSection"
+                    class="delivery-action-section"
+                >
+
+                    <button
+                        type="button"
+                        id="deliveryActionButton"
+                        class="delivery-action-main"
+                    >
+                        Continue
+                    </button>
+
+                </section>
+
+            </div>
+
+        </main>
+
+
+        <!-- BOTTOM NAV -->
+
+        <nav
+            class="bottom-navigation"
+            aria-label="Main navigation"
+        >
+
+            <a
+                href="dashboard.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+
+            <a
+                href="deliveries.html"
+                class="bottom-nav-item active"
+            >
+                <span class="nav-icon">📦</span>
+                <span>Deliveries</span>
+            </a>
+
+            <a
+                href="history.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">🕘</span>
+                <span>History</span>
+            </a>
+
+            <a
+                href="profile.html"
+                class="bottom-nav-item"
+            >
+                <span class="nav-icon">👤</span>
+                <span>Profile</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <!-- PROFILE MENU -->
+
+    <div
+        id="profileMenu"
+        class="profile-menu hidden"
+    >
+
+        <a href="profile.html">
+            My Profile
+        </a>
+
+        <button
+            type="button"
+            id="logoutButton"
+        >
+            Logout
+        </button>
+    </div>
+
+    <!-- DELIVERY OTP MODAL -->
+    <div id="otpModal" class="otp-modal hidden" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle">
+    <div class="otp-modal-backdrop"></div>
+    <div class="otp-modal-card">
+        <button type="button" id="closeOtpModal" class="otp-close-button" aria-label="Close">×</button>
+        <div class="otp-icon">🔐</div>
+        <h2 id="otpModalTitle">Confirm Delivery</h2>
+        <p class="otp-description">Send a verification code to the customer's registered email.</p>
+
+        <!-- Send OTP -->
+        <button type="button" id="sendDeliveryOtpButton" class="otp-send-button">Send OTP</button>
+        <div id="otpSentMessage" class="otp-message hidden"></div>
+
+        <!-- Verify OTP -->
+        <div id="otpVerificationSection" class="otp-verification hidden">
+        <label for="deliveryOtp">Enter customer's 6-digit OTP</label>
+        <input type="text" id="deliveryOtp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+        <small id="deliveryOtpError" class="otp-error"></small>
+        <button type="button" id="verifyDeliveryOtpButton" class="otp-verify-button">Verify & Complete</button>
+        </div>
+
+        <button type="button" id="cancelOtpButton" class="otp-cancel-button">Cancel</button>
+    </div>
+    </div>
+
+    <script src="js/delivery-details.js"></script>
+</body>
+</html>

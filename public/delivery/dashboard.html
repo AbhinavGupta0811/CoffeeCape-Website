@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#2c7a7b"
+    >
+
+    <title>Dashboard | CoffeeCape Delivery</title>
+
+    <link
+        rel="stylesheet"
+        href="css/delivery-dashboard.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+
+        <!-- =================================
+             HEADER
+        ================================= -->
+
+        <header class="dashboard-header">
+
+            <div class="header-brand">
+
+                <div class="header-logo">
+                    ☕
+                </div>
+
+                <div>
+                    <h1>CoffeeCape</h1>
+                    <span>Delivery</span>
+                </div>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="notificationButton"
+                    aria-label="Notifications"
+                >
+                    🔔
+                </button>
+
+                <button
+                    type="button"
+                    class="profile-button"
+                    id="profileButton"
+                    aria-label="Profile"
+                >
+                    👤
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================
+             MAIN
+        ================================= -->
+
+        <main class="dashboard-main">
+
+
+            <!-- GREETING -->
+
+            <section class="welcome-section">
+
+                <p class="welcome-label">
+                    Welcome back
+                </p>
+
+                <h2 id="welcomeName">
+                    Delivery Partner 👋
+                </h2>
+
+                <p
+                    class="employee-label"
+                    id="employeeId"
+                >
+                    Employee ID: --
+                </p>
+
+            </section>
+
+
+            <!-- =================================
+                 STATS
+            ================================= -->
+
+            <section class="stats-grid">
+
+                <article class="stat-card">
+
+                    <div class="stat-icon assigned">
+                        📦
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Assigned
+                        </span>
+
+                        <strong
+                            id="assignedCount"
+                            class="stat-value"
+                        >
+                            --
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-icon picked">
+                        🛍️
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Picked Up
+                        </span>
+
+                        <strong
+                            id="pickedCount"
+                            class="stat-value"
+                        >
+                            --
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-icon transit">
+                        🛵
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            In Transit
+                        </span>
+
+                        <strong
+                            id="transitCount"
+                            class="stat-value"
+                        >
+                            --
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-icon delivered">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Delivered
+                        </span>
+
+                        <strong
+                            id="deliveredCount"
+                            class="stat-value"
+                        >
+                            --
+                        </strong>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================
+                 CURRENT DELIVERY
+            ================================= -->
+
+            <section class="dashboard-section">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <p class="section-eyebrow">
+                            PRIORITY
+                        </p>
+
+                        <h3>
+                            Current Delivery
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="currentDelivery"
+                    class="current-delivery-card"
+                >
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            🛵
+                        </div>
+
+                        <h4>
+                            No active delivery
+                        </h4>
+
+                        <p>
+                            Your current delivery will
+                            appear here when assigned.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 TODAY'S DELIVERIES
+            ================================= -->
+
+            <section class="dashboard-section">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <p class="section-eyebrow">
+                            TODAY
+                        </p>
+
+                        <h3>
+                            Today's Deliveries
+                        </h3>
+
+                    </div>
+
+
+                    <a
+                        href="deliveries.html"
+                        class="view-all"
+                    >
+                        View all
+                    </a>
+
+                </div>
+
+
+                <div
+                    id="todayDeliveries"
+                    class="delivery-list"
+                >
+
+                    <div class="loading-card">
+
+                        <div class="loading-spinner"></div>
+
+                        <span>
+                            Loading deliveries...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+
+        <!-- =================================
+             BOTTOM NAVIGATION
+        ================================= -->
+        <nav
+            class="bottom-navigation"
+            aria-label="Main navigation"
+        >
+
+            <a
+                href="dashboard.html"
+                class="bottom-nav-item active"
+            >
+
+                <span class="nav-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Home
+                </span>
+
+            </a>
+
+
+            <a
+                href="deliveries.html"
+                class="bottom-nav-item"
+            >
+
+                <span class="nav-icon">
+                    📦
+                </span>
+
+                <span>
+                    Deliveries
+                </span>
+
+            </a>
+
+
+            <a
+                href="history.html"
+                class="bottom-nav-item"
+            >
+
+                <span class="nav-icon">
+                    🕘
+                </span>
+
+                <span>
+                    History
+                </span>
+
+            </a>
+
+
+            <a
+                href="profile.html"
+                class="bottom-nav-item"
+            >
+
+                <span class="nav-icon">
+                    👤
+                </span>
+
+                <span>
+                    Profile
+                </span>
+
+            </a>
+
+        </nav>
+
+
+    </div>
+
+
+    <!-- =================================
+         PROFILE MENU
+    ================================= -->
+    <div
+        id="profileMenu"
+        class="profile-menu hidden"
+    >
+
+        <a href="profile.html">
+            My Profile
+        </a>
+
+        <button
+            type="button"
+            id="logoutButton"
+        >
+            Logout
+        </button>
+    </div>
+    <script src="js/delivery-dashboard.js"></script>
+</body>
+</html>

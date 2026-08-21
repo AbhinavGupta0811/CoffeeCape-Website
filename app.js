@@ -20,11 +20,14 @@ const contactRoutes = require("./routes/contact.routes");
 const reviewsRoute = require("./routes/reviews.route");
 const productRoutes = require("./routes/products.routes");
 const adminRoutes = require("./routes/admin");
+const deliveryAuthRoutes = require("./routes/delivery/delivery.auth.routes");
+const deliveryDashboardRoutes = require("./routes/delivery/delivery.dashboard.routes");
+
 
 const app = express();
 
 /* ================================
-   MIDDLEWARE
+MIDDLEWARE
 ================================ */
 app.use(
     cors({
@@ -46,7 +49,7 @@ app.use(
 );
 
 /* ================================
-   SESSION
+SESSION
 ================================ */
 const sessionStore = new MySQLStore({}, db);
 
@@ -67,7 +70,7 @@ app.use(
 );
 
 /* ================================
-   API ROUTES
+API ROUTES
 ================================ */
 app.use("/api/auth", authRoutes);
 app.use("/api/booking", bookingRoutes);
@@ -81,6 +84,8 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/reviews", reviewsRoute);
 app.use("/api/products", productRoutes);
 app.use("/api/admin", adminRoutes); 
+app.use("/api/delivery/auth", deliveryAuthRoutes);
+app.use("/api/delivery", deliveryDashboardRoutes);
 
 /* ================================
    ERROR HANDLER

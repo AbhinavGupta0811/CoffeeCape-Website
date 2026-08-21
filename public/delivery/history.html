@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#2c7a7b"
+    >
+
+    <title>Delivery History | CoffeeCape</title>
+
+    <link
+        rel="stylesheet"
+        href="css/delivery-dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/delivery-history.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- HEADER -->
+
+    <header class="dashboard-header">
+
+        <div class="header-brand">
+
+            <div class="header-logo">
+                ☕
+            </div>
+
+            <div>
+                <h1>CoffeeCape</h1>
+                <span>Delivery</span>
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            id="profileButton"
+            class="profile-button"
+            aria-label="Profile"
+        >
+            👤
+        </button>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main class="dashboard-main history-page">
+
+        <section class="history-heading">
+
+            <p class="section-eyebrow">
+                COMPLETED
+            </p>
+
+            <h2>
+                Delivery History
+            </h2>
+
+            <p>
+                View your previously completed deliveries.
+            </p>
+
+        </section>
+
+
+        <!-- SUMMARY -->
+
+        <section class="history-summary">
+
+            <div class="history-summary-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Total Completed
+                </span>
+
+                <strong id="completedCount">
+                    --
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- HISTORY LIST -->
+
+        <section>
+
+            <div
+                id="historyList"
+                class="history-list"
+            >
+
+                <div class="loading-card">
+
+                    <div class="loading-spinner"></div>
+
+                    <span>
+                        Loading history...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PAGINATION -->
+
+        <div
+            id="historyPagination"
+            class="pagination"
+        ></div>
+
+    </main>
+
+
+    <!-- BOTTOM NAV -->
+
+    <nav
+        class="bottom-navigation"
+        aria-label="Main navigation"
+    >
+
+        <a
+            href="dashboard.html"
+            class="bottom-nav-item"
+        >
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+
+        <a
+            href="deliveries.html"
+            class="bottom-nav-item"
+        >
+            <span class="nav-icon">📦</span>
+            <span>Deliveries</span>
+        </a>
+
+        <a
+            href="history.html"
+            class="bottom-nav-item active"
+        >
+            <span class="nav-icon">🕘</span>
+            <span>History</span>
+        </a>
+
+        <a
+            href="profile.html"
+            class="bottom-nav-item"
+        >
+            <span class="nav-icon">👤</span>
+            <span>Profile</span>
+        </a>
+
+    </nav>
+
+</div>
+
+
+<!-- PROFILE MENU -->
+
+<div
+    id="profileMenu"
+    class="profile-menu hidden"
+>
+
+    <a href="profile.html">
+        My Profile
+    </a>
+
+    <button
+        type="button"
+        id="logoutButton"
+    >
+        Logout
+    </button>
+
+</div>
+
+
+<script src="js/delivery-history.js"></script>
+
+</body>
+
+</html>
