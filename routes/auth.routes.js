@@ -1,10 +1,10 @@
+const crypto = require("crypto");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const db = require("../db");
 const { sendOtpVerifiedMail } = require("../mailer");
 const router = express.Router();
 const { OAuth2Client } = require("google-auth-library");
-
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /* ================= INPUT VALIDATION ================= */
@@ -70,6 +70,11 @@ function validateOtp(otp) {
   return /^\d{6}$/.test(otp);
 }
 
+function generateOtp() {
+  return String(crypto.randomInt(100000, 1000000));
+}
+
+
 /* ================= PASSWORD VALIDATION ================= */ 
 function validatePassword(password) {
   if (!isSafeLength(password, 8, 64))
@@ -111,6 +116,7 @@ function validatePassword(password) {
 
   return true;
 }
+
 /* =====================================================
    REGISTER
 ===================================================== */
@@ -678,8 +684,8 @@ router.post("/login", async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message:
-          "Invalid credentials"
+        message: "This user is not found. Please register first.",
+        userNotFound: true
       });
     }
 

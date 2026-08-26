@@ -54,7 +54,6 @@ function isValidTransition(currentStatus, nextStatus) {
 ========================= */
 router.get("/stats", adminAuth, async (req, res) => {
   try {
-
     const [[ordersRow]] = await db.query(
       "SELECT COUNT(*) AS count FROM orders WHERE DATE(created_at)=CURDATE()"
     );
@@ -142,7 +141,6 @@ router.get(
 ========================= */
 router.get("/", adminAuth, async (req, res) => {
   try {
-
     const type = req.query.type || "active";
 
     const VALID_TYPES = [
@@ -185,6 +183,7 @@ router.get("/", adminAuth, async (req, res) => {
         o.total,
         o.created_at,
         o.delivered_at,
+        o.delivery_user_id,
         u.email AS customer_email
       FROM orders o
       JOIN users u ON o.user_id = u.id
@@ -193,15 +192,11 @@ router.get("/", adminAuth, async (req, res) => {
     let params = [];
 
     if (type === "active") {
-
       query += " WHERE o.status IN (?)";
-
       params.push(ACTIVE_STATUSES);
 
     } else if (type === "past") {
-
       query += " WHERE o.status IN (?)";
-
       params.push(PAST_STATUSES);
     }
 
@@ -218,7 +213,6 @@ router.get("/", adminAuth, async (req, res) => {
     });
 
   } catch (err) {
-
     console.error(
       "Admin fetch orders error:",
       err
@@ -230,6 +224,7 @@ router.get("/", adminAuth, async (req, res) => {
     });
   }
 });
+
 
 /* =========================================================
    DELIVERY BOYS
@@ -259,7 +254,6 @@ router.get(
       });
 
     } catch (err) {
-
       console.error(
         "Admin delivery boys fetch error:",
         err
@@ -273,63 +267,49 @@ router.get(
   }
 );
 
+
 /* =========================================================
    ASSIGN ORDER TO DELIVERY BOY
 ========================================================= */
 router.post(
-  "/:id/assign-delivery",
+  "/:orderId/assign-delivery",
   adminAuth,
   async (req, res) => {
-
-    const connection =
-      await db.getConnection();
+    const connection = await db.getConnection();
 
     try {
+      const orderId = Number(req.params.orderId);
 
-      const orderId = parseInt(
-        req.params.id,
-        10
-      );
-
-      const deliveryUserId = parseInt(
-        req.body.delivery_user_id,
-        10
-      );
+      const deliveryUserId =
+        Number(req.body.delivery_user_id);
 
       if (
-        !orderId ||
-        Number.isNaN(orderId)
+        !Number.isInteger(orderId) ||
+        orderId <= 0
       ) {
         return res.status(400).json({
           success: false,
-          message: "Invalid order ID"
+          message: "Invalid order ID."
         });
       }
 
       if (
-        !deliveryUserId ||
-        Number.isNaN(deliveryUserId)
+        !Number.isInteger(deliveryUserId) ||
+        deliveryUserId <= 0
       ) {
         return res.status(400).json({
           success: false,
-          message: "Delivery boy is required"
+          message: "Invalid delivery user ID."
         });
       }
-
 
       await connection.beginTransaction();
 
-
-      /* =====================================================
-         LOCK ORDER
-      ===================================================== */
-
-      const [orderRows] =
+      const [orders] =
         await connection.query(
           `
           SELECT
             id,
-            order_id,
             status,
             payment_status,
             payment_method,
@@ -341,75 +321,76 @@ router.post(
           [orderId]
         );
 
-
-      if (!orderRows.length) {
-
+      if (!orders.length) {
         await connection.rollback();
 
         return res.status(404).json({
           success: false,
-          message: "Order not found"
+          message: "Order not found."
         });
       }
 
-
-      const order = orderRows[0];
-
-
-      /* =====================================================
-         FINAL ORDER PROTECTION
-      ===================================================== */
+      const order = orders[0];
 
       if (
-        [
-          "delivered",
-          "cancelled",
-          "refunded",
-          "refund_rejected"
-        ].includes(order.status)
+        order.status !==
+        "ready_for_pickup"
       ) {
-
         await connection.rollback();
 
         return res.status(409).json({
           success: false,
           message:
-            "This order can no longer be assigned"
+            `Order cannot be assigned from "${order.status}" status.`
         });
       }
 
-
       /* =====================================================
          PAYMENT VALIDATION
+
+         COD + pending is valid because payment is collected
+         on delivery.
+
+         Online orders must already be paid.
       ===================================================== */
+      const paymentStatus =
+        String(
+          order.payment_status || ""
+        ).toLowerCase();
+
+      const paymentMethod =
+        String(
+          order.payment_method || ""
+        ).toLowerCase();
 
       const isCOD =
-        order.payment_method === "cod" &&
-        order.payment_status === "pending";
+        paymentMethod === "cod" &&
+        paymentStatus === "pending";
 
       const isPaidOnline =
-        order.payment_status === "paid";
+        [
+          "paid",
+          "completed",
+          "success"
+        ].includes(paymentStatus);
 
       if (
         !isCOD &&
         !isPaidOnline
       ) {
-
         await connection.rollback();
 
-        return res.status(403).json({
+        return res.status(409).json({
           success: false,
           message:
-            "Order payment is not completed"
+            "Order payment is not valid for delivery assignment."
         });
       }
 
-
       /* =====================================================
-         LOCK DELIVERY USER
+         CHECK DELIVERY BOY
       ===================================================== */
-
-      const [deliveryRows] =
+      const [deliveryUsers] =
         await connection.query(
           `
           SELECT
@@ -426,49 +407,42 @@ router.post(
           [deliveryUserId]
         );
 
-
-      if (!deliveryRows.length) {
-
+      if (!deliveryUsers.length) {
         await connection.rollback();
 
         return res.status(404).json({
           success: false,
-          message: "Delivery boy not found"
+          message:
+            "Delivery user not found."
         });
       }
 
-
       const deliveryBoy =
-        deliveryRows[0];
-
+        deliveryUsers[0];
 
       if (
-        deliveryBoy.status !== "active"
+        deliveryBoy.status !==
+        "active"
       ) {
-
         await connection.rollback();
 
         return res.status(409).json({
           success: false,
           message:
-            "This delivery boy is not active"
+            "Delivery user is inactive."
         });
       }
 
-
       /* =====================================================
-         CHECK EXISTING ACTIVE ASSIGNMENT
+         CHECK ACTIVE ASSIGNMENT
       ===================================================== */
-
-      const [existingAssignments] =
+      const [activeAssignments] =
         await connection.query(
           `
           SELECT
             id,
-            order_id,
             delivery_user_id,
-            status,
-            assigned_at
+            status
           FROM delivery_assignments
           WHERE order_id = ?
           AND status IN (
@@ -476,74 +450,70 @@ router.post(
             'picked_up',
             'out_for_delivery'
           )
-          LIMIT 1
           FOR UPDATE
           `,
           [orderId]
         );
 
-
-      if (existingAssignments.length) {
-
+      if (
+        activeAssignments.length
+      ) {
         await connection.rollback();
 
         return res.status(409).json({
           success: false,
           message:
-            "This order is already assigned to a delivery boy",
-          assignment:
-            existingAssignments[0]
+            "Order already has an active delivery assignment."
         });
       }
-
 
       /* =====================================================
          CREATE ASSIGNMENT
       ===================================================== */
-
-      const assignedBy =
-        req.admin?.id ||
-        req.user?.id ||
-        null;
-
-
-      const [assignmentResult] =
-        await connection.query(
-          `
-          INSERT INTO delivery_assignments (
-            order_id,
-            delivery_user_id,
-            status,
-            assigned_at,
-            assigned_by
-          )
-          VALUES (
-            ?,
-            ?,
-            'assigned',
-            NOW(),
-            ?
-          )
-          `,
-          [
-            orderId,
-            deliveryUserId,
-            assignedBy
-          ]
-        );
-
+      await connection.query(
+        `
+        INSERT INTO delivery_assignments (
+          order_id,
+          delivery_user_id,
+          status,
+          assigned_at,
+          assigned_by
+        )
+        VALUES (
+          ?,
+          ?,
+          'assigned',
+          NOW(),
+          ?
+        )
+        `,
+        [
+          orderId,
+          deliveryUserId,
+          req.admin?.id ||
+          req.user?.id ||
+          null
+        ]
+      );
 
       /* =====================================================
-         KEEP EXISTING DELIVERY SYSTEM COMPATIBLE
-      ===================================================== */
+         UPDATE ORDER DELIVERY OWNER
 
+         IMPORTANT:
+         Do NOT change order.status here.
+
+         The order remains:
+         ready_for_pickup
+
+         Delivery assignment becomes:
+         assigned
+      ===================================================== */
       await connection.query(
         `
         UPDATE orders
-        SET
-          delivery_user_id = ?,
-          status = 'out_for_delivery'
+        SET delivery_user_id = ?
         WHERE id = ?
+        AND status = 'ready_for_pickup'
         `,
         [
           deliveryUserId,
@@ -551,88 +521,59 @@ router.post(
         ]
       );
 
-
       await connection.commit();
-
-
-      /* =====================================================
-         SOCKET EVENT
-      ===================================================== */
 
       emitSocket(
         req,
         "delivery-assigned",
         {
           order_id: orderId,
-          order_number: order.order_id,
-          delivery_assignment_id:
-            assignmentResult.insertId,
-
-          delivery_boy: {
-            id: deliveryBoy.id,
-            employee_id:
-              deliveryBoy.employee_id,
-            name: deliveryBoy.name
-          },
-
-          status: "assigned"
-        }
-      );
-
-
-      return res.status(201).json({
-
-        success: true,
-
-        message:
-          "Order assigned successfully",
-
-        assignment: {
-          id:
-            assignmentResult.insertId,
-
-          order_id:
-            orderId,
-
-          order_number:
-            order.order_id,
-
           delivery_user_id:
-            deliveryBoy.id,
-
-          employee_id:
-            deliveryBoy.employee_id,
-
-          delivery_boy_name:
-            deliveryBoy.name,
-
+            deliveryUserId,
           status:
             "assigned"
         }
+      );
 
+      return res.status(201).json({
+        success: true,
+        message:
+          "Delivery assigned successfully.",
+        order: {
+          id: orderId,
+          status:
+            "ready_for_pickup",
+          deliveryUserId
+        },
+        assignment: {
+          status:
+            "assigned"
+        }
       });
 
-    } catch (err) {
+    } catch (error) {
 
-      await connection.rollback();
+      try {
+        await connection.rollback();
+      } catch (_) {}
 
       console.error(
         "Assign delivery error:",
-        err
+        error
       );
 
       return res.status(500).json({
         success: false,
         message:
-          "Failed to assign delivery"
+          "Unable to assign delivery."
       });
 
     } finally {
-
       connection.release();
     }
   }
 );
+
 
 /* =========================================================
    GET CURRENT DELIVERY ASSIGNMENT
@@ -641,7 +582,6 @@ router.get(
   "/:id/delivery-assignment",
   adminAuth,
   async (req, res) => {
-
     try {
 
       const orderId =
@@ -649,7 +589,6 @@ router.get(
           req.params.id,
           10
         );
-
 
       if (
         !orderId ||
@@ -661,7 +600,6 @@ router.get(
             "Invalid order ID"
         });
       }
-
 
       const [rows] =
         await db.query(
@@ -696,16 +634,12 @@ router.get(
           [orderId]
         );
 
-
       return res.json({
-
         success: true,
-
         assignment:
           rows.length
             ? rows[0]
             : null
-
       });
 
     } catch (err) {
@@ -750,7 +684,6 @@ router.post(
           10
         );
 
-
       if (
         !orderId ||
         Number.isNaN(orderId)
@@ -761,7 +694,6 @@ router.post(
             "Invalid order ID"
         });
       }
-
 
       if (
         !newDeliveryUserId ||
@@ -774,14 +706,11 @@ router.post(
         });
       }
 
-
       await connection.beginTransaction();
-
 
       /* =====================================================
          LOCK ORDER
       ===================================================== */
-
       const [orders] =
         await connection.query(
           `
@@ -797,7 +726,6 @@ router.post(
           [orderId]
         );
 
-
       if (!orders.length) {
 
         await connection.rollback();
@@ -809,10 +737,8 @@ router.post(
         });
       }
 
-
       const order =
         orders[0];
-
 
       if (
         [
@@ -832,11 +758,29 @@ router.post(
         });
       }
 
+      /* =====================================================
+         ONLY READY_FOR_PICKUP CAN BE REASSIGNED
+      ===================================================== */
+      if (
+        order.status !==
+        "ready_for_pickup"
+      ) {
+
+        await connection.rollback();
+
+        return res.status(409).json({
+          success: false,
+          message:
+            order.status ===
+            "out_for_delivery"
+              ? "This order is already out for delivery and cannot be reassigned"
+              : `Order must be "ready_for_pickup" to reassign a delivery boy (current status: "${order.status}")`
+        });
+      }
 
       /* =====================================================
          CHECK NEW DELIVERY BOY
       ===================================================== */
-
       const [deliveryUsers] =
         await connection.query(
           `
@@ -854,7 +798,6 @@ router.post(
           [newDeliveryUserId]
         );
 
-
       if (!deliveryUsers.length) {
 
         await connection.rollback();
@@ -866,13 +809,12 @@ router.post(
         });
       }
 
-
       const deliveryBoy =
         deliveryUsers[0];
 
-
       if (
-        deliveryBoy.status !== "active"
+        deliveryBoy.status !==
+        "active"
       ) {
 
         await connection.rollback();
@@ -884,11 +826,9 @@ router.post(
         });
       }
 
-
       /* =====================================================
          FIND ACTIVE ASSIGNMENT
       ===================================================== */
-
       const [assignments] =
         await connection.query(
           `
@@ -909,7 +849,6 @@ router.post(
           [orderId]
         );
 
-
       if (!assignments.length) {
 
         await connection.rollback();
@@ -921,10 +860,8 @@ router.post(
         });
       }
 
-
       const assignment =
         assignments[0];
-
 
       if (
         Number(
@@ -943,11 +880,9 @@ router.post(
         });
       }
 
-
       /* =====================================================
          CLOSE OLD ASSIGNMENT
       ===================================================== */
-
       await connection.query(
         `
         UPDATE delivery_assignments
@@ -959,16 +894,13 @@ router.post(
         [assignment.id]
       );
 
-
       /* =====================================================
          CREATE NEW ASSIGNMENT
       ===================================================== */
-
       const assignedBy =
         req.admin?.id ||
         req.user?.id ||
         null;
-
 
       const [newAssignment] =
         await connection.query(
@@ -995,18 +927,15 @@ router.post(
           ]
         );
 
-
       /* =====================================================
          UPDATE ORDER OWNER
       ===================================================== */
-
       await connection.query(
         `
         UPDATE orders
-        SET
-          delivery_user_id = ?,
-          status = 'out_for_delivery'
+        SET delivery_user_id = ?
         WHERE id = ?
+        AND status = 'ready_for_pickup'
         `,
         [
           newDeliveryUserId,
@@ -1014,9 +943,7 @@ router.post(
         ]
       );
 
-
       await connection.commit();
-
 
       emitSocket(
         req,
@@ -1047,7 +974,6 @@ router.post(
         }
       );
 
-
       return res.json({
 
         success: true,
@@ -1056,6 +982,7 @@ router.post(
           "Order reassigned successfully",
 
         assignment: {
+
           id:
             newAssignment.insertId,
 
@@ -1074,7 +1001,6 @@ router.post(
           status:
             "assigned"
         }
-
       });
 
     } catch (err) {
@@ -1095,92 +1021,116 @@ router.post(
     } finally {
 
       connection.release();
+
     }
   }
 );
 
+
 /* =========================
    GET ORDER DETAILS (ADMIN)
 ========================= */
-router.get("/:id", adminAuth, async (req, res) => {
-  try {
+router.get(
+  "/:id",
+  adminAuth,
+  async (req, res) => {
 
-    const orderId = parseInt(
-      req.params.id,
-      10
-    );
+    try {
 
-    if (!orderId || isNaN(orderId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID"
-      });
-    }
+      const orderId =
+        parseInt(
+          req.params.id,
+          10
+        );
 
-    const [[order]] = await db.query(
-      `
-      SELECT 
-        o.id,
-        o.order_id,
-        o.name,
-        o.phone,
-        o.status,
-        o.payment_status,
-        o.payment_method,
-        o.subtotal,
-        o.gst,
-        o.delivery_fee,
-        o.tip,
-        o.discount,
-        o.total,
-        o.address,
-        o.notes,
-        o.created_at,
-        o.delivered_at,
-        o.refund_reason,
-        o.refund_requested_at,
-        o.refund_reject_reason,
-        u.email AS customer_email
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      WHERE o.id = ?
-      `,
-      [orderId]
-    );
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found"
-      });
-    }
-
-    const [items] = await db.query(
-      "SELECT name, qty, price FROM order_items WHERE order_id=?",
-      [orderId]
-    );
-
-    res.json({
-      success: true,
-      order: {
-        ...order,
-        items
+      if (
+        !orderId ||
+        isNaN(orderId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid order ID"
+        });
       }
-    });
 
-  } catch (err) {
+      const [[order]] =
+        await db.query(
+          `
+          SELECT 
+            o.id,
+            o.order_id,
+            o.name,
+            o.phone,
+            o.status,
+            o.payment_status,
+            o.payment_method,
+            o.subtotal,
+            o.gst,
+            o.delivery_fee,
+            o.tip,
+            o.discount,
+            o.total,
+            o.address,
+            o.notes,
+            o.created_at,
+            o.delivered_at,
+            o.refund_reason,
+            o.refund_requested_at,
+            o.refund_reject_reason,
+            u.email AS customer_email
+          FROM orders o
+          JOIN users u
+            ON o.user_id = u.id
+          WHERE o.id = ?
+          `,
+          [orderId]
+        );
 
-    console.error(
-      "Admin order details error:",
-      err
-    );
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Order not found"
+        });
+      }
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch order details"
-    });
+      const [items] =
+        await db.query(
+          `
+          SELECT
+            name,
+            qty,
+            price
+          FROM order_items
+          WHERE order_id=?
+          `,
+          [orderId]
+        );
+
+      res.json({
+        success: true,
+        order: {
+          ...order,
+          items
+        }
+      });
+
+    } catch (err) {
+
+      console.error(
+        "Admin order details error:",
+        err
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Failed to fetch order details"
+      });
+    }
   }
-});
+);
 
 
 /* =========================
@@ -1188,325 +1138,437 @@ router.get("/:id", adminAuth, async (req, res) => {
    Enforces strict status
    transition workflow
 ========================= */
-router.put("/:id/status", adminAuth, async (req, res) => {
-  try {
+router.put(
+  "/:id/status",
+  adminAuth,
+  async (req, res) => {
 
-    const { status } = req.body;
-
-    const allowedStatuses = [
-      "confirmed",
-      "preparing",
-      "ready_for_pickup",
-      "out_for_delivery",
-      "delivered",
-      "cancelled"
-    ];
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status"
-      });
-    }
-
-    const orderId = parseInt(
-      req.params.id,
-      10
-    );
-
-    if (!orderId || isNaN(orderId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID"
-      });
-    }
-
-    const [[order]] = await db.query(
-      "SELECT status, payment_status, payment_method FROM orders WHERE id=?",
-      [orderId]
-    );
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found"
-      });
-    }
-
-    // Prevent modifying final orders
-    if (
-      [
-        "delivered",
-        "cancelled",
-        "refunded",
-        "refund_rejected"
-      ].includes(order.status)
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "Final orders cannot be modified"
-      });
-    }
-
-    // Enforce valid workflow transitions
-    if (!isValidTransition(order.status, status)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          `Cannot transition from '${order.status}' to '${status}'`
-      });
-    }
-
-    // Payment check before confirm
-    if (status === "confirmed") {
-
-      const isCOD =
-        order.payment_method === "cod" &&
-        order.payment_status === "pending";
-
-      const isPaidOnline =
-        order.payment_status === "paid";
-
-      if (!isCOD && !isPaidOnline) {
-        return res.status(403).json({
-          success: false,
-          message: "Order payment not completed"
-        });
-      }
-    }
-
-    if (status === "delivered") {
-
-      await db.query(
-        "UPDATE orders SET status=?, delivered_at=NOW() WHERE id=?",
-        [
-          status,
-          orderId
-        ]
-      );
-
-    } else {
-
-      await db.query(
-        "UPDATE orders SET status=? WHERE id=?",
-        [
-          status,
-          orderId
-        ]
-      );
-    }
-
-    emitSocket(
-      req,
-      "order-status-updated",
-      {
-        order_id: orderId,
-        status
-      }
-    );
-
-    res.json({
-      success: true
-    });
-
-  } catch (err) {
-
-    console.error(
-      "Update status error:",
-      err
-    );
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-  }
-});
-
-
-/* =========================
-   CANCEL ORDER (ADMIN)
-========================= */
-router.post("/:id/cancel", adminAuth, async (req, res) => {
-  const connection =
-    await db.getConnection();
-
-  try {
-
-    await connection.beginTransaction();
-
-    const orderId = parseInt(
-      req.params.id,
-      10
-    );
-
-    if (!orderId || isNaN(orderId)) {
-
-      await connection.rollback();
-
-      return res.status(400).json({
-        success: false,
-        message: "Invalid order ID"
-      });
-    }
-
-    const [[order]] =
-      await connection.query(
-        `
-        SELECT status, payment_method, payment_status
-        FROM orders
-        WHERE id=?
-        `,
-        [orderId]
-      );
-
-    if (!order) {
-
-      await connection.rollback();
-
-      return res.status(404).json({
-        success: false,
-        message: "Order not found"
-      });
-    }
-
-    if (order.status === "cancelled") {
-
-      await connection.rollback();
-
-      return res.status(409).json({
-        success: false,
-        message: "Order already cancelled"
-      });
-    }
-
-    if (
-      ![
-        "pending",
-        "confirmed"
-      ].includes(order.status)
-    ) {
-
-      await connection.rollback();
-
-      return res.status(400).json({
-        success: false,
-        message:
-          "Order cannot be cancelled at this stage"
-      });
-    }
-
-    let paymentStatus;
-
-    if (order.payment_method === "cod") {
-
-      paymentStatus = "cancelled";
-
-    } else if (
-      order.payment_status === "paid"
-    ) {
-
-      paymentStatus = "refunded";
-
-    } else {
-
-      paymentStatus = "cancelled";
-    }
-
-    await connection.query(
-      `
-      UPDATE orders
-      SET status=?,
-          cancelled_by=?,
-          payment_status=?
-      WHERE id=?
-      `,
-      [
-        "cancelled",
-        "admin",
-        paymentStatus,
-        orderId
-      ]
-    );
-
-    await connection.commit();
-
-    emitSocket(
-      req,
-      "order-status-updated",
-      {
-        order_id: orderId,
-        status: "cancelled",
-        payment_status: paymentStatus
-      }
-    );
-
-    return res.json({
-      success: true,
-      status: "cancelled",
-      payment_status: paymentStatus
-    });
-
-  } catch (err) {
-
-    await connection.rollback();
-
-    console.error(
-      "Admin cancel error:",
-      err
-    );
-
-    return res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-
-  } finally {
-
-    connection.release();
-  }
-});
-
-
-/* =========================
-   APPROVE REFUND (ADMIN)
-========================= */
-router.post("/:id/refund", adminAuth, async (req, res) => {
     try {
 
-      const orderId = parseInt(
-        req.params.id,
-        10
-      );
+      const { status } =
+        req.body;
 
-      if (!orderId || isNaN(orderId)) {
+      const allowedStatuses = [
+        "confirmed",
+        "preparing",
+        "ready_for_pickup",
+        "out_for_delivery",
+        "delivered",
+        "cancelled"
+      ];
+
+      if (
+        !allowedStatuses.includes(
+          status
+        )
+      ) {
         return res.status(400).json({
           success: false,
-          message: "Invalid order ID"
+          message:
+            "Invalid status"
+        });
+      }
+
+      const orderId =
+        parseInt(
+          req.params.id,
+          10
+        );
+
+      if (
+        !orderId ||
+        isNaN(orderId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid order ID"
         });
       }
 
       const [[order]] =
         await db.query(
-          "SELECT status FROM orders WHERE id=?",
+          `
+          SELECT
+            status,
+            payment_status,
+            payment_method
+          FROM orders
+          WHERE id=?
+          `,
+          [orderId]
+        );
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Order not found"
+        });
+      }
+
+      /* =========================
+         PREVENT MODIFYING FINAL ORDERS
+      ========================= */
+      if (
+        [
+          "delivered",
+          "cancelled",
+          "refunded",
+          "refund_rejected"
+        ].includes(order.status)
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Final orders cannot be modified"
+        });
+      }
+
+      /* =========================
+         ENFORCE VALID WORKFLOW
+      ========================= */
+      if (
+        !isValidTransition(
+          order.status,
+          status
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            `Cannot transition from '${order.status}' to '${status}'`
+        });
+      }
+
+      /* =========================
+         PAYMENT CHECK BEFORE CONFIRM
+      ========================= */
+      if (
+        status === "confirmed"
+      ) {
+
+        const isCOD =
+          order.payment_method ===
+            "cod" &&
+          order.payment_status ===
+            "pending";
+
+        const isPaidOnline =
+          order.payment_status ===
+          "paid";
+
+        if (
+          !isCOD &&
+          !isPaidOnline
+        ) {
+          return res.status(403).json({
+            success: false,
+            message:
+              "Order payment not completed"
+          });
+        }
+      }
+
+      /* =========================
+         DELIVERED
+      ========================= */
+      if (
+        status === "delivered"
+      ) {
+
+        await db.query(
+          `
+          UPDATE orders
+          SET
+            status=?,
+            delivered_at=NOW()
+          WHERE id=?
+          `,
+          [
+            status,
+            orderId
+          ]
+        );
+
+      } else {
+
+        await db.query(
+          `
+          UPDATE orders
+          SET status=?
+          WHERE id=?
+          `,
+          [
+            status,
+            orderId
+          ]
+        );
+      }
+
+      emitSocket(
+        req,
+        "order-status-updated",
+        {
+          order_id:
+            orderId,
+          status
+        }
+      );
+
+      res.json({
+        success: true
+      });
+
+    } catch (err) {
+
+      console.error(
+        "Update status error:",
+        err
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Server error"
+      });
+    }
+  }
+);
+
+
+/* =========================
+   CANCEL ORDER (ADMIN)
+========================= */
+router.post(
+  "/:id/cancel",
+  adminAuth,
+  async (req, res) => {
+
+    const connection =
+      await db.getConnection();
+
+    try {
+
+      await connection.beginTransaction();
+
+      const orderId =
+        parseInt(
+          req.params.id,
+          10
+        );
+
+      if (
+        !orderId ||
+        isNaN(orderId)
+      ) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid order ID"
+        });
+      }
+
+      const [[order]] =
+        await connection.query(
+          `
+          SELECT
+            status,
+            payment_method,
+            payment_status
+          FROM orders
+          WHERE id=?
+          `,
+          [orderId]
+        );
+
+      if (!order) {
+
+        await connection.rollback();
+
+        return res.status(404).json({
+          success: false,
+          message:
+            "Order not found"
+        });
+      }
+
+      if (
+        order.status ===
+        "cancelled"
+      ) {
+
+        await connection.rollback();
+
+        return res.status(409).json({
+          success: false,
+          message:
+            "Order already cancelled"
+        });
+      }
+
+      if (
+        ![
+          "pending",
+          "confirmed"
+        ].includes(order.status)
+      ) {
+
+        await connection.rollback();
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Order cannot be cancelled at this stage"
+        });
+      }
+
+      let paymentStatus;
+
+      if (
+        order.payment_method ===
+        "cod"
+      ) {
+
+        paymentStatus =
+          "cancelled";
+
+      } else if (
+        order.payment_status ===
+        "paid"
+      ) {
+
+        paymentStatus =
+          "refunded";
+
+      } else {
+
+        paymentStatus =
+          "cancelled";
+      }
+
+      await connection.query(
+        `
+        UPDATE orders
+        SET
+          status=?,
+          cancelled_by=?,
+          payment_status=?
+        WHERE id=?
+        `,
+        [
+          "cancelled",
+          "admin",
+          paymentStatus,
+          orderId
+        ]
+      );
+
+      await connection.commit();
+
+      emitSocket(
+        req,
+        "order-status-updated",
+        {
+          order_id:
+            orderId,
+          status:
+            "cancelled",
+          payment_status:
+            paymentStatus
+        }
+      );
+
+      return res.json({
+        success: true,
+        status:
+          "cancelled",
+        payment_status:
+          paymentStatus
+      });
+
+    } catch (err) {
+
+      await connection.rollback();
+
+      console.error(
+        "Admin cancel error:",
+        err
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Server error"
+      });
+
+    } finally {
+
+      connection.release();
+
+    }
+  }
+);
+
+
+/* =========================
+   APPROVE REFUND (ADMIN)
+========================= */
+router.post(
+  "/:id/refund",
+  adminAuth,
+  async (req, res) => {
+
+    try {
+
+      const orderId =
+        parseInt(
+          req.params.id,
+          10
+        );
+
+      if (
+        !orderId ||
+        isNaN(orderId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid order ID"
+        });
+      }
+
+      const [[order]] =
+        await db.query(
+          `
+          SELECT status
+          FROM orders
+          WHERE id=?
+          `,
           [orderId]
         );
 
       if (
         !order ||
-        order.status !== "refund_requested"
+        order.status !==
+        "refund_requested"
       ) {
         return res.status(400).json({
           success: false,
-          message: "Refund not allowed"
+          message:
+            "Refund not allowed"
         });
       }
 
       await db.query(
         `
         UPDATE orders
-        SET status='refunded',
-            payment_status='refunded'
+        SET
+          status='refunded',
+          payment_status='refunded'
         WHERE id=?
         `,
         [orderId]
@@ -1516,8 +1578,10 @@ router.post("/:id/refund", adminAuth, async (req, res) => {
         req,
         "order-status-updated",
         {
-          order_id: orderId,
-          status: "refunded"
+          order_id:
+            orderId,
+          status:
+            "refunded"
         }
       );
 
@@ -1550,23 +1614,30 @@ router.post(
 
     try {
 
-      const orderId = parseInt(
-        req.params.id,
-        10
-      );
+      const orderId =
+        parseInt(
+          req.params.id,
+          10
+        );
 
-      if (!orderId || isNaN(orderId)) {
+      if (
+        !orderId ||
+        isNaN(orderId)
+      ) {
         return res.status(400).json({
           success: false,
-          message: "Invalid order ID"
+          message:
+            "Invalid order ID"
         });
       }
 
-      const { reason } = req.body;
+      const { reason } =
+        req.body;
 
       if (
         !reason ||
-        reason.trim().length < REASON_MIN_LENGTH
+        reason.trim().length <
+        REASON_MIN_LENGTH
       ) {
         return res.status(400).json({
           success: false,
@@ -1578,17 +1649,25 @@ router.post(
       const sanitizedReason =
         reason
           .trim()
-          .slice(0, REASON_MAX_LENGTH);
+          .slice(
+            0,
+            REASON_MAX_LENGTH
+          );
 
       const [[order]] =
         await db.query(
-          "SELECT status FROM orders WHERE id=?",
+          `
+          SELECT status
+          FROM orders
+          WHERE id=?
+          `,
           [orderId]
         );
 
       if (
         !order ||
-        order.status !== "refund_requested"
+        order.status !==
+        "refund_requested"
       ) {
         return res.status(400).json({
           success: false,
@@ -1600,8 +1679,9 @@ router.post(
       await db.query(
         `
         UPDATE orders
-        SET status='refund_rejected',
-            refund_reject_reason=?
+        SET
+          status='refund_rejected',
+          refund_reject_reason=?
         WHERE id=?
         `,
         [
@@ -1614,8 +1694,10 @@ router.post(
         req,
         "order-status-updated",
         {
-          order_id: orderId,
-          status: "refund_rejected"
+          order_id:
+            orderId,
+          status:
+            "refund_rejected"
         }
       );
 

@@ -1,16 +1,10 @@
-"use strict";
-
 const express = require("express");
 const router = express.Router();
 const pool = require("../../db");
-const {
-    requireDeliveryAuth
-} = require("../../middleware/delivery.auth.middleware");
+const { requireDeliveryAuth } = require("../../middleware/delivery.auth.middleware");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
-const {
-    sendDeliveryOTPEmail
-} = require("../../mailer");
+const { sendDeliveryOTPEmail } = require("../../mailer");
 
 const MAX_OTP_ATTEMPTS = 5;
 const OTP_EXPIRY_MINUTES = 5;
@@ -20,84 +14,35 @@ function generateDeliveryOTP() {
 }
 
 function formatDelivery(row) {
-    const customerName =
-        [
-            row.customer_first_name,
-            row.customer_last_name
-        ]
+    const customerName = [row.customer_first_name, row.customer_last_name]
             .filter(Boolean)
             .join(" ")
-            .trim() ||
-        row.name ||
-        "Customer";
+            .trim() || row.name || "Customer";
 
     return {
         assignmentId: row.assignment_id,
-
-        orderDbId:
-            row.order_db_id || row.id,
-
-        orderId:
-            row.order_id,
-
-        customerUserId:
-            row.customer_user_id || null,
-
+        orderDbId: row.order_db_id || row.id,
+        orderId: row.order_id,
+        customerUserId: row.customer_user_id || null,
         customerName,
-
-        customerEmail:
-            row.customer_email || null,
-
-        phone:
-            row.phone || null,
-
-        address:
-            row.address || "Address unavailable",
-
-        status:
-            row.delivery_status,
-
-        orderStatus:
-            row.order_status,
-
-        total:
-            Number(row.total || 0),
-
-        items:
-            Array.isArray(row.items)
-                ? row.items
-                : [],
-
-        paymentMethod:
-            row.payment_method || null,
-
-        paymentStatus:
-            row.payment_status || null,
-
-        createdAt:
-            row.created_at || null,
-
-        assignedAt:
-            row.assigned_at || null,
-
-        pickedUpAt:
-            row.picked_up_at || null,
-
-        outForDeliveryAt:
-            row.out_for_delivery_at || null,
-
-        deliveredAt:
-            row.delivered_at ||
-            row.order_delivered_at ||
-            null
+        customerEmail: row.customer_email || null,
+        phone: row.phone || null,
+        address: row.address || "Address unavailable",
+        status: row.delivery_status,
+        orderStatus: row.order_status,
+        total: Number(row.total || 0),
+        items: Array.isArray(row.items) ? row.items : [],
+        paymentMethod: row.payment_method || null,
+        paymentStatus: row.payment_status || null,
+        createdAt: row.created_at || null,
+        assignedAt: row.assigned_at || null,
+        pickedUpAt: row.picked_up_at || null,
+        outForDeliveryAt: row.out_for_delivery_at || null,
+        deliveredAt: row.delivered_at || row.order_delivered_at || null
     };
 }
-async function getDeliveryAssignment(
-    connection,
-    assignmentId,
-    deliveryUserId,
-    lock = false
-) {
+
+async function getDeliveryAssignment(connection, assignmentId, deliveryUserId, lock = false) {
     const lockClause = lock
         ? "FOR UPDATE"
         : "";
@@ -224,444 +169,246 @@ async function getDeliveryAssignment(
     return row;
 }
 
-/*
-=========================================================
-GET DELIVERY DASHBOARD
-GET /api/delivery/dashboard
-=========================================================
-*/
-
+/*=========================================================
+    GET DELIVERY DASHBOARD
+    GET /api/delivery/dashboard
+=========================================================*/
 router.get(
     "/dashboard",
     requireDeliveryAuth,
     async (req, res) => {
         try {
-            const deliveryUserId =
-                req.deliveryUser.id;
+            const deliveryUserId = req.deliveryUser.id;
 
-            const [statsRows] =
-                await pool.query(
-                    `
-                    SELECT
-                        COALESCE(
-                            SUM(
-                                da.status = 'assigned'
-                            ),
-                            0
-                        ) AS assigned,
+            // Stats
+            const [statsRows] = await pool.query(
+                `
+                SELECT
+                    COALESCE(SUM(da.status = 'assigned'), 0) AS assigned,
+                    COALESCE(SUM(da.status = 'picked_up'), 0) AS picked_up,
+                    COALESCE(SUM(da.status = 'out_for_delivery'), 0) AS out_for_delivery,
+                    COALESCE(SUM(da.status = 'delivered' AND DATE(da.delivered_at) = CURDATE()), 0) AS delivered
+                FROM delivery_assignments da
+                WHERE da.delivery_user_id = ?
+                AND (DATE(da.assigned_at) = CURDATE() OR DATE(da.delivered_at) = CURDATE())
+                `,
+                [deliveryUserId]
+            );
+            const stats = statsRows[0] || {};
 
-                        COALESCE(
-                            SUM(
-                                da.status = 'picked_up'
-                            ),
-                            0
-                        ) AS picked_up,
+            // Current delivery
+            const [currentRows] = await pool.query(
+                `
+                SELECT
+                    da.id AS assignment_id,
+                    da.order_id,
+                    da.delivery_user_id,
+                    da.status AS delivery_status,
+                    da.assigned_at,
+                    da.picked_up_at,
+                    da.out_for_delivery_at,
+                    da.delivered_at,
+                    o.id AS order_db_id,
+                    o.order_id,
+                    o.name,
+                    o.phone,
+                    o.address,
+                    o.status AS order_status,
+                    o.total,
+                    o.payment_method,
+                    o.payment_status,
+                    o.created_at,
+                    o.delivered_at AS order_delivered_at,
+                    u.id AS customer_user_id,
+                    u.first_name AS customer_first_name,
+                    u.last_name AS customer_last_name,
+                    u.email AS customer_email
+                FROM delivery_assignments da
+                INNER JOIN orders o ON o.id = da.order_id
+                INNER JOIN users u ON u.id = o.user_id
+                WHERE da.delivery_user_id = ?
+                AND da.status IN ('assigned','picked_up','out_for_delivery')
+                ORDER BY CASE da.status
+                    WHEN 'out_for_delivery' THEN 1
+                    WHEN 'picked_up' THEN 2
+                    WHEN 'assigned' THEN 3
+                    ELSE 4 END,
+                    da.assigned_at ASC
+                LIMIT 1
+                `,
+                [deliveryUserId]
+            );
 
-                        COALESCE(
-                            SUM(
-                                da.status = 'out_for_delivery'
-                            ),
-                            0
-                        ) AS out_for_delivery,
-
-                        COALESCE(
-                            SUM(
-                                da.status = 'delivered'
-                                AND DATE(da.delivered_at) = CURDATE()
-                            ),
-                            0
-                        ) AS delivered
-
-                    FROM delivery_assignments da
-
-                    WHERE da.delivery_user_id = ?
-
-                    AND (
-                        DATE(da.assigned_at) = CURDATE()
-                        OR DATE(da.delivered_at) = CURDATE()
-                    )
-                    `,
-                    [deliveryUserId]
-                );
-
-            const stats =
-                statsRows[0] || {};
-
-            const [currentRows] =
-                await pool.query(
-                    `
-                    SELECT
-                        da.id AS assignment_id,
-                        da.order_id,
-                        da.delivery_user_id,
-                        da.status AS delivery_status,
-                        da.assigned_at,
-                        da.picked_up_at,
-                        da.out_for_delivery_at,
-                        da.delivered_at,
-
-                        o.id AS order_db_id,
-                        o.order_id,
-                        o.name,
-                        o.phone,
-                        o.address,
-                        o.status AS order_status,
-                        o.total,
-                        o.payment_method,
-                        o.payment_status,
-                        o.created_at,
-                        o.delivered_at AS order_delivered_at,
-
-                        u.id AS customer_user_id,
-                        u.first_name AS customer_first_name,
-                        u.last_name AS customer_last_name,
-                        u.email AS customer_email
-
-                    FROM delivery_assignments da
-
-                    INNER JOIN orders o
-                        ON o.id = da.order_id
-
-                    INNER JOIN users u
-                        ON u.id = o.user_id
-
-                    WHERE da.delivery_user_id = ?
-
-                    AND da.status IN (
-                        'assigned',
-                        'picked_up',
-                        'out_for_delivery'
-                    )
-
-                    ORDER BY
-                        CASE da.status
-                            WHEN 'out_for_delivery' THEN 1
-                            WHEN 'picked_up' THEN 2
-                            WHEN 'assigned' THEN 3
-                            ELSE 4
-                        END,
-                        da.assigned_at ASC
-
-                    LIMIT 1
-                    `,
-                    [deliveryUserId]
-                );
-
-            const [todayRows] =
-                await pool.query(
-                    `
-                    SELECT
-                        da.id AS assignment_id,
-                        da.order_id,
-                        da.delivery_user_id,
-                        da.status AS delivery_status,
-                        da.assigned_at,
-                        da.picked_up_at,
-                        da.out_for_delivery_at,
-                        da.delivered_at,
-
-                        o.id AS order_db_id,
-                        o.order_id,
-                        o.name,
-                        o.phone,
-                        o.address,
-                        o.status AS order_status,
-                        o.total,
-                        o.payment_method,
-                        o.payment_status,
-                        o.created_at,
-                        o.delivered_at AS order_delivered_at,
-
-                        u.id AS customer_user_id,
-                        u.first_name AS customer_first_name,
-                        u.last_name AS customer_last_name,
-                        u.email AS customer_email
-
-                    FROM delivery_assignments da
-
-                    INNER JOIN orders o
-                        ON o.id = da.order_id
-
-                    INNER JOIN users u
-                        ON u.id = o.user_id
-
-                    WHERE da.delivery_user_id = ?
-
-                    AND (
-                        DATE(da.assigned_at) = CURDATE()
-                        OR DATE(da.delivered_at) = CURDATE()
-                    )
-
-                    ORDER BY
-                        CASE da.status
-                            WHEN 'assigned' THEN 1
-                            WHEN 'picked_up' THEN 2
-                            WHEN 'out_for_delivery' THEN 3
-                            WHEN 'delivered' THEN 4
-                            WHEN 'cancelled' THEN 5
-                            ELSE 6
-                        END,
-                        da.assigned_at DESC
-
-                    LIMIT 20
-                    `,
-                    [deliveryUserId]
-                );
+            // Today's deliveries
+            const [todayRows] = await pool.query(
+                `
+                SELECT
+                    da.id AS assignment_id,
+                    da.order_id,
+                    da.delivery_user_id,
+                    da.status AS delivery_status,
+                    da.assigned_at,
+                    da.picked_up_at,
+                    da.out_for_delivery_at,
+                    da.delivered_at,
+                    o.id AS order_db_id,
+                    o.order_id,
+                    o.name,
+                    o.phone,
+                    o.address,
+                    o.status AS order_status,
+                    o.total,
+                    o.payment_method,
+                    o.payment_status,
+                    o.created_at,
+                    o.delivered_at AS order_delivered_at,
+                    u.id AS customer_user_id,
+                    u.first_name AS customer_first_name,
+                    u.last_name AS customer_last_name,
+                    u.email AS customer_email
+                FROM delivery_assignments da
+                INNER JOIN orders o ON o.id = da.order_id
+                INNER JOIN users u ON u.id = o.user_id
+                WHERE da.delivery_user_id = ?
+                AND (DATE(da.assigned_at) = CURDATE() OR DATE(da.delivered_at) = CURDATE())
+                ORDER BY CASE da.status
+                    WHEN 'assigned' THEN 1
+                    WHEN 'picked_up' THEN 2
+                    WHEN 'out_for_delivery' THEN 3
+                    WHEN 'delivered' THEN 4
+                    WHEN 'cancelled' THEN 5
+                    ELSE 6 END,
+                    da.assigned_at DESC
+                LIMIT 20
+                `,
+                [deliveryUserId]
+            );
 
             return res.status(200).json({
                 success: true,
-
                 dashboard: {
                     stats: {
-                        assigned:
-                            Number(
-                                stats.assigned || 0
-                            ),
-
-                        pickedUp:
-                            Number(
-                                stats.picked_up || 0
-                            ),
-
-                        outForDelivery:
-                            Number(
-                                stats.out_for_delivery || 0
-                            ),
-
-                        delivered:
-                            Number(
-                                stats.delivered || 0
-                            )
+                        assigned: Number(stats.assigned || 0),
+                        pickedUp: Number(stats.picked_up || 0),
+                        outForDelivery: Number(stats.out_for_delivery || 0),
+                        delivered: Number(stats.delivered || 0)
                     },
-
-                    currentDelivery:
-                        currentRows.length
-                            ? formatDelivery(
-                                currentRows[0]
-                            )
-                            : null,
-
-                    todayDeliveries:
-                        todayRows.map(
-                            formatDelivery
-                        )
+                    currentDelivery: currentRows.length ? formatDelivery(currentRows[0]) : null,
+                    todayDeliveries: todayRows.map(formatDelivery)
                 }
             });
 
         } catch (error) {
-            console.error(
-                "Delivery dashboard error:",
-                error
-            );
-
+            console.error("Delivery dashboard error:", error);
             return res.status(500).json({
                 success: false,
-                message:
-                    "Unable to load delivery dashboard."
+                message: "Unable to load delivery dashboard."
             });
         }
     }
 );
 
-
-/*
-=========================================================
-GET DELIVERY ASSIGNMENTS
-GET /api/delivery/assignments
-=========================================================
-*/
-
+/*=========================================================
+    GET DELIVERY ASSIGNMENTS
+    GET /api/delivery/assignments
+=========================================================*/
 router.get(
     "/assignments",
     requireDeliveryAuth,
     async (req, res) => {
         try {
-            const deliveryUserId =
-                req.deliveryUser.id;
+            const deliveryUserId = req.deliveryUser.id;
+            const status = String(req.query.status || "").trim();
+            const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+            const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+            const offset = (page - 1) * limit;
 
-            const status =
-                String(
-                    req.query.status || ""
-                ).trim();
+            // Allowed statuses
+            const allowedStatuses = ["assigned", "picked_up", "out_for_delivery", "delivered", "cancelled"];
 
-            const page =
-                Math.max(
-                    parseInt(
-                        req.query.page,
-                        10
-                    ) || 1,
-                    1
-                );
-
-            const limit =
-                Math.min(
-                    Math.max(
-                        parseInt(
-                            req.query.limit,
-                            10
-                        ) || 10,
-                        1
-                    ),
-                    50
-                );
-
-            const offset =
-                (page - 1) * limit;
-
-            const allowedStatuses = [
-                "assigned",
-                "picked_up",
-                "out_for_delivery",
-                "delivered",
-                "cancelled"
-            ];
-
-            if (
-                status &&
-                !allowedStatuses.includes(
-                    status
-                )
-            ) {
+            if (status && !allowedStatuses.includes(status)) {
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "Invalid delivery status."
+                    message: "Invalid delivery status."
                 });
             }
 
-            const whereParams = [
-                deliveryUserId
-            ];
-
+            // Count query
+            const whereParams = [deliveryUserId];
             let statusCondition = "";
-
             if (status) {
-                statusCondition =
-                    "AND da.status = ?";
-
-                whereParams.push(
-                    status
-                );
+                statusCondition = "AND da.status = ?";
+                whereParams.push(status);
             }
 
-            const [countRows] =
-                await pool.query(
-                    `
-                    SELECT
-                        COUNT(*) AS total
-
-                    FROM delivery_assignments da
-
-                    INNER JOIN orders o
-                        ON o.id = da.order_id
-
-                    WHERE da.delivery_user_id = ?
-                    ${statusCondition}
-                    `,
-                    whereParams
-                );
-
-            const total =
-                Number(
-                    countRows[0]?.total || 0
-                );
-
-            const totalPages =
-                total > 0
-                    ? Math.ceil(
-                        total / limit
-                    )
-                    : 1;
-
-            const safePage =
-                Math.min(
-                    page,
-                    totalPages
-                );
-
-            const safeOffset =
-                (safePage - 1) * limit;
-
-            const dataParams = [
-                deliveryUserId
-            ];
-
-            if (status) {
-                dataParams.push(
-                    status
-                );
-            }
-
-            dataParams.push(
-                limit,
-                safeOffset
+            const [countRows] = await pool.query(
+                `
+                SELECT COUNT(*) AS total
+                FROM delivery_assignments da
+                INNER JOIN orders o ON o.id = da.order_id
+                WHERE da.delivery_user_id = ?
+                ${statusCondition}
+                `,
+                whereParams
             );
 
-            const [rows] =
-                await pool.query(
-                    `
-                    SELECT
-                        da.id AS assignment_id,
-                        da.order_id,
-                        da.delivery_user_id,
-                        da.status AS delivery_status,
-                        da.assigned_at,
-                        da.picked_up_at,
-                        da.out_for_delivery_at,
-                        da.delivered_at,
+            const total = Number(countRows[0]?.total || 0);
+            const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+            const safePage = Math.min(page, totalPages);
+            const safeOffset = (safePage - 1) * limit;
 
-                        o.id AS order_db_id,
-                        o.order_id,
-                        o.name,
-                        o.phone,
-                        o.address,
-                        o.status AS order_status,
-                        o.total,
-                        o.payment_method,
-                        o.payment_status,
-                        o.created_at,
-                        o.delivered_at AS order_delivered_at,
+            // Data query
+            const dataParams = [deliveryUserId];
+            if (status) dataParams.push(status);
+            dataParams.push(limit, safeOffset);
 
-                        u.id AS customer_user_id,
-                        u.first_name AS customer_first_name,
-                        u.last_name AS customer_last_name,
-                        u.email AS customer_email
-
-                    FROM delivery_assignments da
-
-                    INNER JOIN orders o
-                        ON o.id = da.order_id
-
-                    INNER JOIN users u
-                        ON u.id = o.user_id
-
-                    WHERE da.delivery_user_id = ?
-                    ${statusCondition}
-
-                    ORDER BY
-                        CASE da.status
-                            WHEN 'assigned' THEN 1
-                            WHEN 'picked_up' THEN 2
-                            WHEN 'out_for_delivery' THEN 3
-                            WHEN 'delivered' THEN 4
-                            WHEN 'cancelled' THEN 5
-                            ELSE 6
-                        END,
-                        da.assigned_at DESC
-
-                    LIMIT ? OFFSET ?
-                    `,
-                    dataParams
-                );
+            const [rows] = await pool.query(
+                `
+                SELECT
+                    da.id AS assignment_id,
+                    da.order_id,
+                    da.delivery_user_id,
+                    da.status AS delivery_status,
+                    da.assigned_at,
+                    da.picked_up_at,
+                    da.out_for_delivery_at,
+                    da.delivered_at,
+                    o.id AS order_db_id,
+                    o.order_id,
+                    o.name,
+                    o.phone,
+                    o.address,
+                    o.status AS order_status,
+                    o.total,
+                    o.payment_method,
+                    o.payment_status,
+                    o.created_at,
+                    o.delivered_at AS order_delivered_at,
+                    u.id AS customer_user_id,
+                    u.first_name AS customer_first_name,
+                    u.last_name AS customer_last_name,
+                    u.email AS customer_email
+                FROM delivery_assignments da
+                INNER JOIN orders o ON o.id = da.order_id
+                INNER JOIN users u ON u.id = o.user_id
+                WHERE da.delivery_user_id = ?
+                ${statusCondition}
+                ORDER BY CASE da.status
+                    WHEN 'assigned' THEN 1
+                    WHEN 'picked_up' THEN 2
+                    WHEN 'out_for_delivery' THEN 3
+                    WHEN 'delivered' THEN 4
+                    WHEN 'cancelled' THEN 5
+                    ELSE 6 END,
+                    da.assigned_at DESC
+                LIMIT ? OFFSET ?
+                `,
+                dataParams
+            );
 
             return res.status(200).json({
                 success: true,
-
-                assignments:
-                    rows.map(
-                        formatDelivery
-                    ),
-
+                assignments: rows.map(formatDelivery),
                 pagination: {
                     page: safePage,
                     limit,
@@ -671,28 +418,19 @@ router.get(
             });
 
         } catch (error) {
-            console.error(
-                "Delivery assignments error:",
-                error
-            );
-
+            console.error("Delivery assignments error:", error);
             return res.status(500).json({
                 success: false,
-                message:
-                    "Unable to load delivery assignments."
+                message: "Unable to load delivery assignments."
             });
         }
     }
 );
 
-
-/*
-=========================================================
-GET SINGLE DELIVERY ASSIGNMENT
-GET /api/delivery/:assignmentId
-=========================================================
-*/
-
+/*=========================================================
+    GET SINGLE DELIVERY ASSIGNMENT
+    GET /api/delivery/:assignmentId
+=========================================================*/
 router.get(
     "/:id",
     requireDeliveryAuth,
@@ -763,85 +501,63 @@ router.get(
     }
 );
 
-
-/*
-=========================================================
-ACCEPT DELIVERY
-PATCH /api/delivery/:assignmentId/accept
-assigned → picked_up
-=========================================================
-*/
-
+/*=========================================================
+    ACCEPT DELIVERY
+    PATCH /api/delivery/:assignmentId/accept
+    assigned → picked_up
+=========================================================*/
 router.patch(
     "/:id/accept",
     requireDeliveryAuth,
     async (req, res) => {
-        const connection =
-            await pool.getConnection();
+        const connection = await pool.getConnection();
 
         try {
-            const deliveryUserId =
-                req.deliveryUser.id;
-
-            const assignmentId =
-                Number(
-                    req.params.id
-                );
+            const deliveryUserId = req.deliveryUser.id;
+            const assignmentId = Number(req.params.id);
 
             if (
-                !Number.isInteger(
-                    assignmentId
-                ) ||
+                !Number.isInteger(assignmentId) ||
                 assignmentId <= 0
             ) {
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "Invalid assignment ID."
+                    message: "Invalid assignment ID."
                 });
             }
 
             await connection.beginTransaction();
 
-            const [rows] =
-                await connection.query(
-                    `
-                    SELECT
-                        da.id,
-                        da.order_id,
-                        da.delivery_user_id,
-                        da.status
-
-                    FROM delivery_assignments da
-
-                    WHERE da.id = ?
-                    AND da.delivery_user_id = ?
-
-                    FOR UPDATE
-                    `,
-                    [
-                        assignmentId,
-                        deliveryUserId
-                    ]
-                );
+            const [rows] = await connection.query(
+                `
+                SELECT
+                    da.id,
+                    da.order_id,
+                    da.delivery_user_id,
+                    da.status,
+                    o.status AS order_status
+                FROM delivery_assignments da
+                INNER JOIN orders o
+                    ON o.id = da.order_id
+                WHERE da.id = ?
+                AND da.delivery_user_id = ?
+                FOR UPDATE
+                `,
+                [assignmentId, deliveryUserId]
+            );
 
             if (!rows.length) {
                 await connection.rollback();
 
                 return res.status(404).json({
                     success: false,
-                    message:
-                        "Delivery assignment not found."
+                    message: "Delivery assignment not found."
                 });
             }
 
-            const assignment =
-                rows[0];
+            const assignment = rows[0];
 
-            if (
-                assignment.status !==
-                "assigned"
-            ) {
+            if (assignment.status !== "assigned") {
                 await connection.rollback();
 
                 return res.status(409).json({
@@ -851,28 +567,33 @@ router.patch(
                 });
             }
 
-            const [updateResult] =
-                await connection.query(
-                    `
-                    UPDATE delivery_assignments
+            if (assignment.order_status !== "ready_for_pickup") {
+                await connection.rollback();
 
-                    SET
-                        status = 'picked_up',
-                        picked_up_at = NOW()
+                return res.status(409).json({
+                    success: false,
+                    message:
+                        `Order cannot be accepted from "${assignment.order_status}" status.`
+                });
+            }
 
-                    WHERE id = ?
-                    AND delivery_user_id = ?
-                    AND status = 'assigned'
-                    `,
-                    [
-                        assignmentId,
-                        deliveryUserId
-                    ]
-                );
+            const [updateResult] = await connection.query(
+                `
+                UPDATE delivery_assignments
+                SET
+                    status = 'picked_up',
+                    picked_up_at = NOW()
+                WHERE id = ?
+                AND delivery_user_id = ?
+                AND status = 'assigned'
+                `,
+                [
+                    assignmentId,
+                    deliveryUserId
+                ]
+            );
 
-            if (
-                updateResult.affectedRows !== 1
-            ) {
+            if (updateResult.affectedRows !== 1) {
                 await connection.rollback();
 
                 return res.status(409).json({
@@ -882,29 +603,15 @@ router.patch(
                 });
             }
 
-            /*
-            orders.delivery_user_id should already
-            be assigned by Admin.
-
-            We do not overwrite it unnecessarily.
-            */
-
             await connection.commit();
 
             return res.status(200).json({
                 success: true,
-                message:
-                    "Delivery accepted successfully.",
-
+                message: "Delivery accepted successfully.",
                 assignment: {
-                    id:
-                        assignmentId,
-
-                    orderId:
-                        assignment.order_id,
-
-                    status:
-                        "picked_up"
+                    id: assignmentId,
+                    orderId: assignment.order_id,
+                    status: "picked_up"
                 }
             });
 
@@ -920,8 +627,7 @@ router.patch(
 
             return res.status(500).json({
                 success: false,
-                message:
-                    "Unable to accept delivery."
+                message: "Unable to accept delivery."
             });
 
         } finally {
@@ -930,15 +636,11 @@ router.patch(
     }
 );
 
-
-/*
-=========================================================
-START DELIVERY
-PATCH /api/delivery/:assignmentId/start
-picked_up → out_for_delivery
-=========================================================
-*/
-
+/*=========================================================
+    START DELIVERY
+    PATCH /api/delivery/:assignmentId/start
+    picked_up → out_for_delivery
+=========================================================*/
 router.patch(
     "/:id/start",
     requireDeliveryAuth,
@@ -1020,6 +722,16 @@ router.patch(
                     success: false,
                     message:
                         `Delivery cannot be started from ${assignment.status} status.`
+                });
+            }
+
+            if (assignment.order_status !== "ready_for_pickup") {
+                await connection.rollback();
+
+                return res.status(409).json({
+                    success: false,
+                    message:
+                        `Order cannot start delivery from "${assignment.order_status}" status.`
                 });
             }
 
@@ -1147,21 +859,12 @@ router.patch(
     }
 );
 
-
-/*
-=========================================================
-SEND DELIVERY OTP
-POST /api/delivery/:orderId/send-otp
-
-IMPORTANT:
-This endpoint uses ORDER DATABASE ID,
-not assignment ID.
-
-Example:
-POST /api/delivery/31/send-otp
-=========================================================
-*/
-
+/*=========================================================
+    SEND DELIVERY OTP
+    POST /api/delivery/:orderId/send-otp
+    IMPORTANT: This endpoint uses ORDER DATABASE ID, not assignment ID.
+    Example:POST /api/delivery/31/send-otp
+=========================================================*/
 router.post(
     "/:id/send-otp",
     requireDeliveryAuth,
@@ -1410,25 +1113,17 @@ router.post(
     }
 );
 
-
-/*
-=========================================================
-VERIFY DELIVERY OTP
-POST /api/delivery/:orderId/verify-otp
-
-ORDER ID IS USED HERE.
-
-Successful verification updates:
-
-1. orders.status = delivered
-2. orders.delivered_at
-3. delivery_assignments.status = delivered
-4. delivery_assignments.delivered_at
-
-All inside ONE transaction.
-=========================================================
-*/
-
+/*=========================================================
+    VERIFY DELIVERY OTP
+    POST /api/delivery/:orderId/verify-otp
+    ORDER ID IS USED HERE.
+    Successful verification updates:
+    1. orders.status = delivered
+    2. orders.delivered_at
+    3. delivery_assignments.status = delivered
+    4. delivery_assignments.delivered_at
+    All inside ONE transaction.
+=========================================================*/
 router.post(
     "/:id/verify-otp",
     requireDeliveryAuth,
@@ -1771,6 +1466,5 @@ router.post(
         }
     }
 );
-
 
 module.exports = router;

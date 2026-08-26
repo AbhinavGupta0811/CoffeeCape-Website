@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Delivery Partner Profile">
+    <title>Delivery Profile</title>
+    <link rel="stylesheet" href="css/delivery-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <div class="profile-page">
+        <header class="profile-page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h1>My Profile</h1>
+                        <p>Manage your delivery account and personal information</p>
+                    </div>
+                </div>
+                <button type="button" class="back-button" id="backButton">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Dashboard</span>
+                </button>
+            </div>
+        </header>
+        <main class="profile-container">
+            <section class="profile-overview-card">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <span class="online-indicator" id="onlineIndicator"></span>
+                </div>
+                <div class="profile-overview-content">
+                    <div class="profile-name-row">
+                        <h2 id="profileName">Loading...</h2>
+                        <span class="account-status active" id="accountStatus">
+                            <i class="fa-solid fa-circle"></i>
+                            <span>Active</span>
+                        </span>
+                    </div>
+                    <p class="profile-role">
+                        <i class="fa-solid fa-motorcycle"></i>
+                        Delivery Partner
+                    </p>
+                    <p class="profile-id">
+                        <i class="fa-solid fa-id-badge"></i>
+                        Delivery ID:
+                        <strong id="profileEmployeeId">Loading...</strong>
+                    </p>
+                </div>
+            </section>
+            <section class="profile-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="section-icon">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+                        <div>
+                            <h2>Personal Information</h2>
+                            <p>Update your personal contact information</p>
+                        </div>
+                    </div>
+                    <span class="section-badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Secure
+                    </span>
+                </div>
+                <form id="profileForm" class="profile-form" novalidate>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">
+                                <i class="fa-solid fa-user"></i>
+                                Full Name
+                            </label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    name="name"
+                                    placeholder="Enter your full name"
+                                    autocomplete="name"
+                                    maxlength="100"
+                                    required
+                                >
+                            </div>
+                            <small class="field-error" id="fullNameError"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fa-solid fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="Enter your email address"
+                                    autocomplete="email"
+                                    maxlength="255"
+                                    required
+                                >
+                            </div>
+                            <small class="field-error" id="emailError"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">
+                                <i class="fa-solid fa-phone"></i>
+                                Phone Number
+                            </label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="Enter your phone number"
+                                    autocomplete="tel"
+                                    maxlength="20"
+                                    required
+                                >
+                            </div>
+                            <small class="field-error" id="phoneError"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryId">
+                                <i class="fa-solid fa-id-card"></i>
+                                Delivery ID
+                            </label>
+                            <div class="input-wrapper read-only-wrapper">
+                                <input
+                                    type="text"
+                                    id="deliveryId"
+                                    name="employeeId"
+                                    placeholder="Delivery ID"
+                                    readonly
+                                    aria-readonly="true"
+                                >
+                                <span class="read-only-icon" title="This ID cannot be changed">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                            </div>
+                            <small class="field-info">
+                                <i class="fa-solid fa-circle-info"></i>
+                                Your Delivery ID is permanently assigned to your account.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="secondary-button" id="cancelProfileButton">
+                            <i class="fa-solid fa-xmark"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="primary-button" id="saveProfileButton">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Save Changes</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+            <section class="profile-section account-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="section-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h2>Account & Security</h2>
+                            <p>Review your account and security information</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="security-info-grid">
+                    <div class="security-info-card">
+                        <div class="security-card-icon">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="security-card-content">
+                            <span class="security-card-label">Account Status</span>
+                            <strong id="securityAccountStatus">Active</strong>
+                            <small>Your account is currently available for deliveries.</small>
+                        </div>
+                    </div>
+                    <div class="security-info-card">
+                        <div class="security-card-icon">
+                            <i class="fa-solid fa-id-badge"></i>
+                        </div>
+                        <div class="security-card-content">
+                            <span class="security-card-label">Delivery ID</span>
+                            <strong id="securityDeliveryId">Loading...</strong>
+                            <small>Use this ID when accessing delivery services.</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="profile-section password-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="section-icon">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <h2>Change Password</h2>
+                            <p>Keep your delivery account secure with a strong password</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="password-security-notice">
+                    <div class="notice-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div class="notice-content">
+                        <strong>Password security</strong>
+                        <p>
+                            Choose a password that is at least 8 characters long and
+                            different from your current password.
+                        </p>
+                    </div>
+                </div>
+                <form id="changePasswordForm" class="password-form" novalidate>
+                    <div class="form-grid password-grid">
+                        <div class="form-group full-width">
+                            <label for="currentPassword">
+                                <i class="fa-solid fa-lock"></i>
+                                Current Password
+                            </label>
+                            <div class="input-wrapper password-wrapper">
+                                <input
+                                    type="password"
+                                    id="currentPassword"
+                                    name="currentPassword"
+                                    placeholder="Enter your current password"
+                                    autocomplete="current-password"
+                                    maxlength="128"
+                                    required
+                                >
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    data-target="currentPassword"
+                                    aria-label="Show current password"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="field-error" id="currentPasswordError"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">
+                                <i class="fa-solid fa-key"></i>
+                                New Password
+                            </label>
+                            <div class="input-wrapper password-wrapper">
+                                <input
+                                    type="password"
+                                    id="newPassword"
+                                    name="newPassword"
+                                    placeholder="Enter your new password"
+                                    autocomplete="new-password"
+                                    maxlength="128"
+                                    required
+                                >
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    data-target="newPassword"
+                                    aria-label="Show new password"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="field-error" id="newPasswordError"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">
+                                <i class="fa-solid fa-key"></i>
+                                Confirm New Password
+                            </label>
+                            <div class="input-wrapper password-wrapper">
+                                <input
+                                    type="password"
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    placeholder="Confirm your new password"
+                                    autocomplete="new-password"
+                                    maxlength="128"
+                                    required
+                                >
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    data-target="confirmPassword"
+                                    aria-label="Show confirm password"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="field-error" id="confirmPasswordError"></small>
+                        </div>
+                    </div>
+                    <div class="password-requirements">
+                        <p class="requirements-title">
+                            <i class="fa-solid fa-list-check"></i>
+                            Password requirements
+                        </p>
+                        <ul>
+                            <li id="passwordLengthRequirement">
+                                <i class="fa-solid fa-circle"></i>
+                                At least 8 characters
+                            </li>
+                            <li id="passwordDifferentRequirement">
+                                <i class="fa-solid fa-circle"></i>
+                                Different from your current password
+                            </li>
+                            <li id="passwordMatchRequirement">
+                                <i class="fa-solid fa-circle"></i>
+                                New passwords must match
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="secondary-button" id="clearPasswordButton">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Clear
+                        </button>
+                        <button type="submit" class="primary-button" id="changePasswordButton">
+                            <i class="fa-solid fa-key"></i>
+                            <span>Change Password</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+            <section class="profile-section danger-section">
+                <div class="danger-content">
+                    <div class="danger-icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                    <div class="danger-info">
+                        <h2>Sign Out</h2>
+                        <p>Sign out of your delivery account on this device.</p>
+                    </div>
+                    <button type="button" class="logout-button" id="logoutButton">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+        <div class="profile-loader" id="profileLoader" aria-hidden="true">
+            <div class="loader-content">
+                <div class="spinner"></div>
+                <p>Loading your profile...</p>
+            </div>
+        </div>
+        <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+        <div class="modal-overlay" id="logoutModal" aria-hidden="true">
+            <div class="confirmation-modal">
+                <div class="modal-icon">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </div>
+                <h2>Sign Out?</h2>
+                <p>Are you sure you want to sign out of your delivery account?</p>
+                <div class="modal-actions">
+                    <button type="button" class="secondary-button" id="cancelLogoutButton">
+                        Cancel
+                    </button>
+                    <button type="button" class="logout-confirm-button" id="confirmLogoutButton">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/delivery-profile.js"></script>
+</body>
+</html>

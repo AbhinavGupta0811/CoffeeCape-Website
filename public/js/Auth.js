@@ -100,6 +100,10 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
 
     try {
       result = await res.json();
+
+      console.log("LOGIN HTTP STATUS:", res.status);
+      console.log("LOGIN RESPONSE:", result);
+      console.log("USER NOT FOUND:", result.userNotFound);
     } catch {
       btn.disabled = false;
       return showToast("Invalid email or password", "error");
@@ -107,6 +111,14 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
 
     if (res.status === 401) {
       btn.disabled = false;
+
+      if (result.userNotFound === true) {
+        return showToast(
+          "This user is not found. Please register first.",
+          "error"
+        );
+      }
+
       return showToast("Invalid email or password", "error");
     }
 

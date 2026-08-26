@@ -55,27 +55,34 @@ router.get("/", async (req, res) => {
    GET PRODUCTS BY CATEGORY
 ===================================== */
 router.get("/category/:category", async (req, res) => {
-
   try {
-    const { category } = req.params;
-    const allowedCategories = [
-      "hot-beverages",
-      "cold-beverages",
-      "refreshment-drinks",
-      "refreshments",
-      "desserts",
-      "burgers",
-      "fries",
-      "combos"
-    ];
+    const categoryMap = {
+      "hot-beverages": "Hot Beverages",
+      "cold-beverages": "Cold Beverages",
+      "refreshment-drinks": "Refreshment Drinks",
+      "refreshment-snacks": "Refreshment Snacks",
+      "special-food-combo": "Special Food Combo",
+      "special-desserts": "Special Desserts",
+      "burgers": "Burgers",
+      "fries": "Fries"
+    };
 
-    if (
-      !allowedCategories.includes(category)
-    ) {
+    const categorySlug = decodeURIComponent(req.params.category)
+      .trim()
+      .toLowerCase();
 
+    const category = categoryMap[categorySlug];
+
+    console.log("PRODUCT CATEGORY REQUEST:", {
+      slug: categorySlug,
+      databaseCategory: category
+    });
+
+    if (!category) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category"
+        message: "Invalid category",
+        received: req.params.category
       });
     }
 
@@ -98,8 +105,7 @@ router.get("/category/:category", async (req, res) => {
         rating,
         is_featured
       FROM products
-      WHERE
-        category = ?
+      WHERE category = ?
         AND is_active = TRUE
         AND availability = 'in_stock'
       ORDER BY id DESC
@@ -107,13 +113,16 @@ router.get("/category/:category", async (req, res) => {
       [category]
     );
 
+    console.log("PRODUCT CATEGORY RESULT:", {
+      category,
+      count: products.length
+    });
+
     res.status(200).json({
       success: true,
       products
     });
-
   } catch (err) {
-
     console.error("Category fetch error:", err);
 
     res.status(500).json({

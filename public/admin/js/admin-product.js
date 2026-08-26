@@ -59,36 +59,36 @@ const socket = io();
 ===================================== */
 const categories = [
   {
-    key: "hot-beverages",
+    key: "Hot Beverages",
     label: "Hot Beverages"
   },
   {
-    key: "cold-beverages",
+    key: "Cold Beverages",
     label: "Cold Beverages"
   },
   {
-    key: "refreshment-drinks",
+    key: "Refreshment Drinks",
     label: "Refreshment Drinks"
   },
   {
-    key: "refreshments",
-    label: "Refreshments"
+    key: "Refreshment Snacks",
+    label: "Refreshment Snacks"
   },
   {
-    key: "desserts",
-    label: "Desserts"
+    key: "Special Desserts",
+    label: "Special Desserts"
   },
   {
-    key: "burgers",
+    key: "Burgers",
     label: "Burgers"
   },
   {
-    key: "fries",
+    key: "Fries",
     label: "Fries"
   },
   {
-    key: "combos",
-    label: "Combos"
+    key: "Special Food Combo",
+    label: "Special Food Combo"
   }
 ];
 

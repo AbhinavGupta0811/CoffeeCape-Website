@@ -715,6 +715,185 @@ router.post("/change-password", requireDeliveryAuth, async (req, res) => {
   }
 });
 
+// Delivery profile update
+router.put("/profile", requireDeliveryAuth, async (req, res) => {
+  let connection = null;
+  try {
+    const name = String(req.body.name || "").trim().replace(/\s+/g, " ");
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const phone = normalizePhone(req.body.phone);
+    if (!name || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, email and phone number are required."
+      });
+    }
+    if (name.length < 2 || name.length > 100 || /[\x00-\x1F\x7F]/.test(name)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid name."
+      });
+    }
+    if (email.length > 255 || !isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address."
+      });
+    }
+    if (!isValidPhone(phone) || phone.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid phone number."
+      });
+    }
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const [userRows] = await connection.query(
+      `SELECT id, employee_id, name, email, phone, status, auth_version
+       FROM delivery_users
+       WHERE id = ?
+       LIMIT 1
+       FOR UPDATE`,
+      [req.deliveryUser.id]
+    );
+    const currentUser = userRows[0];
+    if (!currentUser || currentUser.status !== "active") {
+      await connection.rollback();
+      if (req.session) {
+        req.session.destroy(() => {});
+      }
+      return res.status(401).json({
+        success: false,
+        message: "Your delivery account is no longer active."
+      });
+    }
+    const [emailRows] = await connection.query(
+      `SELECT id
+       FROM delivery_users
+       WHERE LOWER(email) = ? AND id <> ?
+       LIMIT 1`,
+      [email, currentUser.id]
+    );
+    if (emailRows.length > 0) {
+      await connection.rollback();
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email address already exists."
+      });
+    }
+    const [phoneRows] = await connection.query(
+      `SELECT id
+       FROM delivery_users
+       WHERE phone = ? AND id <> ?
+       LIMIT 1`,
+      [phone, currentUser.id]
+    );
+    if (phoneRows.length > 0) {
+      await connection.rollback();
+      return res.status(409).json({
+        success: false,
+        message: "An account with this phone number already exists."
+      });
+    }
+    if (
+      currentUser.name === name &&
+      currentUser.email === email &&
+      String(currentUser.phone || "") === phone
+    ) {
+      await connection.rollback();
+      return res.status(200).json({
+        success: true,
+        message: "No profile changes were made.",
+        user: {
+          id: currentUser.id,
+          employeeId: currentUser.employee_id,
+          name: currentUser.name,
+          email: currentUser.email,
+          phone: currentUser.phone,
+          status: currentUser.status
+        }
+      });
+    }
+    await connection.query(
+      `UPDATE delivery_users
+       SET name = ?, email = ?, phone = ?
+       WHERE id = ?`,
+      [name, email, phone, currentUser.id]
+    );
+    const [updatedRows] = await connection.query(
+      `SELECT id, employee_id, name, email, phone, status
+       FROM delivery_users
+       WHERE id = ?
+       LIMIT 1`,
+      [currentUser.id]
+    );
+    const updatedUser = updatedRows[0];
+    if (!updatedUser) {
+      await connection.rollback();
+      return res.status(500).json({
+        success: false,
+        message: "Unable to retrieve the updated profile."
+      });
+    }
+    await connection.commit();
+    connection.release();
+    connection = null;
+    req.session.deliveryUser = {
+      ...req.session.deliveryUser,
+      id: updatedUser.id,
+      employeeId: updatedUser.employee_id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      authVersion: currentUser.auth_version
+    };
+    await new Promise((resolve, reject) => {
+      req.session.save((sessionError) => {
+        if (sessionError) {
+          return reject(sessionError);
+        }
+        resolve();
+      });
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      user: {
+        id: updatedUser.id,
+        employeeId: updatedUser.employee_id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        status: updatedUser.status
+      }
+    });
+  } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("Delivery profile update rollback error:", rollbackError.message);
+      }
+    }
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "An account with these details already exists."
+      });
+    }
+    console.error("Delivery profile update error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to update your delivery profile. Please try again later."
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+      connection = null;
+    }
+  }
+});
+
 // Delivery current user (GET /api/delivery/auth/me)
 router.get("/me", requireDeliveryAuth, async (req, res) => {
     try {

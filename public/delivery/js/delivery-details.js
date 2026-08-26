@@ -32,123 +32,72 @@ orderId:
 /* =====================================================
    URL
 ===================================================== */
+const params = new URLSearchParams(window.location.search);
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+/*The URL contains ASSIGNMENT ID.
+Example: delivery-details.html?id=12*/
 
-
-/*
-The URL contains ASSIGNMENT ID.
-
-Example:
-
-delivery-details.html?id=12
-*/
-
-const assignmentId =
-    params.get("id");
-
+const assignmentId = params.get("id");
 
 /* =====================================================
    DOM ELEMENTS
 ===================================================== */
-
 const otpModal =
-    document.getElementById(
-        "otpModal"
-    );
+    document.getElementById("otpModal");
 
 const closeOtpModal =
-    document.getElementById(
-        "closeOtpModal"
-    );
+    document.getElementById("closeOtpModal");
 
 const cancelOtpButton =
-    document.getElementById(
-        "cancelOtpButton"
-    );
+    document.getElementById("cancelOtpButton");
 
 const sendDeliveryOtpButton =
-    document.getElementById(
-        "sendDeliveryOtpButton"
-    );
+    document.getElementById("sendDeliveryOtpButton");
 
 const otpSentMessage =
-    document.getElementById(
-        "otpSentMessage"
-    );
+    document.getElementById("otpSentMessage");
 
 const otpVerificationSection =
-    document.getElementById(
-        "otpVerificationSection"
-    );
+    document.getElementById("otpVerificationSection");
 
 const deliveryOtp =
-    document.getElementById(
-        "deliveryOtp"
-    );
+    document.getElementById("deliveryOtp");
 
 const deliveryOtpError =
-    document.getElementById(
-        "deliveryOtpError"
-    );
+    document.getElementById("deliveryOtpError");
 
 const verifyDeliveryOtpButton =
-    document.getElementById(
-        "verifyDeliveryOtpButton"
-    );
+    document.getElementById("verifyDeliveryOtpButton");
 
 const pageLoading =
-    document.getElementById(
-        "pageLoading"
-    );
+    document.getElementById("pageLoading");
 
 const pageError =
-    document.getElementById(
-        "pageError"
-    );
+    document.getElementById("pageError");
 
 const errorMessage =
-    document.getElementById(
-        "errorMessage"
-    );
+    document.getElementById("errorMessage");
 
 const retryButton =
-    document.getElementById(
-        "retryButton"
-    );
+    document.getElementById("retryButton");
 
 const detailsContent =
-    document.getElementById(
-        "detailsContent"
-    );
+    document.getElementById("detailsContent");
 
 const headerOrderId =
-    document.getElementById(
-        "headerOrderId"
-    );
+    document.getElementById("headerOrderId");
 
 const orderStatus =
-    document.getElementById(
-        "orderStatus"
-    );
+    document.getElementById("orderStatus");
 
 const statusDescription =
-    document.getElementById(
-        "statusDescription"
-    );
+    document.getElementById("statusDescription");
 
 const orderIdElement =
-    document.getElementById(
-        "orderId"
-    );
+    document.getElementById("orderId");
 
 const orderDate =
-    document.getElementById(
-        "orderDate"
-    );
+    document.getElementById("orderDate");
 
 const paymentStatus =
     document.getElementById(
@@ -968,403 +917,172 @@ function renderOrderItems(
 /* =====================================================
    DELIVERY ACTION
 ===================================================== */
-
-function configureDeliveryAction(
-    delivery
-) {
-
-    if (
-        !elementExists(
-            deliveryActionButton
-        )
-    ) {
+function configureDeliveryAction(delivery) {
+    if (!elementExists(deliveryActionButton)) {
         return;
     }
 
+    deliveryActionButton.onclick = null;
+    deliveryActionButton.disabled = true;
 
-    /*
-    Reset previous action.
-    */
-
-    deliveryActionButton.onclick =
-        null;
-
-
-    deliveryActionButton.disabled =
-        true;
-
-
-    const status =
-        String(
-            delivery.status ||
-            delivery.delivery_status ||
-            ""
-        );
-
+    const status = String(
+        delivery.status ||
+        delivery.delivery_status ||
+        ""
+    );
 
     const currentAssignmentId =
         delivery.assignmentId ??
         delivery.assignment_id ??
         assignmentId;
 
-
-    switch (
-        status
-    ) {
-
-        /*
-        -------------------------------------------------
-        ASSIGNED
-        -------------------------------------------------
-        */
-
+    switch (status) {
         case "assigned":
+            deliveryActionButton.textContent = "Accept Delivery";
 
-            deliveryActionButton.textContent =
-                "Accept Delivery";
-
-
-            if (
-                currentAssignmentId
-            ) {
-
-                deliveryActionButton.disabled =
-                    false;
-
-
-                deliveryActionButton.onclick =
-                    () =>
-                        acceptDelivery(
-                            currentAssignmentId
-                        );
+            if (currentAssignmentId) {
+                deliveryActionButton.disabled = false;
+                deliveryActionButton.onclick = () =>
+                    acceptDelivery(currentAssignmentId);
             }
-
             break;
-
-
-        /*
-        -------------------------------------------------
-        PICKED UP
-        -------------------------------------------------
-        */
 
         case "picked_up":
+            deliveryActionButton.textContent = "Start Delivery";
 
-            deliveryActionButton.textContent =
-                "Start Delivery";
-
-
-            if (
-                currentAssignmentId
-            ) {
-
-                deliveryActionButton.disabled =
-                    false;
-
-
-                deliveryActionButton.onclick =
-                    () =>
-                        startDelivery(
-                            currentAssignmentId
-                        );
+            if (currentAssignmentId) {
+                deliveryActionButton.disabled = false;
+                deliveryActionButton.onclick = () =>
+                    startDelivery(currentAssignmentId);
             }
-
             break;
-
-
-        /*
-        -------------------------------------------------
-        OUT FOR DELIVERY
-        -------------------------------------------------
-        */
 
         case "out_for_delivery":
+            deliveryActionButton.textContent = "Complete Delivery";
 
-            deliveryActionButton.textContent =
-                "Complete Delivery";
-
-
-            /*
-            OTP requires ORDER DATABASE ID,
-            not assignment ID.
-            */
-
-            if (
-                getOrderDbId(
-                    delivery
-                )
-            ) {
-
-                deliveryActionButton.disabled =
-                    false;
-
-
-                deliveryActionButton.onclick =
-                    () =>
-                        openOtpModal(
-                            delivery
-                        );
+            if (getOrderDbId(delivery)) {
+                deliveryActionButton.disabled = false;
+                deliveryActionButton.onclick = () =>
+                    openOtpModal(delivery);
             }
-
             break;
-
-
-        /*
-        -------------------------------------------------
-        DELIVERED
-        -------------------------------------------------
-        */
 
         case "delivered":
-
-            deliveryActionButton.textContent =
-                "Delivered";
-
-
-            deliveryActionButton.disabled =
-                true;
-
+            deliveryActionButton.textContent = "Delivered";
+            deliveryActionButton.disabled = true;
             break;
 
-
-        /*
-        -------------------------------------------------
-        UNKNOWN
-        -------------------------------------------------
-        */
-
         default:
-
-            deliveryActionButton.textContent =
-                "Unavailable";
-
-
-            deliveryActionButton.disabled =
-                true;
+            deliveryActionButton.textContent = "Unavailable";
+            deliveryActionButton.disabled = true;
     }
 }
-
 
 /* =====================================================
    ACCEPT DELIVERY
 ===================================================== */
-
-async function acceptDelivery(
-    assignmentId
-) {
-
-    if (
-        !assignmentId ||
-        actionInProgress
-    ) {
+async function acceptDelivery(assignmentId) {
+    if (!assignmentId || actionInProgress) {
         return;
     }
 
-
-    actionInProgress =
-        true;
-
-
-    deliveryActionButton.disabled =
-        true;
-
-
-    deliveryActionButton.textContent =
-        "Accepting...";
-
+    actionInProgress = true;
+    deliveryActionButton.disabled = true;
+    deliveryActionButton.textContent = "Accepting...";
 
     try {
-
-        const response =
-            await fetch(
-                `/api/delivery/${encodeURIComponent(
-                    assignmentId
-                )}/accept`,
-                {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: {
-                        Accept:
-                            "application/json"
-                    }
+        const response = await fetch(
+            `/api/delivery/${encodeURIComponent(assignmentId)}/accept`,
+            {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json"
                 }
-            );
+            }
+        );
 
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            window.location.href =
-                "login.html";
-
+        if (response.status === 401 || response.status === 403) {
+            window.location.href = "login.html";
             return;
         }
 
+        const data = await response.json();
 
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
+        if (!response.ok || !data.success) {
             throw new Error(
-                data.message ||
-                "Unable to accept delivery."
+                data.message || "Unable to accept delivery."
             );
         }
 
-
         await loadDeliveryDetails();
-
-
     } catch (error) {
-
-        console.error(
-            "Accept delivery error:",
-            error
-        );
-
+        console.error("Accept delivery error:", error);
 
         alert(
             error.message ||
             "Unable to accept delivery."
         );
-
-
-        if (
-            currentDelivery
-        ) {
-
-            configureDeliveryAction(
-                currentDelivery
-            );
-        }
-
     } finally {
-
-        actionInProgress =
-            false;
+        actionInProgress = false;
+        deliveryActionButton.disabled = false;
     }
 }
-
 
 /* =====================================================
    START DELIVERY
 ===================================================== */
-
-async function startDelivery(
-    assignmentId
-) {
-
-    if (
-        !assignmentId ||
-        actionInProgress
-    ) {
+async function startDelivery(assignmentId) {
+    if (!assignmentId || actionInProgress) {
         return;
     }
 
-
-    actionInProgress =
-        true;
-
-
-    deliveryActionButton.disabled =
-        true;
-
-
-    deliveryActionButton.textContent =
-        "Starting...";
-
+    actionInProgress = true;
+    deliveryActionButton.disabled = true;
+    deliveryActionButton.textContent = "Starting...";
 
     try {
-
-        const response =
-            await fetch(
-                `/api/delivery/${encodeURIComponent(
-                    assignmentId
-                )}/start`,
-                {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: {
-                        Accept:
-                            "application/json"
-                    }
+        const response = await fetch(
+            `/api/delivery/${encodeURIComponent(assignmentId)}/start`,
+            {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json"
                 }
-            );
+            }
+        );
 
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            window.location.href =
-                "login.html";
-
+        if (response.status === 401 || response.status === 403) {
+            window.location.href = "login.html";
             return;
         }
 
+        const data = await response.json();
 
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
+        if (!response.ok || !data.success) {
             throw new Error(
-                data.message ||
-                "Unable to start delivery."
+                data.message || "Unable to start delivery."
             );
         }
 
-
         await loadDeliveryDetails();
-
-
     } catch (error) {
-
-        console.error(
-            "Start delivery error:",
-            error
-        );
-
+        console.error("Start delivery error:", error);
 
         alert(
             error.message ||
             "Unable to start delivery."
         );
-
-
-        if (
-            currentDelivery
-        ) {
-
-            configureDeliveryAction(
-                currentDelivery
-            );
-        }
-
     } finally {
-
-        actionInProgress =
-            false;
+        actionInProgress = false;
+        deliveryActionButton.disabled = false;
     }
 }
-
 
 /* =====================================================
    GET ORDER DATABASE ID
 ===================================================== */
-
 function getOrderDbId(
     delivery
 ) {
@@ -1403,8 +1121,7 @@ function getOrderDbId(
 /* =====================================================
    OPEN OTP MODAL
 ===================================================== */
-
-function openOtpModal(
+async function openOtpModal(
     delivery
 ) {
 
@@ -1415,30 +1132,25 @@ function openOtpModal(
     }
 
 
-    /*
-    IMPORTANT:
+    /*IMPORTANT: Store ORDER DATABASE ID.
+    Do NOT store assignmentId here.*/
+    const orderDbId = getOrderDbId(delivery);
 
-    Store ORDER DATABASE ID.
-
-    Do NOT store assignmentId here.
-    */
-
-    const orderDbId =
-        getOrderDbId(
-            delivery
-        );
-
-
-    if (
-        !orderDbId
-    ) {
-
-        alert(
-            "Order database ID is missing."
-        );
-
+    if (!orderDbId) {
+        showOtpError("Order database ID is missing.");
         return;
     }
+
+    const response = await fetch(
+        `/api/delivery/${encodeURIComponent(orderDbId)}/send-otp`,
+        {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                Accept: "application/json"
+            }
+        }
+    );
 
 
     otpModal.dataset.orderDbId =
@@ -1537,7 +1249,6 @@ function openOtpModal(
 /* =====================================================
    CLOSE OTP MODAL
 ===================================================== */
-
 function closeOtpModalHandler() {
 
     if (
@@ -1578,14 +1289,8 @@ function closeOtpModalHandler() {
 }
 
 
-if (
-    elementExists(closeOtpModal)
-) {
-
-    closeOtpModal.addEventListener(
-        "click",
-        closeOtpModalHandler
-    );
+if (elementExists(closeOtpModal)) {
+    closeOtpModal.addEventListener("click", closeOtpModalHandler);
 }
 
 
@@ -2525,30 +2230,19 @@ if (
     );
 }
 
-
 /* =====================================================
    INITIALIZE
 ===================================================== */
-
 async function initialize() {
-
-    const authenticated =
-        await checkAuthentication();
-
-
-    if (
-        !authenticated
-    ) {
+    const authenticated = await checkAuthentication();
+    if (!authenticated) {
         return;
     }
-
 
     await loadDeliveryDetails();
 }
 
-
 /* =====================================================
    START
 ===================================================== */
-
 initialize();
