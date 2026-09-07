@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
    ENVIRONMENT VALIDATION
 ===================================================== */
 if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-  console.warn("⚠️  MAIL_USER or MAIL_PASS not defined in environment variables");
+  console.warn("⚠️ MAIL_USER or MAIL_PASS not defined in environment variables");
 }
 
 /* =====================================================

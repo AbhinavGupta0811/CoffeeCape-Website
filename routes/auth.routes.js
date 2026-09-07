@@ -329,7 +329,6 @@ router.post("/register", async (req, res) => {
         requireVerification:
           true
       });
-
   } catch (err) {
 
     if (conn) {
