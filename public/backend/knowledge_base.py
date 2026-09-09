@@ -1,7 +1,14 @@
 """
-knowledge_base.py — CoffeeCape complete knowledge base
-All intents, patterns, responses, and structured data live here.
-No external API needed.
+knowledge_base.py — CoffeeCape chatbot knowledge base.
+
+This module contains the chatbot's current static fallback data:
+- Menu categories and items
+- Events and booking information
+- Café information
+- Intent patterns
+
+The structure is kept compatible with nlp_engine.py so the chatbot
+can later switch to live database data without changing the API contract.
 """
 
 # ─── MENU DATA ────────────────────────────────────────────────────────────────
@@ -12,16 +19,16 @@ MENU = {
         "emoji": "☕",
         "page": "hot-beverages.html",
         "items": [
-            {"name": "Classic Espresso",        "price": 120, "desc": "Rich, bold single shot espresso"},
-            {"name": "Cappuccino",               "price": 150, "desc": "Espresso with steamed milk foam"},
-            {"name": "Café Latte",               "price": 160, "desc": "Smooth espresso with lots of steamed milk"},
-            {"name": "Americano",                "price": 130, "desc": "Espresso diluted with hot water"},
-            {"name": "Flat White",               "price": 155, "desc": "Velvety micro-foam espresso"},
-            {"name": "Mocha",                    "price": 170, "desc": "Espresso with chocolate and steamed milk"},
-            {"name": "French Press Coffee",      "price": 140, "desc": "Full-bodied, rich brew"},
-            {"name": "Masala Chai",              "price": 80,  "desc": "Spiced Indian tea with milk"},
-            {"name": "Green Tea",                "price": 90,  "desc": "Refreshing and light antioxidant tea"},
-            {"name": "Hot Chocolate",            "price": 150, "desc": "Creamy rich cocoa delight"},
+            {"name": "Classic Espresso", "price": 120, "desc": "Rich, bold single shot espresso"},
+            {"name": "Cappuccino", "price": 150, "desc": "Espresso with steamed milk foam"},
+            {"name": "Café Latte", "price": 160, "desc": "Smooth espresso with lots of steamed milk"},
+            {"name": "Americano", "price": 130, "desc": "Espresso diluted with hot water"},
+            {"name": "Flat White", "price": 155, "desc": "Velvety micro-foam espresso"},
+            {"name": "Mocha", "price": 170, "desc": "Espresso with chocolate and steamed milk"},
+            {"name": "French Press Coffee", "price": 140, "desc": "Full-bodied, rich brew"},
+            {"name": "Masala Chai", "price": 80, "desc": "Spiced Indian tea with milk"},
+            {"name": "Green Tea", "price": 90, "desc": "Refreshing and light antioxidant tea"},
+            {"name": "Hot Chocolate", "price": 150, "desc": "Creamy rich cocoa delight"}
         ]
     },
     "cold_beverages": {
@@ -29,14 +36,14 @@ MENU = {
         "emoji": "🧋",
         "page": "cold-beverages.html",
         "items": [
-            {"name": "Cold Brew Coffee",         "price": 180, "desc": "Slow-brewed, smooth and strong"},
-            {"name": "Iced Latte",               "price": 170, "desc": "Espresso over ice with cold milk"},
-            {"name": "Frappuccino",              "price": 200, "desc": "Blended iced coffee with cream"},
-            {"name": "Iced Mocha",               "price": 190, "desc": "Chocolate espresso on ice"},
-            {"name": "Cold Coffee Shake",        "price": 160, "desc": "Thick creamy cold coffee"},
-            {"name": "Mint Mojito",              "price": 140, "desc": "Refreshing mint and lime mocktail"},
-            {"name": "Mango Smoothie",           "price": 150, "desc": "Fresh mango blended smooth"},
-            {"name": "Blue Lagoon",              "price": 145, "desc": "Citrus blue curacao mocktail"},
+            {"name": "Cold Brew Coffee", "price": 180, "desc": "Slow-brewed, smooth and strong"},
+            {"name": "Iced Latte", "price": 170, "desc": "Espresso over ice with cold milk"},
+            {"name": "Frappuccino", "price": 200, "desc": "Blended iced coffee with cream"},
+            {"name": "Iced Mocha", "price": 190, "desc": "Chocolate espresso on ice"},
+            {"name": "Cold Coffee Shake", "price": 160, "desc": "Thick creamy cold coffee"},
+            {"name": "Mint Mojito", "price": 140, "desc": "Refreshing mint and lime mocktail"},
+            {"name": "Mango Smoothie", "price": 150, "desc": "Fresh mango blended smooth"},
+            {"name": "Blue Lagoon", "price": 145, "desc": "Citrus blue curacao mocktail"}
         ]
     },
     "refreshments": {
@@ -44,12 +51,12 @@ MENU = {
         "emoji": "🥪",
         "page": "refreshment.html",
         "items": [
-            {"name": "Club Sandwich",            "price": 220, "desc": "Layered toasted sandwich with veggies"},
-            {"name": "Paneer Tikka Wrap",        "price": 200, "desc": "Grilled paneer in a soft wrap"},
-            {"name": "Veggie Spring Rolls",      "price": 150, "desc": "Crispy fried rolls with dip"},
-            {"name": "Garlic Bread",             "price": 100, "desc": "Toasted bread with garlic butter"},
-            {"name": "Bruschetta",               "price": 160, "desc": "Italian toasted bread with tomato topping"},
-            {"name": "Nachos with Salsa",        "price": 180, "desc": "Crunchy nachos with fresh salsa and cheese"},
+            {"name": "Club Sandwich", "price": 220, "desc": "Layered toasted sandwich with veggies"},
+            {"name": "Paneer Tikka Wrap", "price": 200, "desc": "Grilled paneer in a soft wrap"},
+            {"name": "Veggie Spring Rolls", "price": 150, "desc": "Crispy fried rolls with dip"},
+            {"name": "Garlic Bread", "price": 100, "desc": "Toasted bread with garlic butter"},
+            {"name": "Bruschetta", "price": 160, "desc": "Italian toasted bread with tomato topping"},
+            {"name": "Nachos with Salsa", "price": 180, "desc": "Crunchy nachos with fresh salsa and cheese"}
         ]
     },
     "special_combos": {
@@ -57,11 +64,11 @@ MENU = {
         "emoji": "🎁",
         "page": "special-combo.html",
         "items": [
-            {"name": "Morning Kickstart",        "price": 250, "desc": "Cappuccino + Garlic Bread + Fruit Bowl"},
-            {"name": "Work-From-Café Combo",     "price": 320, "desc": "Cold Brew + Club Sandwich + Cookie"},
-            {"name": "Date Night Special",       "price": 480, "desc": "2 Mochas + Bruschetta + Dessert"},
-            {"name": "Bestseller Trio",          "price": 400, "desc": "Frappuccino + Burger + Fries"},
-            {"name": "Family Feast",             "price": 900, "desc": "4 beverages + 2 mains + 2 desserts"},
+            {"name": "Morning Kickstart", "price": 250, "desc": "Cappuccino + Garlic Bread + Fruit Bowl"},
+            {"name": "Work-From-Café Combo", "price": 320, "desc": "Cold Brew + Club Sandwich + Cookie"},
+            {"name": "Date Night Special", "price": 480, "desc": "2 Mochas + Bruschetta + Dessert"},
+            {"name": "Bestseller Trio", "price": 400, "desc": "Frappuccino + Burger + Fries"},
+            {"name": "Family Feast", "price": 900, "desc": "4 beverages + 2 mains + 2 desserts"}
         ]
     },
     "desserts": {
@@ -69,13 +76,13 @@ MENU = {
         "emoji": "🍰",
         "page": "desserts.html",
         "items": [
-            {"name": "Chocolate Lava Cake",      "price": 180, "desc": "Warm cake with molten chocolate center"},
-            {"name": "New York Cheesecake",      "price": 200, "desc": "Classic creamy baked cheesecake"},
-            {"name": "Tiramisu",                 "price": 210, "desc": "Italian coffee-flavored dessert"},
-            {"name": "Belgian Waffle",           "price": 170, "desc": "Crispy waffle with toppings"},
-            {"name": "Brownie Sundae",           "price": 190, "desc": "Warm brownie with vanilla ice cream"},
-            {"name": "Gulab Jamun",              "price": 100, "desc": "Classic Indian sweet in sugar syrup"},
-            {"name": "Mango Panna Cotta",        "price": 160, "desc": "Silky Italian dessert with mango"},
+            {"name": "Chocolate Lava Cake", "price": 180, "desc": "Warm cake with molten chocolate center"},
+            {"name": "New York Cheesecake", "price": 200, "desc": "Classic creamy baked cheesecake"},
+            {"name": "Tiramisu", "price": 210, "desc": "Italian coffee-flavored dessert"},
+            {"name": "Belgian Waffle", "price": 170, "desc": "Crispy waffle with toppings"},
+            {"name": "Brownie Sundae", "price": 190, "desc": "Warm brownie with vanilla ice cream"},
+            {"name": "Gulab Jamun", "price": 100, "desc": "Classic Indian sweet in sugar syrup"},
+            {"name": "Mango Panna Cotta", "price": 160, "desc": "Silky Italian dessert with mango"}
         ]
     },
     "burgers_fries": {
@@ -83,18 +90,19 @@ MENU = {
         "emoji": "🍔",
         "page": "burger-frenchfries.html",
         "items": [
-            {"name": "Classic Veg Burger",       "price": 180, "desc": "Crispy patty with lettuce and sauce"},
-            {"name": "Paneer Burger",            "price": 200, "desc": "Spiced paneer patty with coleslaw"},
-            {"name": "Mushroom Swiss Burger",    "price": 220, "desc": "Sautéed mushrooms with Swiss cheese"},
-            {"name": "Regular French Fries",     "price": 100, "desc": "Classic crispy salted fries"},
-            {"name": "Peri Peri Fries",          "price": 120, "desc": "Spicy peri peri seasoned fries"},
-            {"name": "Cheese Fries",             "price": 140, "desc": "Fries loaded with melted cheese sauce"},
-            {"name": "Loaded Fries",             "price": 160, "desc": "Fries with cheese, jalapeños and sour cream"},
+            {"name": "Classic Veg Burger", "price": 180, "desc": "Crispy patty with lettuce and sauce"},
+            {"name": "Paneer Burger", "price": 200, "desc": "Spiced paneer patty with coleslaw"},
+            {"name": "Mushroom Swiss Burger", "price": 220, "desc": "Sautéed mushrooms with Swiss cheese"},
+            {"name": "Regular French Fries", "price": 100, "desc": "Classic crispy salted fries"},
+            {"name": "Peri Peri Fries", "price": 120, "desc": "Spicy peri peri seasoned fries"},
+            {"name": "Cheese Fries", "price": 140, "desc": "Fries loaded with melted cheese sauce"},
+            {"name": "Loaded Fries", "price": 160, "desc": "Fries with cheese, jalapeños and sour cream"}
         ]
     }
 }
 
-# ─── EVENTS DATA ──────────────────────────────────────────────────────────────
+
+# ─── EVENTS DATA ─────────────────────────────────────────────────────────────
 
 EVENTS = {
     "dinner": {
@@ -153,7 +161,8 @@ EVENTS = {
     }
 }
 
-# ─── CAFE INFO ────────────────────────────────────────────────────────────────
+
+# ─── CAFE INFO ───────────────────────────────────────────────────────────────
 
 CAFE_INFO = {
     "name": "CoffeeCape",
@@ -161,6 +170,7 @@ CAFE_INFO = {
     "location": "Navi Mumbai, Maharashtra, India",
     "email": "info@coffeeshopwebsite.com",
     "phone": "+91 98765 43210",
+    "website": "",
     "hours": {
         "Mon–Fri": "9:00 AM – 5:00 PM",
         "Saturday": "10:00 AM – 3:00 PM",
@@ -174,14 +184,13 @@ CAFE_INFO = {
     "wifi": "Free high-speed WiFi available",
     "parking": "Street parking available nearby",
     "payment": "Cash, UPI, Credit/Debit cards accepted",
-    "reservations": "Walk-ins welcome. Reservations recommended for events.",
+    "reservations": "Walk-ins welcome. Reservations recommended for events."
 }
 
-# ─── INTENT PATTERNS ──────────────────────────────────────────────────────────
-# Each intent has: patterns (training phrases), response_key (handler), priority
+
+# ─── INTENT PATTERNS ─────────────────────────────────────────────────────────
 
 INTENTS = [
-    # Greetings
     {
         "tag": "greeting",
         "patterns": [
@@ -190,7 +199,6 @@ INTENTS = [
         ],
         "priority": 10
     },
-    # Goodbye
     {
         "tag": "goodbye",
         "patterns": [
@@ -199,7 +207,6 @@ INTENTS = [
         ],
         "priority": 10
     },
-    # Thanks
     {
         "tag": "thanks",
         "patterns": [
@@ -208,7 +215,6 @@ INTENTS = [
         ],
         "priority": 10
     },
-    # Menu - general
     {
         "tag": "menu",
         "patterns": [
@@ -218,7 +224,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Hot beverages
     {
         "tag": "hot_beverages",
         "patterns": [
@@ -228,7 +233,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Cold beverages
     {
         "tag": "cold_beverages",
         "patterns": [
@@ -238,7 +242,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Food / Refreshments
     {
         "tag": "refreshments",
         "patterns": [
@@ -248,7 +251,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Combos
     {
         "tag": "special_combos",
         "patterns": [
@@ -257,7 +259,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Desserts
     {
         "tag": "desserts",
         "patterns": [
@@ -267,7 +268,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Burgers & Fries
     {
         "tag": "burgers_fries",
         "patterns": [
@@ -276,7 +276,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Events general
     {
         "tag": "events",
         "patterns": [
@@ -286,7 +285,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Specific events
     {
         "tag": "dinner_event",
         "patterns": [
@@ -307,7 +305,7 @@ INTENTS = [
         "tag": "open_mic_event",
         "patterns": [
             "open mic", "open mic night", "poetry", "comedy", "perform",
-            "thursday", "mic night", "stand up", "storytelling"
+            "mic night", "stand up", "storytelling"
         ],
         "priority": 9
     },
@@ -335,7 +333,6 @@ INTENTS = [
         ],
         "priority": 9
     },
-    # Booking
     {
         "tag": "booking",
         "patterns": [
@@ -345,7 +342,6 @@ INTENTS = [
         ],
         "priority": 9
     },
-    # Location
     {
         "tag": "location",
         "patterns": [
@@ -355,17 +351,15 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # Hours
     {
         "tag": "hours",
         "patterns": [
-            "opening hours", "timing", "timings", "hours", "open", "close",
-            "when do you open", "what time", "are you open", "working hours",
-            "open today", "open sunday", "open saturday", "closed", "operating hours"
+            "opening hours", "timing", "timings", "hours", "when do you open",
+            "what time", "are you open", "working hours", "open today",
+            "open sunday", "open saturday", "closed", "operating hours"
         ],
         "priority": 8
     },
-    # Contact
     {
         "tag": "contact",
         "patterns": [
@@ -375,7 +369,6 @@ INTENTS = [
         ],
         "priority": 8
     },
-    # WiFi / Amenities
     {
         "tag": "amenities",
         "patterns": [
@@ -384,7 +377,6 @@ INTENTS = [
         ],
         "priority": 7
     },
-    # Price / Cost
     {
         "tag": "price",
         "patterns": [
@@ -393,7 +385,6 @@ INTENTS = [
         ],
         "priority": 7
     },
-    # About
     {
         "tag": "about",
         "patterns": [
@@ -402,17 +393,15 @@ INTENTS = [
         ],
         "priority": 7
     },
-    # Recommendation
     {
         "tag": "recommendation",
         "patterns": [
-            "recommend", "suggestion", "what should i order", "best item",
-            "popular", "bestseller", "most loved", "what's good", "must try",
-            "favorite", "what do you suggest", "top picks", "try"
+            "recommend", "recommendation", "suggestion", "suggest", "what should i order",
+            "best item", "popular", "bestseller", "most loved", "what's good",
+            "must try", "favorite", "what do you suggest", "top picks", "try"
         ],
         "priority": 8
     },
-    # Help
     {
         "tag": "help",
         "patterns": [
@@ -420,5 +409,5 @@ INTENTS = [
             "what do you know", "guide me", "assist", "support"
         ],
         "priority": 7
-    },
+    }
 ]

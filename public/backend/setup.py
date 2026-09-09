@@ -1,7 +1,3 @@
-"""
-setup.py — Run once before starting the server.
-Downloads required NLTK data packages.
-"""
 import nltk
 
 packages = ["punkt", "punkt_tab", "stopwords", "wordnet"]

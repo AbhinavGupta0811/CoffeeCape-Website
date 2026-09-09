@@ -7,6 +7,10 @@ const MySQLStore = require("express-mysql-session")(session);
 const cors = require("cors");
 const db = require("./db");
 
+const BREWBOT_URL = process.env.BREWBOT_URL || "http://127.0.0.1:5000";
+const BREWBOT_CHAT_URL = `${BREWBOT_URL}/chat`;
+const BREWBOT_HEALTH_URL = `${BREWBOT_URL}/health`;
+
 // Routes
 const authRoutes = require("./routes/auth.routes");
 const bookingRoutes = require("./routes/booking.routes");
@@ -23,12 +27,12 @@ const adminRoutes = require("./routes/admin");
 const deliveryAuthRoutes = require("./routes/delivery/delivery.auth.routes");
 const deliveryDashboardRoutes = require("./routes/delivery/delivery.dashboard.routes");
 
-
 const app = express();
 
 /* ================================
 MIDDLEWARE
 ================================ */
+
 app.use(
     cors({
         origin: "http://localhost:3000",
@@ -39,6 +43,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
 app.get("/favicon.ico", (req, res) => {
     res.status(204).end();
 });
@@ -51,6 +56,7 @@ app.use(
 /* ================================
 SESSION
 ================================ */
+
 const sessionStore = new MySQLStore({}, db);
 
 app.use(
@@ -70,8 +76,107 @@ app.use(
 );
 
 /* ================================
+BREWBOT PROXY
+================================ */
+
+app.post("/chat", async (req, res) => {
+    const userMessage = req.body?.message;
+
+    if (typeof userMessage !== "string") {
+        return res.status(400).json({
+            error: "'message' must be a string."
+        });
+    }
+
+    const message = userMessage.trim();
+
+    if (!message) {
+        return res.status(400).json({
+            error: "'message' field is required."
+        });
+    }
+
+    if (message.length > 500) {
+        return res.status(400).json({
+            error: "Message too long. Maximum length is 500 characters."
+        });
+    }
+
+    try {
+        const response = await fetch(BREWBOT_CHAT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                message
+            })
+        });
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            return res.status(502).json({
+                error: "BrewBot returned an invalid response."
+            });
+        }
+
+        if (!response.ok) {
+            return res.status(response.status).json(data);
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("BrewBot proxy error:", error);
+
+        return res.status(503).json({
+            error: "BrewBot service is temporarily unavailable."
+        });
+    }
+});
+
+app.get("/health", async (req, res) => {
+    try {
+        const response = await fetch(BREWBOT_HEALTH_URL, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            return res.status(503).json({
+                status: "unavailable",
+                service: "CoffeeCape BrewBot",
+                error: "BrewBot returned an invalid health response."
+            });
+        }
+
+        return res.status(response.status).json(data);
+    } catch (error) {
+        console.error("BrewBot health proxy error:", error);
+
+        return res.status(503).json({
+            status: "unavailable",
+            service: "CoffeeCape BrewBot",
+            database: "unknown",
+            nlp: "unknown",
+            error: "BrewBot service is unavailable."
+        });
+    }
+});
+
+/* ================================
 API ROUTES
 ================================ */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/audience", audienceRoutes);
@@ -83,12 +188,12 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/reviews", reviewsRoute);
 app.use("/api/products", productRoutes);
-app.use("/api/admin", adminRoutes); 
+app.use("/api/admin", adminRoutes);
 app.use("/api/delivery/auth", deliveryAuthRoutes);
 app.use("/api/delivery", deliveryDashboardRoutes);
 
 /* ================================
-   ERROR HANDLER
+ERROR HANDLER
 ================================ */
 
 app.use((err, req, res, next) => {
