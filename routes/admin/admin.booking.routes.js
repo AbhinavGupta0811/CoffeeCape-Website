@@ -618,32 +618,51 @@ router.put("/:id/accept", adminMiddleware, async (req, res) => {
     /*-------------- EVENT SETTINGS -------------------*/
     if (isAudienceEvent) {
       console.log("Creating event_settings...");
+
+      const audienceEnabled =
+        audience_booking_enabled ? 1 : 0;
+
+      const audienceBookingOpen =
+        audienceEnabled ? 1 : 0;
+
       await db.query(
-          `INSERT INTO event_settings (
-            booking_id,
-            audience_booking_enabled,
-            audience_ticket_price,
-            audience_capacity,
-            audience_booked
-          )
-          VALUES (?,?,?,?,0)
-          ON DUPLICATE KEY UPDATE
-            audience_booking_enabled=
+        `INSERT INTO event_settings (
+          booking_id,
+          audience_booking_enabled,
+          audience_ticket_price,
+          audience_capacity,
+          audience_booked,
+          audience_booking_open
+        )
+        VALUES (?,?,?,?,0,?)
+        ON DUPLICATE KEY UPDATE
+          audience_booking_enabled =
             VALUES(audience_booking_enabled),
 
-            audience_ticket_price=
+          audience_ticket_price =
             VALUES(audience_ticket_price),
-            
-            audience_capacity=
-            VALUES(audience_capacity)`,
-          [
-            booking.booking_id,
-            audience_booking_enabled ? 1 : 0,
-            Number(audience_ticket_price),
-            Number(audience_capacity)
-          ]
+
+          audience_capacity =
+            VALUES(audience_capacity),
+
+          audience_booking_open =
+            VALUES(audience_booking_open)`,
+        [
+          booking.booking_id,
+          audienceEnabled,
+          Number(audience_ticket_price),
+          Number(audience_capacity),
+          audienceBookingOpen
+        ]
       );
-      console.log("event_settings saved");
+
+      console.log("event_settings saved", {
+        bookingId: booking.booking_id,
+        audienceBookingEnabled: audienceEnabled,
+        audienceBookingOpen,
+        ticketPrice: Number(audience_ticket_price),
+        capacity: Number(audience_capacity)
+      });
     }
 
     /* ===============================

@@ -1,3 +1,5 @@
+import os
+import json
 """
 knowledge_base.py — CoffeeCape chatbot knowledge base.
 
@@ -167,24 +169,20 @@ EVENTS = {
 CAFE_INFO = {
     "name": "CoffeeCape",
     "tagline": "Best Coffee — Make your day great!",
-    "location": "Navi Mumbai, Maharashtra, India",
-    "email": "info@coffeeshopwebsite.com",
-    "phone": "+91 98765 43210",
-    "website": "",
-    "hours": {
-        "Mon–Fri": "9:00 AM – 5:00 PM",
-        "Saturday": "10:00 AM – 3:00 PM",
-        "Sunday": "Closed"
-    },
+    "location": os.getenv("CAFE_LOCATION", ""),
+    "email": os.getenv("CAFE_EMAIL", ""),
+    "phone": os.getenv("CAFE_PHONE", ""),
+    "website": os.getenv("CAFE_WEBSITE", ""),
+    "hours": json.loads(os.getenv("CAFE_HOURS_JSON", "{}")),
     "about": (
         "CoffeeCape is a cozy premium coffee house in Navi Mumbai, India. "
         "We pride ourselves on being a go-to destination for coffee lovers and conversation seekers. "
         "We serve freshly crafted coffee, snacks, desserts and host exciting events throughout the week."
     ),
-    "wifi": "Free high-speed WiFi available",
-    "parking": "Street parking available nearby",
-    "payment": "Cash, UPI, Credit/Debit cards accepted",
-    "reservations": "Walk-ins welcome. Reservations recommended for events."
+    "wifi": os.getenv("CAFE_WIFI", ""),
+    "parking": os.getenv("CAFE_PARKING", ""),
+    "payment": os.getenv("CAFE_PAYMENT", ""),
+    "reservations": os.getenv("CAFE_RESERVATIONS", "")
 }
 
 

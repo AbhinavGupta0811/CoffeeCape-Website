@@ -1,6 +1,5 @@
 """
 nlp_engine.py — BrewBot NLP intent classifier and response generator.
-
 Architecture:
     User message
         ↓
@@ -13,14 +12,15 @@ Architecture:
     Response generation
         ↓
     Flask /chat API
-
 Live product information is loaded from the existing MySQL database through
 database.py. Static MENU data remains available as a safe fallback.
 """
 
 import random
+import os
 import re
-from datetime import datetime
+from datetime import datetime, date
+from zoneinfo import ZoneInfo
 from difflib import SequenceMatcher
 
 import numpy as np
@@ -36,6 +36,13 @@ except ImportError:
     stopwords = None
     WordNetLemmatizer = None
 
+try:
+    import spacy
+    from spacy.matcher import PhraseMatcher
+except ImportError:
+    spacy = None
+    PhraseMatcher = None
+
 from knowledge_base import CAFE_INFO, EVENTS, INTENTS, MENU
 
 try:
@@ -46,7 +53,6 @@ except ImportError:
 
 
 # ─── NLP SETUP ────────────────────────────────────────────────────────────────
-
 if WordNetLemmatizer:
     _lemmatizer = WordNetLemmatizer()
 else:
@@ -57,6 +63,441 @@ try:
 except Exception:
     STOP_WORDS = set()
 
+# ─── SPACY ENTITY EXTRACTION ───────────────────────────────────────────────────
+if spacy:
+    try:
+        _SPACY_NLP = spacy.load("en_core_web_sm")
+    except Exception as error:
+        print(f"BrewBot spaCy model load failed: {error}")
+        _SPACY_NLP = None
+else:
+    _SPACY_NLP = None
+
+# CoffeeCape event vocabulary used by the custom entity matcher.
+EVENT_ALIASES = {
+    "dinner": {"dinner", "dinner night", "dinner nights", "friday dinner", "live music dinner"},
+    "get_together": {"get together", "get-together", "gathering", "hangout", "group booking", "team outing"},
+    "karaoke": {"karaoke", "karaoke night", "singing night", "song night"},
+    "open_mic": {"open mic", "open mic night", "mic night", "poetry night", "comedy night", "stand up", "storytelling"},
+    "tasting": {"tasting", "tasting event", "coffee tasting", "brew tasting"},
+    "private": {"private celebration", "private event", "private party", "birthday party", "anniversary", "book the venue", "rent the space"}
+}
+
+
+# spaCy is used for entity extraction. The existing NLTK/Tf-IDF logic remains
+# unchanged so entity extraction enhances, rather than replaces, the chatbot.
+if spacy:
+    try:
+        _spacy_nlp = spacy.load("en_core_web_sm")
+    except Exception as error:
+        print(f"BrewBot spaCy model load failed: {error}")
+        _spacy_nlp = None
+else:
+    _spacy_nlp = None
+
+
+def _build_phrase_matcher(label: str, phrases):
+    """Build a spaCy PhraseMatcher for CoffeeCape-specific entities."""
+    if not _spacy_nlp or not PhraseMatcher:
+        return None
+
+    clean_phrases = [
+        str(phrase).strip()
+        for phrase in phrases
+        if isinstance(phrase, str) and phrase.strip()
+    ]
+
+    if not clean_phrases:
+        return None
+
+    matcher = PhraseMatcher(_spacy_nlp.vocab, attr="LOWER")
+    matcher.add(label, [_spacy_nlp.make_doc(phrase) for phrase in clean_phrases])
+    return matcher
+
+
+def extract_entities(text: str):
+    """
+    Extract standard spaCy entities plus CoffeeCape-specific entities.
+
+    CoffeeCape MENU_ITEM and EVENT entities have priority over generic
+    spaCy entities such as NORP, ORG, or PERSON.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return []
+
+    entities = []
+    occupied_spans = []
+
+    def overlaps(start, end):
+        return any(
+            not (end <= existing_start or start >= existing_end)
+            for existing_start, existing_end in occupied_spans
+        )
+
+    def add_entity(start, end, label, source):
+        if overlaps(start, end):
+            return False
+
+        entities.append({
+            "text": text[start:end],
+            "label": label,
+            "start": start,
+            "end": end,
+            "source": source
+        })
+
+        occupied_spans.append((start, end))
+        return True
+
+    # ── 1. CoffeeCape MENU_ITEM detection ───────────────────────────────────
+    #
+    # Use the live menu returned by the database. We deliberately perform
+    # custom matching before spaCy so names such as "Cappuccino" cannot
+    # incorrectly remain classified as NORP.
+    #
+    menu_items = _all_menu_items()
+
+    menu_candidates = []
+
+    for item in menu_items:
+        if not isinstance(item, dict):
+            continue
+
+        if not _product_is_available(item):
+            continue
+
+        name = str(item.get("name", "")).strip()
+
+        if not name:
+            continue
+
+        aliases = _build_product_aliases(name)
+
+        for alias in aliases:
+            alias = str(alias).strip()
+
+            if not alias:
+                continue
+
+            pattern = re.compile(
+                rf"(?<!\w){re.escape(alias)}(?!\w)",
+                flags=re.IGNORECASE | re.UNICODE
+            )
+
+            for match in pattern.finditer(text):
+                menu_candidates.append(
+                    (
+                        match.end() - match.start(),
+                        match.start(),
+                        match.end(),
+                        match.group()
+                    )
+                )
+
+    # Prefer the longest menu match.
+    menu_candidates.sort(
+        key=lambda value: (
+            value[0],
+            -value[1]
+        ),
+        reverse=True
+    )
+
+    for _, start, end, _ in menu_candidates:
+        add_entity(
+            start,
+            end,
+            "MENU_ITEM",
+            "custom_phrase_matcher"
+        )
+
+    # ── 2. CoffeeCape EVENT detection ───────────────────────────────────────
+    event_aliases = {
+        "dinner": [
+            "dinner",
+            "dinner night",
+            "dinner nights",
+            "friday dinner",
+            "live music dinner"
+        ],
+        "get_together": [
+            "get together",
+            "get-together",
+            "gathering",
+            "hangout",
+            "group booking",
+            "team outing"
+        ],
+        "karaoke": [
+            "karaoke",
+            "karaoke night",
+            "singing night",
+            "song night"
+        ],
+        "open_mic": [
+            "open mic",
+            "open mic night",
+            "mic night",
+            "poetry night",
+            "comedy night",
+            "stand up",
+            "storytelling"
+        ],
+        "tasting": [
+            "tasting",
+            "tasting event",
+            "coffee tasting",
+            "brew tasting"
+        ],
+        "private": [
+            "private celebration",
+            "private event",
+            "private party",
+            "birthday party",
+            "anniversary",
+            "book the venue",
+            "rent the space"
+        ]
+    }
+
+    event_candidates = []
+
+    for aliases in event_aliases.values():
+        for alias in aliases:
+            pattern = re.compile(
+                rf"(?<!\w){re.escape(alias)}(?!\w)",
+                flags=re.IGNORECASE | re.UNICODE
+            )
+
+            for match in pattern.finditer(text):
+                event_candidates.append(
+                    (
+                        match.end() - match.start(),
+                        match.start(),
+                        match.end()
+                    )
+                )
+
+    event_candidates.sort(
+        key=lambda value: (
+            value[0],
+            -value[1]
+        ),
+        reverse=True
+    )
+
+    for _, start, end in event_candidates:
+        add_entity(
+            start,
+            end,
+            "EVENT",
+            "custom_phrase_matcher"
+        )
+
+    # ── 3. Standard spaCy entities ──────────────────────────────────────────
+    #
+    # Run spaCy after custom matching. If spaCy sees "Cappuccino" as NORP,
+    # that span is ignored because MENU_ITEM already owns the span.
+    if _SPACY_NLP:
+        try:
+            doc = _SPACY_NLP(text)
+
+            for ent in doc.ents:
+                add_entity(
+                    ent.start_char,
+                    ent.end_char,
+                    ent.label_,
+                    "spacy"
+                )
+
+        except Exception as error:
+            print(
+                f"BrewBot spaCy entity extraction failed: {error}"
+            )
+
+    # ── 4. Return entities in their original text order ─────────────────────
+    entities.sort(
+        key=lambda entity: (
+            entity["start"],
+            -(entity["end"] - entity["start"])
+        )
+    )
+
+    return entities
+
+def _entity_intent_hint(user_input: str, entities=None):
+    """
+    Use extracted entities and question wording to improve intent detection.
+
+    Returns:
+        (intent_tag, confidence) or (None, 0.0)
+    """
+    if not isinstance(user_input, str):
+        return None, 0.0
+
+    text = _normalize_for_matching(user_input)
+
+    if entities is None:
+        entities = extract_entities(user_input)
+
+    labels = {
+        entity.get("label")
+        for entity in entities
+        if isinstance(entity, dict)
+    }
+
+    has_menu_item = "MENU_ITEM" in labels
+    has_event = "EVENT" in labels
+    has_date = "DATE" in labels
+    has_time = "TIME" in labels
+    has_money = "MONEY" in labels
+
+    # ── Product-specific questions ──────────────────────────────────────────
+    if has_menu_item:
+        if any(term in text for term in [
+            "price",
+            "cost",
+            "how much",
+            "rate",
+            "₹",
+            "rs "
+        ]):
+            return "price", 0.99
+
+        if any(term in text for term in [
+            "available",
+            "availability",
+            "in stock",
+            "stock",
+            "have",
+            "offer"
+        ]):
+            return "menu", 0.96
+
+        if any(term in text for term in [
+            "what is",
+            "what's",
+            "tell me about",
+            "details",
+            "describe",
+            "ingredients",
+            "contain"
+        ]):
+            return "menu", 0.96
+
+        return "menu", 0.90
+
+    # ── Event-specific questions ────────────────────────────────────────────
+    if has_event:
+        negative_booking_patterns = [
+            r"\b(i|we) do not want to (book|reserve|get|have|join|attend)\b",
+            r"\b(i|we) don't want to (book|reserve|get|have|join|attend)\b",
+            r"\b(i|we) do not need (a |any )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) don't need (a |any )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) am not looking to (book|reserve|join|attend)\b",
+            r"\b(i|we)('m| am| are|re) not interested in (booking|reserving|attending|joining)\b",
+            r"\b(no|not) booking\b"
+        ]
+
+        if any(
+            re.search(pattern, text)
+            for pattern in negative_booking_patterns
+        ):
+            return "events", 0.90
+        
+        booking_request_patterns = [
+            r"\bcan i (book|reserve|get|have|join|attend)\b",
+            r"\b(i|we) (want|need|would like|wish) to (book|reserve|get|have|join|attend)\b",
+            r"\b(i|we)('d| would) like to (book|reserve|get|join|attend)\b",
+            r"\b(can|could|would) you (book|reserve|get|save|hold)\b",
+            r"\b(save|hold|keep|reserve) (me )?(a |some )?(seat|seats|spot|spots|place|places)\b",
+            r"\b(get|give|find|save|reserve|hold) me (a |some )?(seat|seats|spot|spots|place|places)\b",
+            r"\b(i|we)('m| am| are|re) interested in (attending|joining|going)\b",
+            r"\b(i|we) (want|would like|need) to (attend|join|go)\b",
+            r"\bput me down for\b",
+            r"\bcount me in\b",
+            r"\bi('d| would) like to come\b",
+            r"\bi want to come\b",
+            r"\bi want in\b",
+            r"\b(i|we) want (a |some |one |two |three |four )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) need (a |some |one |two |three |four )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) would like (a |some |one |two |three |four )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we)('d| would) like (a |some |one |two |three |four )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) need a place\b",
+            r"\b(i|we) want a place\b",
+            r"\b(i|we) need a spot\b",
+            r"\b(i|we) want a spot\b",
+            r"\b(i|we) need a ticket\b",
+            r"\b(i|we) want a ticket\b",
+            r"\b(i|we) need tickets\b",
+            r"\b(i|we) want tickets\b",
+            r"\b(sign|sign me) (me )?up\b",
+            r"\bregister me\b",
+            r"\badd me to the (guest list|list)\b",
+            r"\bput me on the (guest list|list)\b",
+            r"\binclude me\b",
+            r"\bbook (me )?(a |some )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\breserve (me )?(a |some )?(seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\bhow do i (book|get|reserve|join|register)\b",
+            r"\bhow can i (book|get|reserve|join|register|attend)\b",
+            r"\b(i|we)('d| would) love to (attend|join|go|come)\b",
+            r"\b(i|we) would love (to )?(book|reserve|attend|join)\b",
+            r"\b(book|reserve) (me )?\d+ (seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(save|hold|keep|reserve) (me )?\d+ (seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we) (want|need|would like) \d+ (seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b(i|we)('d| would) like \d+ (seat|seats|spot|spots|place|places|ticket|tickets)\b",
+            r"\b\d+ (seat|seats|spot|spots|place|places|ticket|tickets) for (Open Mic|Karaoke|Tasting)\b",
+            r"\b(i|we)('d| would) love (a |some )?(seat|seats|spot|spots|place|places|ticket|tickets)\b"
+        ]
+
+        availability_patterns = [
+            r"\bare .* (seat|seats|spot|spots|place|places) available\b",
+            r"\bis .* (seat|seats|spot|spots|place|places) available\b",
+            r"\b(is|are) there (any )?(seat|seats|spot|spots|place|places)\b",
+            r"\bdo you (still )?have (any )?(seat|seats|spot|spots|place|places)\b",
+            r"\bare there (any )?(seat|seats|spot|spots|place|places) (for|at)\b",
+            r"\bhow many (seat|seats|spot|spots|place|places) (are )?(available|left)\b",
+            r"\bhow much space\b",
+            r"\b(available|availability)\b",
+            r"\bcapacity\b"
+        ]
+
+        if any(re.search(pattern, text) for pattern in booking_request_patterns):
+            return "booking", 0.99
+
+        if any(re.search(pattern, text) for pattern in availability_patterns):
+            return "availability", 0.97
+
+        if any(term in text for term in [
+            "seat",
+            "seats",
+            "spot",
+            "spots",
+            "place",
+            "places",
+            "space"
+        ]):
+            return "events", 0.97
+
+        if has_date or has_time:
+            return "events", 0.96
+
+        return "events", 0.93
+
+    # ── Money without a specific product/event ──────────────────────────────
+    if has_money:
+        if any(term in text for term in [
+            "price",
+            "cost",
+            "pay",
+            "charge",
+            "ticket",
+            "₹",
+            "rs "
+        ]):
+            return "price", 0.88
+
+    return None, 0.0
 
 def _safe_lemmatize(token: str) -> str:
     """Lemmatize a token without allowing missing NLTK data to break the API."""
@@ -92,8 +533,6 @@ def preprocess(text: str) -> str:
 
 
 # ─── BUILD TF-IDF MODEL ───────────────────────────────────────────────────────
-
-
 def _build_corpus():
     """Flatten intent patterns into a TF-IDF training corpus."""
     corpus = []
@@ -124,8 +563,6 @@ _tfidf_matrix = _vectorizer.fit_transform(_corpus) if _corpus else None
 
 
 # ─── NORMALIZATION HELPERS ────────────────────────────────────────────────────
-
-
 def _normalize_for_matching(text: str) -> str:
     """Create a simple normalized representation for direct matching."""
     if not isinstance(text, str):
@@ -178,10 +615,7 @@ def _safe_number(value, default=0):
     except (TypeError, ValueError):
         return default
 
-
 # ─── PRODUCT DATA HELPERS ─────────────────────────────────────────────────────
-
-
 _CATEGORY_PAGE_MAP = {
     "hot_beverages": "/menu.html#hot-beverages",
     "cold_beverages": "/menu.html#cold-beverages",
@@ -190,7 +624,6 @@ _CATEGORY_PAGE_MAP = {
     "desserts": "/menu.html#desserts",
     "burgers_fries": "/menu.html#burgers-fries"
 }
-
 
 def _static_menu_items():
     """Return normalized static menu items."""
@@ -225,9 +658,7 @@ def _static_menu_items():
                 "is_featured": item.get("is_featured", False),
                 "is_active": item.get("is_active", True)
             })
-
     return items
-
 
 def _database_menu_items():
     """
@@ -327,12 +758,16 @@ def _database_menu_items():
         print(f"BrewBot product database read failed: {error}")
         return []
 
-
 def _normalize_category_key(category: str, subcategory: str = "") -> str:
     """Convert database category values into useful internal keys."""
     value = _normalize_for_matching(
-        f"{category} {subcategory}"
+        f"{subcategory} {category}"
     )
+
+    if any(term in value for term in [
+        "cold beverage", "cold drink", "iced", "frappe", "smoothie", "shake"
+    ]):
+        return "cold_beverages"
 
     if any(term in value for term in [
         "hot beverage",
@@ -382,7 +817,6 @@ def _normalize_category_key(category: str, subcategory: str = "") -> str:
 
     return _compact_text(category)
 
-
 def _product_is_available(item) -> bool:
     """Determine whether a product should be presented as available."""
     availability = str(
@@ -409,7 +843,6 @@ def _product_is_available(item) -> bool:
 
     return True
 
-
 def _all_menu_items():
     """
     Return live database products when available.
@@ -421,8 +854,7 @@ def _all_menu_items():
     if live_items:
         return live_items
 
-    return _static_menu_items()
-
+    return _static_menu_items() if os.getenv("CHATBOT_USE_SAMPLE_DATA") == "1" else []
 
 def _build_product_aliases(name: str):
     """
@@ -471,7 +903,6 @@ def _build_product_aliases(name: str):
         if alias
     }
 
-
 def find_product(user_input: str):
     """
     Find an exact or strong fuzzy menu-item match.
@@ -487,10 +918,8 @@ def find_product(user_input: str):
 
     exact_matches = []
 
-    for item in _all_menu_items():
-        if not _product_is_available(item):
-            continue
-
+    items = _all_menu_items()
+    for item in items:
         aliases = _build_product_aliases(
             item.get("name", "")
         )
@@ -512,7 +941,6 @@ def find_product(user_input: str):
                     )
                 )
                 break
-
     if exact_matches:
         exact_matches.sort(
             key=lambda value: value[0],
@@ -521,26 +949,24 @@ def find_product(user_input: str):
 
         return exact_matches[0][1]
 
-    best_item = None
-    best_score = 0.0
-
-    for item in _all_menu_items():
-        if not _product_is_available(item):
+    # Fuzzy matching compares short noun phrases, never the whole question.
+    # Require a strong match so unknown products cannot turn into a nearby item.
+    tokens = normalized_input.split()
+    best_item, best_score = None, 0.0
+    for item in items:
+        name = _normalize_for_matching(item.get("name", ""))
+        size = len(name.split())
+        if not size:
             continue
-
-        name_score = _similarity(
-            compact_input,
-            item.get("name", "")
-        )
-
-        if name_score > best_score:
-            best_score = name_score
-            best_item = item
-
-    if best_score >= 0.88:
-        return best_item
-
-    return None
+        for width in range(max(1, size - 1), size + 2):
+            for offset in range(len(tokens) - width + 1):
+                candidate = " ".join(tokens[offset:offset + width])
+                if len(candidate) < 4:
+                    continue
+                score = _similarity(candidate, name)
+                if score > best_score:
+                    best_item, best_score = item, score
+    return best_item if best_score >= 0.90 else None
 
 
 def _product_question_type(user_input: str) -> str:
@@ -600,7 +1026,6 @@ def _product_question_type(user_input: str) -> str:
 
     return "details"
 
-
 def _display_product_price(item) -> str:
     """Return the effective product price."""
     price = _safe_number(
@@ -624,7 +1049,6 @@ def _display_product_price(item) -> str:
 
     return f"₹{price:g}"
 
-
 def _product_response(item, question_type="details") -> str:
     """Generate a response for one specific menu item."""
     name = item.get("name", "This item")
@@ -641,6 +1065,9 @@ def _product_response(item, question_type="details") -> str:
     price_text = _display_product_price(item)
 
     lines = []
+
+    if not _product_is_available(item):
+        return f"**{name}** is currently unavailable."
 
     if question_type == "price":
         lines.append(
@@ -804,6 +1231,11 @@ def _menu_category_response(cat_key: str) -> str:
 
         return "\n".join(lines)
 
+    if os.getenv("CHATBOT_USE_SAMPLE_DATA") != "1":
+        if _database_menu_items():
+            return "There are no available items in that category in the current menu."
+        return "I can’t confirm items in that category right now. Please check the current menu or contact the café."
+
     cat = MENU.get(cat_key)
 
     if not cat:
@@ -834,6 +1266,8 @@ def _full_menu_overview() -> str:
     live_items = _database_menu_items()
 
     if not live_items:
+        if os.getenv("CHATBOT_USE_SAMPLE_DATA") != "1":
+            return "I can’t access the current menu right now. Please try again later or contact the café."
         lines = [
             "**CoffeeCape Menu**\n"
         ]
@@ -918,7 +1352,7 @@ def _recommendations_response() -> str:
     ]
 
     if not live_items:
-        return _static_recommendations_response()
+        return _static_recommendations_response() if os.getenv("CHATBOT_USE_SAMPLE_DATA") == "1" else "I can’t confirm current recommendations until the menu is available."
 
     featured = [
         item
@@ -1044,7 +1478,7 @@ def _price_overview() -> str:
     ]
 
     if not live_items:
-        return _static_price_overview()
+        return _static_price_overview() if os.getenv("CHATBOT_USE_SAMPLE_DATA") == "1" else "I can’t confirm current menu prices right now."
 
     grouped = {}
 
@@ -1070,7 +1504,7 @@ def _price_overview() -> str:
         ).append(price)
 
     if not grouped:
-        return _static_price_overview()
+        return _static_price_overview() if os.getenv("CHATBOT_USE_SAMPLE_DATA") == "1" else "I can’t confirm current menu prices right now."
 
     lines = [
         "**CoffeeCape Price Overview**\n"
@@ -1149,69 +1583,21 @@ def _database_event_settings():
         if not settings:
             return []
 
-        return [
-            item for item in settings
-            if isinstance(item, dict) and item.get("booking_id") is not None
-        ]
+        today = datetime.now(ZoneInfo(os.getenv("CAFE_TIMEZONE", "Asia/Kolkata"))).date()
+        def upcoming(item):
+            try:
+                value = item.get("event_date")
+                event_date = value.date() if isinstance(value, datetime) else (
+                    value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+                )
+                return event_date >= today and str(item.get("status", "")).lower() not in {"cancelled", "completed"}
+            except (TypeError, ValueError):
+                return False
+        return [item for item in settings if isinstance(item, dict)
+                and item.get("booking_id") is not None and upcoming(item)]
     except Exception as error:
         print(f"BrewBot event settings database read failed: {error}")
         return []
-
-
-def _format_event_setting(item):
-    """Format one live audience-event settings record."""
-    booking_id = item.get("booking_id")
-    enabled = item.get("audience_booking_enabled")
-    price = _safe_number(item.get("audience_ticket_price"), 0)
-    capacity = item.get("audience_capacity")
-    booked = item.get("audience_booked")
-
-    lines = [f"**Audience Event — Booking #{booking_id}**"]
-
-    if enabled is not None:
-        status = "Open" if bool(enabled) else "Closed"
-        lines.append(f"**Audience booking:** {status}")
-
-    if price > 0:
-        lines.append(f"**Ticket price:** ₹{price:g}")
-    elif item.get("audience_ticket_price") is not None:
-        lines.append(f"**Ticket price:** ₹0")
-
-    if capacity is not None:
-        lines.append(f"**Capacity:** {capacity}")
-
-    if booked is not None:
-        lines.append(f"**Booked:** {booked}")
-
-    if capacity is not None and booked is not None:
-        try:
-            remaining = max(int(capacity) - int(booked), 0)
-            lines.append(f"**Seats remaining:** {remaining}")
-        except (TypeError, ValueError):
-            pass
-
-    return "\n".join(lines)
-
-
-def _live_events_response():
-    """Return audience event availability from live event_settings data."""
-    settings = _database_event_settings()
-
-    if not settings:
-        return (
-            "There are currently **no scheduled audience events** at "
-            "CoffeeCape. Once an event is scheduled by the admin, "
-            "I'll be able to show its live ticket price, capacity, "
-            "booking status, and available seats."
-        )
-
-    lines = ["**Live CoffeeCape Event Settings**\n"]
-    for item in settings:
-        lines.append(_format_event_setting(item))
-        lines.append("")
-
-    return "\n".join(lines).strip()
-
 
 def _find_event(user_input: str):
     """Find a specific event from the user's message."""
@@ -1453,7 +1839,7 @@ def classify_intent(
                 best_score = keyword_score
                 tfidf_tag = intent["tag"]
 
-    if best_score >= threshold:
+    if best_score >= max(threshold, 0.60) and (len(input_tokens) <= 3 or best_score >= 0.83):
         return (
             tfidf_tag,
             min(best_score, 0.99)
@@ -1461,70 +1847,242 @@ def classify_intent(
 
     return "unknown", best_score
 
-
 # ─── EVENT RESPONSE BUILDERS ─────────────────────────────────────────────────
+def _event_type_matches(event_key: str, event_type) -> bool:
+    """Check whether a database event type matches the detected event key."""
+    if not event_type:
+        return False
 
-
-def _event_response(event_key: str) -> str:
-    """Return detailed information for one event."""
-    live_settings = _database_event_settings()
-
-    if live_settings:
-        return _live_events_response()
-
-    event = EVENTS.get(event_key)
-
-    if not event:
-        return (
-            "I couldn't find details for that event right now."
-        )
-
-    booking_url = event.get(
-        "booking_url",
-        ""
+    normalized_type = _normalize_for_matching(
+        str(event_type)
     )
 
-    response = (
-        f"**{event['name']}**\n\n"
-        f"**Schedule:** {event['schedule']}\n"
-        f"**Details:** {event['desc']}\n"
-        f"**Capacity:** {event['capacity']}\n"
-        f"**Price:** {event['price_range']}"
+    aliases = {
+        "open_mic": {
+            "openmic",
+            "open mic",
+            "open mic night"
+        },
+        "karaoke": {
+            "karaoke",
+            "karaoke night"
+        },
+        "tasting": {
+            "tasting",
+            "tasting event",
+            "coffee tasting",
+            "brew tasting"
+        },
+        "dinner": {
+            "dinner",
+            "dinner night",
+            "dinner event"
+        },
+        "get_together": {
+            "get together",
+            "gathering",
+            "hangout",
+            "group booking",
+            "team outing"
+        },
+        "private": {
+            "private",
+            "private event",
+            "private party",
+            "private celebration"
+        }
+    }
+
+    return normalized_type in {
+        _normalize_for_matching(alias)
+        for alias in aliases.get(event_key, set())
+    }
+
+
+def _event_date_matches_day(event_date, requested_day: str) -> bool:
+    """Check whether a database event date falls on the requested weekday."""
+    if not event_date or not requested_day:
+        return False
+
+    requested_day = requested_day.lower().strip()
+
+    try:
+        if hasattr(event_date, "weekday"):
+            actual_day = event_date.strftime("%A").lower()
+        else:
+            parsed_date = datetime.fromisoformat(
+                str(event_date).split(" ")[0]
+            )
+            actual_day = parsed_date.strftime("%A").lower()
+
+    except (TypeError, ValueError):
+        return False
+
+    return actual_day == requested_day
+
+
+def _format_event_setting(item):
+    """Format one live audience-event settings record."""
+    event_type = item.get("event_type")
+    event_date = item.get("event_date")
+    event_time = item.get("event_time")
+    enabled = item.get("audience_booking_enabled")
+    price = _safe_number(
+        item.get("audience_ticket_price"),
+        0
     )
+    capacity = item.get("audience_capacity")
+    booked = item.get("audience_booked")
 
-    if booking_url:
-        response += (
-            f"\n\n[Book this event]({booking_url})"
-        )
+    lines = [
+        "**Scheduled audience event**"
+    ]
 
-    return response
-
-
-def _all_events_response() -> str:
-    """Return live scheduled audience events when available."""
-    return _live_events_response()
-
-    for event in EVENTS.values():
+    if event_type:
         lines.append(
-            f"**{event['name']}** — "
-            f"{event['schedule']}\n"
-            f"{event['desc']}"
+            f"**Event:** {event_type}"
         )
 
-        if event.get("booking_url"):
+    if event_date:
+        lines.append(
+            f"**Date:** {event_date}"
+        )
+
+    if event_time:
+        lines.append(
+            f"**Time:** {event_time}"
+        )
+
+    if enabled is not None:
+        status = "Open" if bool(enabled) else "Closed"
+        lines.append(
+            f"**Audience booking:** {status}"
+        )
+
+    if price > 0:
+        lines.append(
+            f"**Ticket price:** ₹{price:g}"
+        )
+    elif item.get("audience_ticket_price") is not None:
+        lines.append(
+            "**Ticket price:** ₹0"
+        )
+
+    if capacity is not None:
+        lines.append(
+            f"**Capacity:** {capacity}"
+        )
+
+    if booked is not None:
+        lines.append(
+            f"**Booked:** {booked}"
+        )
+
+    if capacity is not None and booked is not None:
+        try:
+            remaining = max(
+                int(capacity) - int(booked),
+                0
+            )
             lines.append(
-                f"[View / Book Event]"
-                f"({event['booking_url']})"
+                f"**Seats remaining:** {remaining}"
+            )
+        except (TypeError, ValueError):
+            pass
+
+    return "\n".join(lines)
+
+
+def _live_events_response(
+    event_key=None,
+    requested_day=None
+):
+    """Return live scheduled audience events, optionally filtered."""
+    settings = _database_event_settings()
+
+    if not settings:
+        return "I can’t confirm any upcoming events right now. Please contact the café for the current schedule."
+
+    filtered_settings = settings
+
+    if event_key:
+        filtered_settings = [
+            item
+            for item in filtered_settings
+            if _event_type_matches(
+                event_key,
+                item.get("event_type")
+            )
+        ]
+
+    if requested_day:
+        filtered_settings = [
+            item
+            for item in filtered_settings
+            if _event_date_matches_day(
+                item.get("event_date"),
+                requested_day
+            )
+        ]
+
+    if not filtered_settings:
+        if event_key and requested_day:
+            event = EVENTS.get(event_key)
+            event_name = (
+                event.get("name")
+                if event
+                else event_key.replace("_", " ").title()
             )
 
+            return (
+                f"I couldn't find a scheduled **{event_name}** "
+                f"event for **{requested_day.capitalize()}** "
+                f"in the live event schedule."
+            )
+
+        if event_key:
+            event = EVENTS.get(event_key)
+            event_name = (
+                event.get("name")
+                if event
+                else event_key.replace("_", " ").title()
+            )
+
+            return (
+                f"There is currently no scheduled **{event_name}** "
+                f"event in the live audience-event schedule."
+            )
+
+        return (
+            "There are currently no matching scheduled "
+            "audience events at CoffeeCape."
+        )
+
+    lines = [
+        "**Live CoffeeCape Event Settings**\n"
+    ]
+
+    for item in filtered_settings:
+        lines.append(
+            _format_event_setting(item)
+        )
         lines.append("")
 
     return "\n".join(lines).strip()
 
 
+def _event_response(event_key: str, requested_day=None) -> str:
+    """Return detailed information for one event."""
+    live_settings = _database_event_settings()
+
+    return _live_events_response(event_key=event_key, requested_day=requested_day)
+
+
+def _all_events_response() -> str:
+    """Return all currently scheduled audience events."""
+    return _live_events_response()
+
 # ─── HOURS RESPONSE BUILDERS ──────────────────────────────────────────────────
-
-
 def _hours_response() -> str:
     """Return all café opening hours."""
     hours = CAFE_INFO.get(
@@ -1563,7 +2121,7 @@ def _today_hours_response() -> str:
             "is currently unavailable."
         )
 
-    weekday = datetime.now().weekday()
+    weekday = datetime.now(ZoneInfo(os.getenv("CAFE_TIMEZONE", "Asia/Kolkata"))).weekday()
 
     day_map = {
         0: "Mon–Fri",
@@ -1670,18 +2228,57 @@ def _extract_requested_day(user_input: str):
 
 
 # ─── BOOKING RESPONSE ─────────────────────────────────────────────────────────
-
-
-def _booking_response() -> str:
-    """Return booking options based on live scheduled events."""
+def _booking_response(event_key=None, requested_day=None) -> str:
+    """Return booking options for the requested live event."""
     settings = _database_event_settings()
 
     if not settings:
+        return "I can’t confirm upcoming event bookings right now. Please contact the café for the current schedule."
+
+    filtered_settings = settings
+
+    if event_key:
+        filtered_settings = [
+            item
+            for item in filtered_settings
+            if _event_type_matches(
+                event_key,
+                item.get("event_type")
+            )
+        ]
+
+    if requested_day:
+        filtered_settings = [
+            item
+            for item in filtered_settings
+            if _event_date_matches_day(
+                item.get("event_date"),
+                requested_day
+            )
+        ]
+
+    if not filtered_settings:
+        event = EVENTS.get(event_key) if event_key else None
+        event_name = (
+            event.get("name")
+            if event
+            else (
+                event_key.replace("_", " ").title()
+                if event_key
+                else "event"
+            )
+        )
+
+        if requested_day:
+            return (
+                f"I couldn't find a scheduled **{event_name}** "
+                f"event for **{requested_day.capitalize()}** "
+                f"in the live event schedule."
+            )
+
         return (
-            "**Event Booking**\n\n"
-            "There are currently **no scheduled audience events** "
-            "available for booking. Please check again after the admin "
-            "schedules an event."
+            f"There is currently no scheduled **{event_name}** "
+            f"event available for booking."
         )
 
     lines = [
@@ -1689,23 +2286,12 @@ def _booking_response() -> str:
         "The following audience-event booking settings are currently live:\n"
     ]
 
-    for item in settings:
+    for item in filtered_settings:
         lines.append(_format_event_setting(item))
         lines.append("")
-        booking_url = item.get(
-            "booking_url"
-        )
 
-        if booking_url:
-            lines.append(
-                f"• [{item['name']}]"
-                f"({booking_url})"
-            )
- 
     phone = CAFE_INFO.get("phone")
     email = CAFE_INFO.get("email")
-
-    lines.append("")
 
     if phone:
         lines.append(
@@ -1728,10 +2314,7 @@ def _booking_response() -> str:
 
     return "\n".join(lines)
 
-
 # ─── CAFÉ INFORMATION ─────────────────────────────────────────────────────────
-
-
 def _website_value() -> str:
     """Return a website only when one has actually been configured."""
     website = str(
@@ -1780,10 +2363,7 @@ def _about_response() -> str:
 
 def _location_response() -> str:
     """Return location and contact information."""
-    location = CAFE_INFO.get(
-        "location",
-        "Location unavailable."
-    )
+    location = CAFE_INFO.get("location")
 
     phone = CAFE_INFO.get(
         "phone"
@@ -1791,8 +2371,7 @@ def _location_response() -> str:
 
     lines = [
         "**CoffeeCape Location**\n",
-        f"CoffeeCape is located in "
-        f"**{location}**."
+        f"CoffeeCape is located in **{location}**." if location else "The café address hasn’t been configured yet."
     ]
 
     parking = CAFE_INFO.get(
@@ -1849,6 +2428,8 @@ def _contact_response() -> str:
         lines.append(
             f"**Website:** {website}"
         )
+    if not any((phone, email, website)):
+        lines.append("Contact details haven’t been configured yet.")
 
     hours = CAFE_INFO.get(
         "hours",
@@ -2117,8 +2698,6 @@ _RESPONSES = {
 
 
 # ─── MAIN RESPONSE FUNCTION ───────────────────────────────────────────────────
-
-
 def get_response(user_input: str) -> dict:
     """
     Main BrewBot entry point.
@@ -2162,13 +2741,37 @@ def get_response(user_input: str) -> dict:
             "confidence": 0.0
         }
 
+    normalized = _normalize_for_matching(user_input)
+    def answer(reply, tag, confidence=0.98):
+        return {"reply": reply, "intent": tag, "confidence": confidence}
+
+    if any(_contains_phrase(normalized, x) for x in ("refund", "cancel order", "order status", "track order", "delivery status")):
+        return answer("I can’t access orders or process refunds here. Please contact the café directly for help with your order.", "support")
+    if any(_contains_phrase(normalized, x) for x in ("wifi", "wi fi", "parking", "upi", "payment", "cash", "card")):
+        value = _amenities_response()
+        if len(value.splitlines()) < 3:
+            value = "I don’t have confirmed facility or payment details yet. Please contact the café to check."
+        return answer(value, "amenities")
+    if any(_contains_phrase(normalized, x) for x in ("phone", "contact", "email", "call you")):
+        return answer(_contact_response(), "contact")
+    if _is_hours_question(user_input) and not _is_event_question(user_input) and not _find_event(user_input):
+        requested_day = _extract_requested_day(user_input)
+        if _is_today_question(user_input):
+            return answer(_today_hours_response(), "hours")
+        if requested_day:
+            return answer(_day_hours_response(requested_day), "hours")
+        return answer(_hours_response(), "hours")
+    if _contains_phrase(normalized, "book a table") or _contains_phrase(normalized, "table booking") or _contains_phrase(normalized, "reserve a table"):
+        reservations = CAFE_INFO.get("reservations")
+        return answer(reservations or "For table reservations, please contact the café directly.", "booking")
+
     # ── 1. Specific product detection ──────────────────────
 
     product = find_product(
         user_input
     )
 
-    if product:
+    if product and not any(_contains_phrase(normalized, term) for term in ("all", "menu", "options", "recommend", "suggest")):
         question_type = _product_question_type(
             user_input
         )
@@ -2183,56 +2786,90 @@ def get_response(user_input: str) -> dict:
                 "confidence": 0.98
             }
 
-    # ── 2. Day-specific hours ───────────────────────────────
+    if not product and any(_contains_phrase(normalized, x) for x in ("do you have", "is there", "can i order", "is available")) and not _find_event(user_input):
+        return answer("I can’t confirm that item from the current menu. Please check the menu or contact the café.", "menu", 0.70)
 
-    if _is_hours_question(
-        user_input
+    if not product and _is_price_question(user_input) and any(
+        _contains_phrase(normalized, phrase) for phrase in ("how much is", "price of", "cost of", "how much for")
     ):
-        if _is_today_question(
+        return answer("I can’t find that item in the current menu, so I can’t confirm its price. Please check the menu or contact the café.", "unknown", 0.55)
+
+    # ── 2. Specific event detection ───────────────────────────────────────────
+    event_key = _find_event(
+        user_input
+    )
+
+    if event_key:
+        requested_day = _extract_requested_day(
             user_input
-        ):
+        )
+
+        entity_intent, entity_confidence = _entity_intent_hint(
+            user_input
+        )
+
+        if entity_intent == "booking":
+            return {
+                "reply": _booking_response(
+                    event_key,
+                    requested_day
+                ),
+                "intent": "booking",
+                "confidence": entity_confidence
+            }
+
+        if entity_intent == "availability":
+            return {
+                "reply": _event_response(
+                    event_key,
+                    requested_day
+                ),
+                "intent": "availability",
+                "confidence": entity_confidence
+            }
+
+        return {
+            "reply": _event_response(
+                event_key,
+                requested_day
+            ),
+            "intent": f"{event_key}_event",
+            "confidence": 0.97
+        }
+
+    # ── 3. Day-specific hours ─────────────────────────────────────────────────
+    if _is_hours_question(user_input):
+        if _is_today_question(user_input):
             return {
                 "reply": _today_hours_response(),
                 "intent": "hours",
                 "confidence": 0.98
             }
 
-        requested_day = _extract_requested_day(
-            user_input
-        )
+        requested_day = _extract_requested_day(user_input)
 
         if requested_day:
             return {
-                "reply": _day_hours_response(
-                    requested_day
-                ),
+                "reply": _day_hours_response(requested_day),
                 "intent": "hours",
                 "confidence": 0.98
             }
 
-    # ── 3. Specific event detection ─────────────────────────
-
-    event_key = _find_event(
-        user_input
-    )
-
-    if event_key:
-        return {
-            "reply": _event_response(
-                event_key
-            ),
-            "intent": f"{event_key}_event",
-            "confidence": 0.97
-        }
-
     # ── 4. Intent classification ────────────────────────────
+    entities = extract_entities(user_input)
 
-    tag, score = classify_intent(
-        user_input
+    entity_tag, entity_score = _entity_intent_hint(
+        user_input,
+        entities
     )
+
+    if entity_tag:
+        tag = entity_tag
+        score = entity_score
+    else:
+        tag, score = classify_intent(user_input)
 
     # ── 5. Special fallback rules ────────────────────────────
-
     if tag == "unknown":
         if _is_price_question(
             user_input
@@ -2262,7 +2899,6 @@ def get_response(user_input: str) -> dict:
             )
 
     # ── 6. Generate response ────────────────────────────────
-
     handler = _RESPONSES.get(
         tag,
         _RESPONSES["unknown"]

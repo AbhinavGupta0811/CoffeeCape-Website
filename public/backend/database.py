@@ -5,30 +5,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REQUIRED_VARS = ["DB_HOST", "DB_USER", "DB_PASS", "DB_NAME"]
-
-missing_vars = [var for var in REQUIRED_VARS if not os.getenv(var)]
-
-if missing_vars:
-    raise RuntimeError(
-        f"Missing database environment variables: {', '.join(missing_vars)}"
+def _make_pool():
+    required = ("DB_HOST", "DB_USER", "DB_NAME")
+    if any(not os.getenv(key) for key in required):
+        raise RuntimeError("Set DB_HOST, DB_USER and DB_NAME to enable live data")
+    return pooling.MySQLConnectionPool(
+        pool_name="brewbot_pool", pool_size=5, pool_reset_session=True,
+        host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS", ""), database=os.getenv("DB_NAME"),
+        charset="utf8mb4", connection_timeout=5
     )
 
-db_pool = pooling.MySQLConnectionPool(
-    pool_name="brewbot_pool",
-    pool_size=5,
-    pool_reset_session=True,
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASS"),
-    database=os.getenv("DB_NAME"),
-    charset="utf8mb4",
-    connection_timeout=10
-)
+_db_pool = None
 
 
 def get_connection():
-    return db_pool.get_connection()
+    global _db_pool
+    if _db_pool is None:
+        _db_pool = _make_pool()
+    return _db_pool.get_connection()
 
 
 def check_db_health():
@@ -118,14 +113,13 @@ def get_event_settings():
                 b.event_type,
                 b.event_date,
                 b.event_time,
-                b.full_name,
-                b.email,
-                b.phone,
                 b.status,
                 b.payment_status
             FROM event_settings AS es
             INNER JOIN bookings AS b
                 ON b.booking_id = es.booking_id
+            WHERE b.event_date >= CURRENT_DATE()
+              AND LOWER(b.status) NOT IN ('cancelled', 'completed')
             ORDER BY b.event_date ASC, b.event_time ASC, es.booking_id DESC
         """)
 
@@ -164,9 +158,6 @@ def get_event_setting(booking_id):
                 b.event_type,
                 b.event_date,
                 b.event_time,
-                b.full_name,
-                b.email,
-                b.phone,
                 b.status,
                 b.payment_status
             FROM event_settings AS es
