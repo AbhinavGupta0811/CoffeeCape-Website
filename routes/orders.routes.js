@@ -829,38 +829,79 @@ router.get("/:id", auth, async (req, res) => {
    POST /api/orders/:id/cancel
 ===================================== */
 router.post("/:id/cancel", auth, async (req, res) => {
+  const orderId = String(req.params.id || "").trim();
+  const userId = req.session?.user?.id ?? req.user?.id;
+
+  if (!orderId || orderId.length > 100) {
+    return res.status(400).json({ success: false, message: "Invalid order id" });
+  }
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Please sign in" });
+  }
+
+  let connection;
   try {
-    const [[order]] = await db.query(
-      `SELECT status, payment_method 
-       FROM orders 
-       WHERE order_id=? AND user_id=?`,
-      [req.params.id, req.session.user.id]
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Lock this customer's order so two concurrent requests cannot cancel it twice.
+    const [[order]] = await connection.query(
+      `SELECT id, status, payment_method, payment_status,
+              (created_at >= NOW() - INTERVAL 24 HOUR) AS within_cancel_window
+       FROM orders
+       WHERE order_id=? AND user_id=?
+       FOR UPDATE`,
+      [orderId, userId]
     );
 
-    if (!order || !["pending", "confirmed"].includes(order.status)) {
-      return res.status(400).json({ message: "Cannot cancel order" });
+    if (!order) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    if (!["pending", "confirmed"].includes(order.status) || Number(order.within_cancel_window) !== 1) {
+      await connection.rollback();
+      return res.status(409).json({
+        success: false,
+        message: "This order is no longer eligible for cancellation"
+      });
     }
 
-    /* Decide payment status */
-    let paymentStatus = order.payment_method === "cod" ? "cancelled" : "refunded";
-
-    await db.query(
-      `UPDATE orders 
-       SET status='cancelled',
-          cancelled_by = 'user',
-           payment_status=?
-       WHERE order_id=?`,
-      [paymentStatus, req.params.id]
+    const isCashOnDelivery = String(order.payment_method || "").toLowerCase() === "cod";
+    const [update] = await connection.query(
+      `UPDATE orders
+       SET status='cancelled', cancelled_by='user',
+           payment_status=CASE WHEN LOWER(payment_method)='cod' THEN 'cancelled'
+                               ELSE payment_status END
+       WHERE id=? AND user_id=? AND status IN ('pending', 'confirmed')
+         AND created_at >= NOW() - INTERVAL 24 HOUR`,
+      [order.id, userId]
     );
 
-    res.json({
-      success: true,
-      payment_status: paymentStatus
-    });
+    if (update.affectedRows !== 1) {
+      await connection.rollback();
+      return res.status(409).json({ success: false, message: "Order status changed; please refresh" });
+    }
 
+    await connection.commit();
+    return res.json({
+      success: true,
+      order_id: orderId,
+      status: "cancelled",
+      payment_status: isCashOnDelivery ? "cancelled" : order.payment_status,
+      message: "Order cancelled",
+      payment_note: isCashOnDelivery ? undefined
+        : "Any prepaid refund must be processed separately; this cancellation does not issue a refund."
+    });
   } catch (err) {
+    if (connection) {
+      try { await connection.rollback(); } catch (rollbackErr) {
+        console.error("Cancellation rollback error:", rollbackErr);
+      }
+    }
     console.error("Cancel error:", err);
-    res.status(500).json({ message: "Cancel failed" });
+    return res.status(500).json({ success: false, message: "Cancel failed" });
+  } finally {
+    if (connection) connection.release();
   }
 });
 
